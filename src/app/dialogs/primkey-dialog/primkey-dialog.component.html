@@ -1,0 +1,19 @@
+<div id="divPrimKey" class="primeKeyWindow">
+  <div id="divTitle" class="primTitle">No Assigned Primary Key</div>
+  <div id="divInfo" style="font-family:Arial, Helvetica, sans-serif; font-size: 12px; padding: 2px;">
+    The selected table <span style="color:red; font-weight:bold;">does not</span> have an assigned primary key. Please select a
+    <span style="font-weight:bold">TEMPORARY</span> unique identifier for this query from the available columns below.
+    <br/><br/>
+    <span style="font-weight:bold">Use the CTRL key while clicking to select multiple columns.</span>
+  </div>
+  <br/>
+  <div id="divDDL" style="text-align:center" >
+    <select id="ddlPrimeKey" style="width: 250px; height: 175px;" multiple="multiple" [(ngModel)]="selectCols">
+      <option *ngFor="let column of availcol" [ngValue]="column.columnid" [selected]="isItemSelected(column.columnid)">{{column.columnname}}</option>
+    </select>
+  </div>
+  <div style="margin-top: 10px; margin-bottom: 5px; text-align: right;">
+    <button id="btnSubmit" class="standardBtn" (click)="submitHandler()">Submit</button>&nbsp;&nbsp;
+    <button id="btnCancel" class="standardBtn" (click)="cancelHandler()">Cancel</button>
+  </div>
+</div>

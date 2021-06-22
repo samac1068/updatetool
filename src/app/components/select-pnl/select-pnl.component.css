@@ -1,0 +1,16 @@
+.hidepanel {
+    height: 710px;
+    width: 300px;
+    background-color: white;
+    position: absolute;
+    opacity: 0.9;
+    max-width: 300px;
+}
+
+.hidetext {
+    font-size: 18px;
+    font-weight: bold;
+    color: red;
+    margin-top: 250px;
+    margin-left: 20px;
+}

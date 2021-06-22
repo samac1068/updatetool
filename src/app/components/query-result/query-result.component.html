@@ -1,0 +1,35 @@
+<!-- SQL Statement display window -->
+<div class="divQuery">
+  {{ tabinfo.querystr }}
+</div>
+
+<!-- Modifier Buttons -->
+<!--<div class="divModButtons" *ngIf="colHeader">
+  <span style="margin-left: 5px; font-weight: bold">Data Modifier Navigation:</span>
+  <button class="standardBtn" style="margin-left: 10px; width: 120px;"><span class="fa fa-plus-square"></span> Add Row</button>
+  <button class="standardRedBtn" style="margin-left: 30px; width:120px;"><span class="fa fa-minus-square" (click)="showHideEditColumn()"></span> Remove Row</button>
+</div>-->
+
+<!-- Row Counter and separator -->
+<div class="separator"></div>
+<div class="divCounter">
+  <span class="rowCounter">{{ rowsReturned }}</span>
+</div>
+
+<!-- Display Results Datatable -->
+<div class="divResults" [text-copy]>
+  <div *ngIf="colHeader">
+    <table mat-table [dataSource]="dataSource" class=" table-striped table-bordered row-border hover table-sm" matSort>
+
+      <!-- Column Definitions (Dynamic) -->
+      <ng-container *ngFor="let col of colHeader" matColumnDef="{{ col }}">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ col | uppercase }}</th>
+        <td mat-cell *matCellDef="let element" (dblclick)="cellClickedHandler(col, element[col])">{{ element[col]}}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="colHeader; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: colHeader;" (click)="rowClickedHandler(row)"></tr>
+
+    </table>
+  </div>
+</div>

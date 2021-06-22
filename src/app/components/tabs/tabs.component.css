@@ -1,0 +1,17 @@
+.tabs {
+  margin-top: 50px;
+}
+
+.closebtn {
+  color: green;
+}
+
+.closebtn:hover {
+  color: red;
+}
+
+.tabtext {
+  margin-left: 5px;
+  font-weight: bold;
+  /* font-size: 12px; */
+}

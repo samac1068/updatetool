@@ -1,0 +1,17 @@
+<div class="title">
+  <img id="bannerImg" style="float:left;" src="assets/image/updatetooltitle.png" alt="" />
+
+<div class="copyright">
+    (c) Copyright 2021 by MKGCS, LLC. | All Rights Reserved
+  </div>
+</div>
+
+<div class="userControls">
+  Logged in as: <span style="color:#ffff00;" *ngIf="user">{{ user.fname }} {{ user.lname }}</span><br/>
+  <div id="buttonGrp">
+    <button (click)="displayWhatsNew()" mat-button style="height:20px"><span class="version">{{ version }}</span></button>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="standardBtn" (click)="openOptionsDialog()">User Options</button>&nbsp;&nbsp;
+    <button class="standardBtn" (click)="returnToOrders()">Return to Orders</button>
+  </div>
+</div>

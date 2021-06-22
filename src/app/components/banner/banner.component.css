@@ -1,0 +1,33 @@
+.title {
+  background: #169B59 url("../../../assets/image/banner_repeat.png") repeat-x;
+  width: 100% !important;
+  height: 55px !important;
+  display: inline-block;
+}
+
+.copyright {
+  color: ghostwhite;
+  position:absolute;
+  margin-top: 35px;
+  margin-left: 70px;
+  opacity: .5;
+}
+
+.version {
+  font-size: 8px;
+  bottom: 0;
+}
+
+.userControls {
+  position:absolute;
+  top: 1px;
+  right: 10px;
+  display: inline-block;
+  color: white;
+  text-align: right;
+}
+
+#buttonGrp {
+  margin-top: 3px;
+}
+

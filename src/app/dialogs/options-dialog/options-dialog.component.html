@@ -1,0 +1,56 @@
+<span class="title">User Options</span>
+<div class="container">
+  <div>
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field class="full-width">
+          <input matInput placeholder="User ID" [value]="userid" [readonly]="userid != '-9'">
+        </mat-form-field>  
+      </div>
+      <div class="col-md-6">
+        <mat-form-field class="full-width">
+          <input matInput placeholder="Username" [value]="username" [readonly]="username != ''">
+        </mat-form-field>    
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="row">
+        <div class="col-md-6">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="First Name" [value]="firstname" [readonly]="firstname != ''">
+          </mat-form-field>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Last Name" [value]="lastname" [readonly]="lastname != ''">
+          </mat-form-field>
+        </div>        
+      </div>
+  
+  </div>
+
+  <div>
+    <label for="serverList">Server:
+      <select id="serverList" class="form-control optionGrp" [(ngModel)]="userServer">
+        <option value="0">Select a Server</option>
+        <option *ngFor="let server of servers" [value]="server.id">{{ server.id }}</option>
+      </select>
+    </label>
+  </div>
+
+  <div>
+    <label for="dbList">Database:
+      <select id="dbList" class="form-control optionGrp" [(ngModel)]="userDB">
+        <option value="0">Select a Database</option>  
+        <option *ngFor="let database of databases" [value]="database.id">{{ database.id }}</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="btnGroup">
+    <button class="standardBtn" (click)="saveUpdatedOptions()">Apply</button>
+    <button class="standardBtn" (click)="closeDialog()">Cancel</button>
+  </div>
+</div>

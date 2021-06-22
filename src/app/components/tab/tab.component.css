@@ -1,0 +1,15 @@
+
+#queryresult {
+  margin-left: 18px;
+  float: left;
+  width: 77.5%;
+  height: 79%;
+  border: 1px solid #BBB;
+}
+
+#selectPnl {
+  position: absolute;
+  margin-left: 79%; 
+  height: 78.7%;
+  width: 21%;
+}

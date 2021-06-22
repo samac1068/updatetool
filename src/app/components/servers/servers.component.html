@@ -1,0 +1,39 @@
+<div id="serverGrp" class="btn-group">
+  <div>
+    <label for="serverList">Server:
+      <select id="serverList" class="form-control optionGrp" [disabled] = true [(ngModel)]="defaultServer" (change)="onServerChanges()">
+          <option [ngValue]="null">Select a Server</option>
+        <option *ngFor="let server of servers" [value]="server.id">{{ server.id }}</option>
+      </select>
+    </label>
+  </div>
+
+  <div style="margin-left: 20px">
+    <label for="dbList">Database:
+      <select id="dbList" class="form-control optionGrp" [(ngModel)]="defaultDB" (change)="onDatabaseChange()">
+        <option [ngValue]="null">Select a Database</option>  
+        <option *ngFor="let database of databases" [value]="database.id">{{ database.id }}</option>
+      </select>
+    </label>
+  </div>
+
+  <button id="btnNewTab" class="standardBtn" (click)="createNewTab()">New Query Tab</button>
+</div>
+
+<!--headleyt:  20210129  Commenting out until we can add back in  -->
+<!--
+<div id="queryGrp" class="btn-group">
+  <label for="queryList">Your Saved Queries:
+    <select id="queryList" class="form-control optionGrp" [(ngModel)]="selectedQueryID" #querylist>
+      <option [ngValue]="-1">Select a Query</option>
+      <option *ngFor="let query of queries" [value]="query.id">{{ query.title }}</option>
+    </select>
+  </label>
+
+  <button id="btnExecuteQuery" class="standardBtn" style="margin-top:17px;" (click)="executeSelectedStoredQuery()" [disabled]="selectedQueryID == -1">Open and Run Query</button>-->
+  <!-- headleyt:  20210113  added new property to enable/disable the button -->
+<!--  <button id="btnSaveQuery" class="standardBtn" style="margin-top:17px;" (click)="saveCurrentQuery()" [disabled]="!isTableSelected">Save Current Query</button>
+</div>-->
+
+
+<div class="heavyHR"></div>

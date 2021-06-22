@@ -1,0 +1,20 @@
+<div class="tables">
+  <div id="content">
+    <span class="fieldLabel">Table/View Names:</span>
+    <button class="standardBtn specialBtn" (click)="reloadCurrentData()" >Reload Data</button>
+
+    <div class="tableFilter">
+      <label for="txtTableName" class="fieldLabel">Filter:</label>&nbsp;
+      <input id="txtTableName" type="text" [(ngModel)]="searchTerm" />
+      <button class="standardBtn" style="padding: 0 5px;" (click)="resetSearchTerm()"> X </button>
+
+      <div class="innerTable">
+        <a *ngFor="let table of tabinfo.seltbllist | tableFilter: searchTerm"
+          class="list-group-item list-group-item-action tablelistitem" [ngClass]="{'tableselected': table.isSelected}"
+          (click)="tableClickHandler(table);">
+          {{ table.name | uppercase}} <i class="fa fa-arrow-left" *ngIf="table.isSelected" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </div>
+</div>
+<hr />

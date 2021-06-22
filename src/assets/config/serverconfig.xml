@@ -1,0 +1,45 @@
+<!--data>
+    <servers>
+        <server id="PRODUCTION" offName="{0}_PROD" />
+        <server id="HERNDON" offName="HERNDON_{0}" />
+    </servers>
+
+    <databases>
+        <database id="AOS" system="production" />
+        <database id="CIND" system="production,herndon" />
+        <database id="COADOS" system="production,herndon" />
+        <database id="CONUSA" system="production,herndon" />
+        <database id="CTCS" system="production,herndon" />
+		    <database id="DAMPSA" system="production,herndon" />
+        <database id="DOCUMENTS" system="production" altname="MOBCOP_DOCUMENT" />
+        <database id="FINANCE" system="production,herndon" altname="MOBCOP_FINANCE" />
+        <database id="MARRS" system="production,herndon" />
+        <database id="SQL_MOBCOP" system="production" altname="MOBCOP" />
+        <database id="MOBCOP" system="herndon" />
+        <database id="ORDER_VIEWER" system="production,herndon" />
+        <database id="MOBCOP_INTERFACE" system="production,herndon" altname="MOBCOP_INTERFACE"/>
+   </databases>
+</data-->
+
+<data>
+  <servers>
+    <server id="PRODUCTION" offName="{0}_PROD" />
+    <server id="HERNDON" offName="HERNDON_{0}" />
+  </servers>
+
+  <databases>
+    <database id="AOS" system="production,herndon" />
+    <database id="AF" system="herndon" altname="AIRFORCE" />
+    <database id="CIND" system="production,herndon" />
+    <database id="COADOS" system="production,herndon" />
+    <database id="CONUSA" system="production,herndon" />
+    <database id="CTCS" system="production,herndon" />
+    <database id="DAMPSA" system="production,herndon" />
+    <database id="DOCUMENTS" system="production,herndon" altname="MOBCOP_DOCUMENT" />
+    <database id="FINANCE_MANAGEMENT" system="production,herndon" altname="MOBCOP_FINANCE" />
+    <database id="MARRS" system="production,herndon" />
+    <database id="MOBCOP" system="production,herndon" />
+    <database id="ORDER_VIEWER" system="production,herndon" />
+    <database id="MOBCOP_INTERFACE" system="production,herndon" />
+  </databases>
+</data>

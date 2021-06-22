@@ -1,0 +1,55 @@
+.selectContent {
+  margin-left: 5px;
+  margin-top: 5px;
+}
+
+.fieldLabel {
+  font-weight: bold;
+}
+
+#dbFilters {
+  height: 130px;
+  font-size:11px;
+  width: 98%;
+  margin: 0 auto;
+}
+
+.filtersGrp {
+  margin-top: 10px;
+  width: 330px;
+  height: 120px;
+  border: 1px solid lightgray;
+  overflow-y: auto;
+}
+
+.offsetRight {
+  position: absolute;
+  right: 10px;
+}
+
+.fieldSelect {
+  width: 330px;
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+#txtFilterText, #txtBitInput {
+  width: 98%;
+  font-size: 11px;
+}
+
+.columnSelect {
+  width: 330px;
+  margin-top: 20px;
+  margin-left: 5px;
+}
+
+.header {
+  border: 1px solid black;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.data {
+  border: 1px solid gray;
+}

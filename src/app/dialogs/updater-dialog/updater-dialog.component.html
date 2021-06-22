@@ -1,0 +1,25 @@
+<div id="updater" style="width:100%; height:100%">
+  <div style="background-color: #169B59; color: white;">
+    <span mat-dialog-title style="margin-left: 20px">Cell Value Updater</span>
+  </div>
+
+  <div mat-dialog-content>
+    <table width="100%" height="100%">
+      <tr><td colspan="2" style="font-size: 16px; font-weight:bold;">Update Column Value:</td></tr>
+      <tr><td colspan="2"><div class="simTextArea">{{ strQuery }}</div></td></tr>
+      <tr>
+        <td style="text-align:right; font-weight: bold;">Current Value:</td>
+        <td><input type="text" style="width: 220px" id="txtCurValue" readonly="readonly" [(ngModel)]="curValue"/></td>
+      </tr>
+      <tr>
+        <td style="text-align:right; font-weight: bold;">New Value:</td>
+        <td><input type="text" style="width: 220px" id="txtNewValue" (keyup)="setTheQueryText()" [(ngModel)]="newValue" /></td>
+      </tr>
+    </table>
+  </div>
+
+  <div mat-dialog-actions style="margin-left: 50px;">
+    <button id="btnCancel" class="standardBtn" style="width: 100px" (click)="closeHandler()">Cancel</button>
+    <button id="btnSubmit" class="standardBtn" style="width: 100px; margin-left: 30px" (click)="submitHandler()">Submit</button>
+  </div>
+</div>

@@ -1,0 +1,24 @@
+<div id="divBtnGrp">
+
+  <div class="btnGroup">
+    <button class="standardBtn" id="btnColumns" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="openColumnWindow()" ngbTooltip="Select Custom Columns" placement="bottom"><i class="fa fa-columns"></i> Customize Columns</button>
+    <button class="standardBtn" id="btnOrder" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="openOrderByWindow()" ngbTooltip="Add/Edit Order By Statement" placement="bottom"><i class="fa fa-list"></i> Order By</button>
+  </div>
+
+  <div class="btnGroup">
+    <button class="standardBtn" id="btnJoins" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="openJoinWindow()" ngbTooltip="Add/Edit Join Statement" placement="bottom"><i class="fa fa-compress"></i> Joins</button>
+    <button id="btnCSV" class="standardBtn" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="exportToExcelHandler('csv')" ngbTooltip="Export results to CSV" placement="bottom"><i class="fa fa-file-text-o"></i> CSV</button>
+  </div>
+
+  <div class="btnGroup">
+    <button id="btnExcel" class="standardBtn" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="exportToExcelHandler('excel')" ngbTooltip="Export results to XLSX" placement="bottom"><i class="fa fa-file-excel-o"></i> Excel</button>
+    <button class="standardBtn" id="btnClipboard" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="copyToClipboard()" ngbTooltip="Copy results to clipboard" placement="bottom"><i class="fa fa-clipboard"></i> Clipboard</button>
+  </div>
+
+  <div class="btnGroup">
+    <button class="standardBtn" id="btnPrimaryKey" [disabled]="tabinfo.tempPrimKey == null" (click)="openTempPrimaryKey()"><i class="fa fa-key" aria-hidden="true"></i> Chg Primary Key</button>
+    <!--<button class="standardBtn" id="btnViewer" (click)="openViewerWindow()" ngbTooltip="View existing Stored Procs, Views, and Function" placement="bottom"><i class="fa fa-eye" aria-hidden="true"></i> Proc/View/Func Viewer</button>-->
+  </div>
+
+  <hr />
+</div>

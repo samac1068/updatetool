@@ -1,0 +1,18 @@
+<div class="outerbody">
+  <div class="innerleft">
+      <span class="listtitle">Available Columns for {{ data.columns[0].tablename }}</span>
+      <hr/>
+      <div class="subcolumns">
+        <div *ngFor="let column of data.columns" class="columnlist">
+            <mat-checkbox class="column-checkbox" [(ngModel)]="column.selected" (click)="columnSelected(column)">{{ column.columnname }}</mat-checkbox>
+        </div>
+      </div>
+  </div>
+  <div class="innerright">
+    <div class="btn-group-vertical">
+      <button id="btnResetColumns" class="standardBtn" (click)="resetAllColumns()">Reset</button>
+      <button id="btnSaveColumns" class="standardBtn" (click)="saveSelectColumns()">Save</button>
+      <button id="btnCloseColumns" class="standardBtn" (click)="closeDialog()">Close</button>
+    </div>
+  </div>
+</div>

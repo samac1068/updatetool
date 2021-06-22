@@ -1,0 +1,15 @@
+<div class="container">
+  <span class="dialogtitle">Enter a title for this query:</span>
+  <br />
+  <mat-form-field class="full-width">
+    <input matInput placeholder="Query Title" [(ngModel)]="querytitle">
+  </mat-form-field>
+  <br />
+  <div class="full-width pushright">
+  <div class="row">
+    <div class="col-sm-6"><button class="standardBtn" style="width: 120px" (click)="storeQuery()">Save</button></div>
+    <div class="col-sm-6"><button class="standardBtn" style="width: 120px" (click)="closeDialog()">Cancel</button></div>
+</div>
+</div>
+</div>
+

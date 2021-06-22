@@ -1,0 +1,5 @@
+<systems>
+  <system type="local" path="http://localhost:64813/UserW/" active="true"/>
+  <system type="demo" path="https://mobdemo.mkgcs.com/querytool/api/UserW/" active="false"/>
+  <system type="prod" path="https://mobcop.aoc.army.pentagon.mil/querytool/api/UserW/" active="false"/>
+</systems>

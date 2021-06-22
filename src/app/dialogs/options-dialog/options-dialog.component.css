@@ -1,0 +1,35 @@
+label {
+    font-weight: bold;
+}
+
+.title {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.container {
+    margin-top: 10px;
+}
+
+select {
+    font-size: 11px;
+    width: 420px;
+    height: 27px;
+}
+
+.btnGroup {
+    margin-top: 20px;
+    margin-left: 80px;
+}
+
+button {
+    width: 120px;
+}
+
+.option-form {
+    width: 100%;
+}
+
+.full-width {
+    width: 100%;
+}
