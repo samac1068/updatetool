@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { System } from '../models/System.model';
 import { User } from '../models/User.model';
 import { Tab } from '../models/Tab.model';
-import { StringMap } from '@angular/core/src/render3/jit/compiler_facade_interface';
 import {HttpParams} from '@angular/common/http';
 
 @Injectable({
@@ -14,7 +13,7 @@ export class StorageService {
   private _appKey = 'MMA';
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.21.0409';
+  private _appVersion = '2.21.0622';
   private _inDev: boolean = false;
 
   // Public
@@ -32,7 +31,6 @@ export class StorageService {
   //  headleyt:  20210129  Adding a text version of the operators
   operatorsText: string[] = ["like","not like","equals","not equal to ","not equal to","greater than","greater than or equal to","not greater than","less than","less than or equal to","not less than","in","is null","is not null"];
   dbNumericals: string[] = ["bit","tinyint","bool","boolean","smallint","mediumint","int","integer","bigint","float","double","decimal","double precision","dec"];
-  // headleyt:  20210115  Integrated Sean's changes to fix invalid character issues
   ignoreChars: string[] = ["/"];
 
   constructor() { }
@@ -168,8 +166,7 @@ export class StorageService {
     return (this.dbNumericals.find(x => x == vartype) == undefined) ? "'" + value + "'" : value;
   }
 
-  //  headleyt (with help from Sean):  20210107 added this function to return the altername db name if it has one.
-  //  The commented out array should work, but didn't
+  //  headleyt:  20210107 added this function to return the altername db name if it has one.
   getSelectedDBName(dbname)
   {
     for (let x = 0; x < this.system.databases.length; x++){
@@ -191,5 +188,4 @@ export class StorageService {
     }
     return paramValue;
   }
-
 }

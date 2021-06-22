@@ -1,4 +1,4 @@
-import { CommService } from './../../services/comm.service';
+import { CommService } from '../../services/comm.service';
 import { Component, OnInit, Input } from '@angular/core';
 import { Tab } from 'src/app/models/Tab.model';
 import { PrimkeyDialogComponent } from '../../dialogs/primkey-dialog/primkey-dialog.component';

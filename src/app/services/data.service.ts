@@ -74,7 +74,6 @@ export class DataService {
 
   getTableDBList(server: string, db: string) {
     console.log('getTableDBList');
-    console.log(server, db);
     return this.http.get<any[]>(`${this.getWSPath()}GetDbTableList/${this.store.getPassKey()}/${server}/${db}`)
       .pipe(catchError(this.errorHandler));
   }

@@ -67,6 +67,8 @@ export class TablesComponent implements OnInit {
   }
 
   tableClickHandler(table: Table) {
+    console.log(this.tabinfo.table, this.tabinfo.tempPrimKey, this.tabinfo.hasPrimKey);
+
     //Make sure there was a change before sending the information
     if(this.tabinfo.table == undefined || this.tabinfo.table.name != table.name)
     {

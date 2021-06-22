@@ -17,7 +17,7 @@
 .filtersGrp {
   margin-top: 10px;
   width: 330px;
-  height: 120px;
+  height: 110px;
   border: 1px solid lightgray;
   overflow-y: auto;
 }
@@ -52,4 +52,17 @@
 
 .data {
   border: 1px solid gray;
+}
+
+.divErrMess {
+  width: 95%;
+  height: 10px;
+  margin-top: 2px;
+  text-align: center;
+}
+
+.errMess {
+  font-size: 9px;
+  font-weight: bold;
+  color: red;
 }

@@ -1,6 +1,5 @@
 /* Left Buttons */
-/*  headleyt:  20210129  Hiding View Button and moved excel button from right to left until View can be added back in */
-/*#btnViewer, */#btnJoins, #btnPrimaryKey, #btnExcel, #btnColumns   {
+#btnJoins, #btnPrimaryKey, #btnExcel, #btnColumns   {
   width: 49%;
   height: 20px;
   padding-top: 0;
@@ -9,7 +8,7 @@
 }
 
 /* Right Buttons */
-#btnClipboard, /*#btnExcel,*/ #btnCSV, #btnOrder, #btnModifier {
+#btnClipboard, #btnCSV, #btnOrder, #btnModifier, #btnViewer {
   margin-left: 8px;
   width: 49%;
   height: 20px;

@@ -17,7 +17,7 @@ export class FiltersComponent implements OnInit {
   operatorOpt = [];
 
   curCondition: string;
-  curInput: string = "";  //  headleyt:  20210205  Set default to empty string as it was causing an error 
+  curInput: string = "";  //  headleyt:  20210205  Set default to empty string as it was causing an error
   curOperator: string = "LIKE";
   curColumn: string;
   curColumnType: string;
@@ -34,6 +34,8 @@ export class FiltersComponent implements OnInit {
 
   addUpdateBtn: string = "Add";
 
+  errorMessage: string = "";
+
   constructor(private store: StorageService, private comm: CommService, private dialogBox: ConfirmationDialogService) { }
 
   ngOnInit() {
@@ -41,7 +43,7 @@ export class FiltersComponent implements OnInit {
     this.conditionalOpt = this.store.conditionals;
     this.operatorOpt = this.store.operators;
     this.tabinfo.wherearrcomp = [];
-  
+
     //Listener
     this.comm.columnsUpdated.subscribe((data) => {
       //Columns are updated so load them here.
@@ -217,7 +219,12 @@ export class FiltersComponent implements OnInit {
   }
 
   evaluateChar(evt: any) {
-    if(this.store.ignoreChars.find(i => i === evt.key) != undefined) { evt.preventDefault(); }
+    if(this.store.ignoreChars.find(i => i === evt.key) != undefined) {
+      this.errorMessage = "'" + this.store.ignoreChars.join(",") + "' are not permitted as part of the filter.";
+      evt.preventDefault();
+    } else {
+      this.errorMessage = "";
+    }
   }
 
 }

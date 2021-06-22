@@ -16,7 +16,9 @@ export class UpdaterDialogComponent implements OnInit {
   selcol: any;
   genSentence: boolean = true;
 
-  constructor(public dialogRef: MatDialogRef<UpdaterDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private store: StorageService) { }
+  constructor(public dialogRef: MatDialogRef<UpdaterDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private store: StorageService) {
+    dialogRef.disableClose = true;
+  }
 
   ngOnInit() {
     // Generate the query for display

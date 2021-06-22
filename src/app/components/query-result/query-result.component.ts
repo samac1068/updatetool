@@ -335,6 +335,7 @@ export class QueryResultComponent implements OnInit {
     for (let i = 0; i < this.tabinfo.joinarr.length; i++){
       jStr += " " + this.tabinfo.joinarr[i].joinclausestr;
     }
+
     return jStr;
   }
 
@@ -378,20 +379,14 @@ constructJoinSentence2(sentence: string){
                   tableString += ", " + this.tabinfo.joinarr[j].tableright;
                 else
                   tableString += ", and " + this.tabinfo.joinarr[j].tableright;
-              }   
-            }  
+              }
+            }
           }
-          console.log("in j: loop: " + j);
-          console.log(" tabinfo.joinarr " + this.tabinfo.joinarr.length);
+
           if ((j - 1) == this.tabinfo.joinarr.length) {
             tableString += " in the " + this.tabinfo.joinarr[i].dbleft + " database ";
-            console.log('in j loop check');
           }
         }
-        // if (this.lastDbReference(i + 1, this.tabinfo.joinarr[i].dbleft)){  
-        //   tableString += " in the " + this.tabinfo.joinarr[i].dbleft + " database ";
-        //   console.log('checking to add in the database name');
-        // }  
       }
       if (leftdb != this.tabinfo.joinarr[i].dbright){
         tableString += " and table " + this.tabinfo.joinarr[i].tableright + " in the " + this.tabinfo.joinarr[i].dbright + " database ";
@@ -399,15 +394,12 @@ constructJoinSentence2(sentence: string){
       jStr = tableString;
     }
     return jStr;
-  }										   
+  }
 
-//  headleyt: 20210217  Added this function to build the sentence version of the join clause
   constructJoinSentence(sentence: string) {
     let jStr: string = "";
     let tableString: string = sentence.substr(0, sentence.indexOf("table") + 6);
 
-													  
-																		   
     for (let i = 0; i < this.tabinfo.joinarr.length; i++){
       if (this.tabinfo.joinarr[i].dbleft == this.tabinfo.joinarr[i].dbright){
         if (tableString.indexOf("tables") == -1){
@@ -424,7 +416,7 @@ constructJoinSentence2(sentence: string){
           else
             tableString += ", and " + this.tabinfo.joinarr[i].tableright;
         }
-        if (this.lastDbReference(i + 1, this.tabinfo.joinarr[i].dbleft)){  
+        if (this.lastDbReference(i + 1, this.tabinfo.joinarr[i].dbleft)){
           tableString += " in the " + this.tabinfo.joinarr[i].dbleft + " database ";
         }
         jStr = tableString;
@@ -443,7 +435,7 @@ constructJoinSentence2(sentence: string){
         }
         jStr = tableString;
       }
-    } 
+    }
     return jStr;
   }
 
@@ -452,16 +444,11 @@ constructJoinSentence2(sentence: string){
     let bFound: boolean = true;
 
     for (let j = i; j < this.tabinfo.joinarr.length; j++){
-      if (dbName == this.tabinfo.joinarr[j].dbleft && dbName == this.tabinfo.joinarr[j].dbright){
-        bFound = false;
-      }  
-      else {
-        bFound = true;
-      }  
+      bFound = !(dbName == this.tabinfo.joinarr[j].dbleft && dbName == this.tabinfo.joinarr[j].dbright);
     }
-    console.log('lastDbReference ' + bFound);
+
     return bFound;
-  }																				
+  }
   //  headleyt: 20210217  Added this function to build the sentence version of the join clause
   /*constructJoinSentence(sentence: string) {
     let jStr: string = "";
@@ -532,31 +519,24 @@ constructJoinSentence2(sentence: string){
     this.rowsReturned = "Rows Returned: " + results.length;
   }
 
-  removeRec(row){
-
-  }
-
   exportAsXLSX(type: string):void {
     this.excel.exportAsExcelFile(this.dataSource.data, 'queryResults', type);
   }
 
   saveCurrentQuery() {
     //Only save if this query ISN'T a currently store query
-    //  headleyt:  20210106  added qtype as a parameter to saving the new query
     if(this.tabinfo.isstoredquery)
       alert("This query is already saved.");
     else {
-      if (this.tabinfo === this.store.selectedTab) {  //  headleyt:  20210120  added a condition to pop-up the dialog box only if it is the current tab
+      if (this.tabinfo === this.store.selectedTab) {
         const dialogQuery = this.dialog.open(QueryDialogComponent, {width: '500px', height: '175px', autoFocus: true, data: this.tabinfo });
         dialogQuery.afterClosed().subscribe(() => {
           if(this.tabinfo.querytitle != undefined) {
-            //  headleyt:  20210128  Added check for the % wildcard when saving the query.  When the query is later opened and run, it is decoded in the API
-            this.data.storeNewQuery(this.tabinfo.querytitle, this.checkForWildcards(this.tabinfo.querystr, false), this.tabinfo.server, this.tabinfo.database, this.store.getUserValue("userid"), this.tabinfo.qtype)
+            this.data.storeNewQuery(this.tabinfo.querytitle.toUpperCase(), this.checkForWildcards(this.tabinfo.querystr, false), this.tabinfo.server, this.tabinfo.database, this.store.getUserValue("userid"), this.tabinfo.qtype)
             .subscribe(() => {
-              alert("The query has been stored under the title: " + this.tabinfo.querytitle + ".");
+              this.comm.populateQueryList.emit();
+              alert("The query has been stored under the title: " + this.tabinfo.querytitle.toUpperCase() + ".");
             });
-          //  headleyt:  20210114  raise event to repopulate saved query list in servers.component
-          this.comm.populateQueryList.emit();
           }
         });
       }
@@ -613,7 +593,7 @@ constructJoinSentence2(sentence: string){
 
   processCellClicked(obj){
     if(!obj.primarykey) {
-      const dialogProcessChg = this.dialog.open(UpdaterDialogComponent, { width: '385px', height: '300px', autoFocus: true, data: {tabinfo: this.tabinfo, datasource: this.dataSource.filteredData}});
+      const dialogProcessChg = this.dialog.open(UpdaterDialogComponent, { width: '385px', height: '320px', autoFocus: true, data: {tabinfo: this.tabinfo, datasource: this.dataSource.filteredData }});
       dialogProcessChg.afterClosed()
         .subscribe((rtn) => {
         if (rtn.table["setvalue"] != undefined){
