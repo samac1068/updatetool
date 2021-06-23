@@ -50,6 +50,11 @@ export class FiltersComponent implements OnInit {
       this.tabinfo = data;
       this.tableSelected = true;
     });
+
+    this.comm.selectTab.subscribe(() => {
+      // The selected tab has changed so display the appropriate filter for that tab
+      this.tabinfo = this.store.selectedTab;
+    });
   }
 
   //  headleyt:  20210128  Added function to enable the apply and add the column if the operator is null or is not null

@@ -90,7 +90,6 @@ export class QueryResultComponent implements OnInit {
     let strSQL = "SELECT ";
     let displayStrSQL = "Select ";
 
-    //console.log("before the top ten selector" );
     //Build the return
     if(this.tabinfo.getcount) {
       strSQL += "COUNT (*) AS [Count] FROM ";
