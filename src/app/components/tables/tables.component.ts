@@ -67,8 +67,6 @@ export class TablesComponent implements OnInit {
   }
 
   tableClickHandler(table: Table) {
-    console.log(this.tabinfo.table, this.tabinfo.tempPrimKey, this.tabinfo.hasPrimKey);
-
     //Make sure there was a change before sending the information
     if(this.tabinfo.table == undefined || this.tabinfo.table.name != table.name)
     {
@@ -82,8 +80,7 @@ export class TablesComponent implements OnInit {
       //report the table selection
       this.comm.tableSelected.emit(this.tabinfo);
     }
-//  headleyt:  20210113  Saving selected table to the storage service to make it available to the servers.component and
-//  emit (raise) the event in the servers.component
+    //headleyt:  20210113  Saving selected table to the storage service to make it available to the servers.component and emit (raise) the event in the servers.component
     // this.store.selectedTab.table = table;
     this.comm.setQueryButton.emit();
   }

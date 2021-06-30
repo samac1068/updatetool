@@ -2,10 +2,9 @@
   <div class="selectContent">
     <span class="fieldLabel">Where Clause and Filters:</span><br/>
     <input type="checkbox" id="chkReturnRowCnt" [(ngModel)]="tabinfo.getcount" (click)="updateGetCount()" style="margin-top:5px;"> Return Only # of Rows<br />
-<!-- headleyt:  20210212  added checked property to uncheck the box if the limitrows is false -->
-    <input type="checkbox" id="chkReturnTop" [checked]="tabinfo.limitRows" (click)="allowLimitSelect()" (onChange)="evaluateBtnStatus()" style="margin-top: 5px;"> Return Top:
-    <select id="ddlTopReturn" style="width: 247px" [disabled]="!tabinfo.limitRows" [(ngModel)]="tabinfo.selectcnt">
-      <option value="-1"></option>
+    <!-- headleyt:  20210212  added checked property to uncheck the box if the limitrows is false -->
+    <input type="checkbox" id="chkReturnTop" [checked]="tabinfo.limitRows" (click)="allowLimitSelect()" (change)="evaluateBtnStatus()" style="margin-top: 5px;"> Return Top:
+    <select id="ddlTopReturn" style="width: 247px" [disabled]="!tabinfo.limitRows" [(ngModel)]="localSelectCtn">
       <option *ngFor="let row of rowOpt" value="{{ row.value }}">{{ row.lbl }}</option>
     </select>
 

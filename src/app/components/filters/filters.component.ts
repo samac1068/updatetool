@@ -35,6 +35,9 @@ export class FiltersComponent implements OnInit {
   addUpdateBtn: string = "Add";
 
   errorMessage: string = "";
+  localSelectCtn: string = "100";
+  optionChanged: boolean = false;
+
 
   constructor(private store: StorageService, private comm: CommService, private dialogBox: ConfirmationDialogService) { }
 
@@ -67,11 +70,14 @@ export class FiltersComponent implements OnInit {
 
   updateGetCount(){
     this.tabinfo.getcount = !this.tabinfo.getcount;
+    this.optionChanged = true;
     this.evaluateBtnStatus();
   }
 
+
   allowLimitSelect(){
     this.tabinfo.limitRows = !this.tabinfo.limitRows;
+    this.optionChanged = true;
     this.evaluateBtnStatus();
   }
 
@@ -212,8 +218,16 @@ export class FiltersComponent implements OnInit {
   }
 
   applyWhereClause(){
-    if(this.tabinfo.wherearrcomp.length > 0 || this.tabinfo.getcount || this.tabinfo.limitRows){
+    if(this.tabinfo.wherearrcomp.length > 0 || this.tabinfo.getcount || this.tabinfo.limitRows || this.optionChanged){
       this.addUpdateBtn = "Add";
+
+      // Apply the request limitation
+      if(this.tabinfo.limitRows)
+        this.tabinfo.selectcnt = this.localSelectCtn;
+      else {
+        this.tabinfo.selectcnt = "0";
+        this.localSelectCtn = "100";
+      }
     }
 
     this.signalExecuteQuery();

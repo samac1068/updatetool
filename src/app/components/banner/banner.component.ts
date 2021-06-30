@@ -8,6 +8,7 @@ import { StorageService } from '../../services/storage.service';
 import { OptionsDialogComponent } from 'src/app/dialogs/options-dialog/options-dialog.component';
 import { MatDialog } from '@angular/material';
 import { WhatsnewDialogComponent } from '../../dialogs/whatsnew-dialog/whatsnew-dialog.component';
+import {UsermgrDialogComponent} from '../../dialogs/usermgr-dialog/usermgr-dialog.component';
 
 @Component({
   selector: 'app-banner',
@@ -18,6 +19,7 @@ export class BannerComponent implements OnInit {
   user: User; // There can only be one user at a time
   build: Build;
   version: string;
+  isAdmin: boolean = false;
 
   constructor(private data: DataService, private store: StorageService, private comm: CommService, public dialog: MatDialog) { }
 
@@ -25,6 +27,7 @@ export class BannerComponent implements OnInit {
     //Listing listeners and services
     this.comm.userInfoLoaded.subscribe(() => {
       this.user = this.store.getUser();
+      this.isAdmin = this.user.priv == 1;
       this.setupVersion();
       //this.confirmDisplayWhatsNew();
     });
@@ -45,7 +48,7 @@ export class BannerComponent implements OnInit {
     dialogRef.afterClosed().subscribe((rtn) => {
       if(rtn.datamodified) {
         this.user.datamodified = false;
-        var network: string = this.user.servername + "|" + this.user.server + "^" + this.user.database;
+        let network: string = this.user.servername + "|" + this.user.server + "#" + this.user.database;
         this.data.addEditUpdateUserInfo(this.user.username, this.user.fname, this.user.lname, network, this.user.userid).subscribe((results) => {
           if(results[0].UserID > 0) {
             this.comm.userUpdatedReloadSys.emit();
@@ -54,6 +57,13 @@ export class BannerComponent implements OnInit {
             alert("Possible issue when save the option information.");
         });
       }
+    });
+  }
+
+  openUserManagerDialog() {
+    const dialogUserMgrRef = this.dialog.open(UsermgrDialogComponent, { width: '750px', height: '500px', autoFocus: true, data: this.user });
+    dialogUserMgrRef.afterClosed().subscribe((rtn) => {
+      console.log(rtn);
     });
   }
 

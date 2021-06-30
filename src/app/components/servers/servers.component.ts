@@ -140,4 +140,8 @@ export class ServersComponent implements OnInit {
         }
     });
   }
+
+  cleanUpString(value: string) {
+    return value.replace("_", " ");
+  }
 }

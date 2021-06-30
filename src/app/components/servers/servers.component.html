@@ -1,7 +1,7 @@
 <div id="serverGrp" class="btn-group">
   <div>
     <label for="serverList">Server:
-      <select id="serverList" class="form-control optionGrp" [disabled] = true [(ngModel)]="defaultServer" (change)="onServerChanges()">
+      <select id="serverList" class="form-control optionGrp" [disabled]=true [(ngModel)]="defaultServer" (change)="onServerChanges()">
           <option [ngValue]="null">Select a Server</option>
         <option *ngFor="let server of servers" [value]="server.id">{{ server.id }}</option>
       </select>
@@ -12,7 +12,7 @@
     <label for="dbList">Database:
       <select id="dbList" class="form-control optionGrp" [(ngModel)]="defaultDB" (change)="onDatabaseChange()">
         <option [ngValue]="null">Select a Database</option>
-        <option *ngFor="let database of databases" [value]="database.id">{{ database.id }}</option>
+        <option *ngFor="let database of databases" [value]="database.id">{{ cleanUpString(database.id) }}</option>
       </select>
     </label>
   </div>

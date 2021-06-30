@@ -20,14 +20,14 @@ export class TabComponent implements OnInit {
 
   @Input() tabinfo: Tab;
   tabid: string = "";
-  
+
   constructor(private store: StorageService, private data: DataService, private comm: CommService, public dialog: MatDialog) { }
 
   ngOnInit() {
     //Table was selected
     this.comm.tableSelected.subscribe((data) => {
       //Need to pull all of the columns for the selected table
-      //  headleyt:  20210120  Added a condition so this action will only take place on the active tab 
+      //  headleyt:  20210120  Added a condition so this action will only take place on the active tab
       if (this.tabinfo === this.store.selectedTab){
         this.data.getTableProperties(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table.name).subscribe((results) => {
           this.tabinfo.columns = [];
@@ -61,7 +61,7 @@ export class TabComponent implements OnInit {
     this.comm.columnBtnClicked.subscribe(() => {
       if(this.tabinfo === this.store.selectedTab) {
         //Now open the dialog with the information
-        const dialogRef = this.dialog.open(ColumnsDialogComponent, { width: '550px', height: '330px', autoFocus: true, data: this.tabinfo });
+        const dialogRef = this.dialog.open(ColumnsDialogComponent, { width: '600px', height: '330px', autoFocus: true, data: this.tabinfo });
         dialogRef.afterClosed().subscribe(() => {
           this.comm.runQueryChange.emit();
         });
@@ -97,7 +97,7 @@ export class TabComponent implements OnInit {
         const dialogRef = this.dialog.open(ViewerDialogComponent, {width: '1000px', height: '730px', autoFocus: true, data: this.tabinfo });
       }
     });
-    
+
     // A stored query was requested
     if(this.tabinfo.isstoredquery) {
       setTimeout(() => {

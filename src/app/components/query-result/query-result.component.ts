@@ -24,8 +24,8 @@ export class QueryResultComponent implements OnInit {
   colHeader: string[];
   dataSource: any;
   rowsReturned: string;
-  showEditCol: boolean = false;
-  selRow: any;
+  //showEditCol: boolean = false;
+  //selRow: any;
 
   constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog) { }
 
@@ -113,7 +113,7 @@ export class QueryResultComponent implements OnInit {
     if(this.tabinfo.colfilterarr[0] == "*" /*|| parseInt(this.tabinfo.selectcnt) == -9*/)
     {
       strSQL += "* ";
-//  headleyt:  20210201  Added this checkt to keep from having at top #n statement and the all records statement
+    //headleyt:  20210201  Added this checked to keep from having at top #n statement and the all records statement
       if (this.tabinfo.wherearrcomp.length > 0) {
         displayStrSQL += " all records ";
       }
@@ -125,8 +125,33 @@ export class QueryResultComponent implements OnInit {
     }
     else
     {
-      strSQL += this.tabinfo.colfilterarr.join() + " ";
-      displayStrSQL += this.tabinfo.colfilterarr.join() + " ";
+      // identify and mark the distinct column, if selected
+
+      /*TODO - Would like to clean this up and make it efficient.  Currently coded to make it work, but def not clean */
+      let sqlCopy = [...this.tabinfo.colfilterarr];
+      let displayCopy = [...this.tabinfo.colfilterarr];
+
+      if(this.tabinfo.distinctcol != "") {
+        let ddistinct: string = "";
+        let sdistinct: string = "";
+        for(let c = 0; c < this.tabinfo.colfilterarr.length; c++) {
+          if(this.tabinfo.colfilterarr[c] == this.tabinfo.distinctcol) {
+            ddistinct = "Distinct " + this.tabinfo.distinctcol;
+            sdistinct = "DISTINCT " + this.tabinfo.distinctcol;
+            sqlCopy.splice(c, 1);
+            displayCopy.splice(c, 1);
+            break;
+          }
+        }
+
+        sqlCopy.unshift(sdistinct);  // Now we have identified and remove, reinsert in the front of the column selection list
+        displayCopy.unshift(ddistinct);
+      }
+
+      strSQL += sqlCopy.join() + " ";
+      displayStrSQL += displayCopy.join() + " ";
+      //strSQL += this.tabinfo.colfilterarr.join() + " ";
+      //displayStrSQL += this.tabinfo.colfilterarr.join() + " ";
     }
 
     //Include the FROM
@@ -155,15 +180,16 @@ export class QueryResultComponent implements OnInit {
       strSQL += this.constructOrderBy();
 
     //Display the information
-//  headleyt:  20210129 displaying the text version of the query on the screen instead of the sql version
-//    this.tabinfo.querystr = strSQL;
+    //headleyt:  20210129 displaying the text version of the query on the screen instead of the sql version
+    //this.tabinfo.querystr = strSQL;
     this.tabinfo.querystr = displayStrSQL;
 
     //Run the string based on this information (it won't be a direct run)
+    console.log("SQL:" + strSQL);
     this.executeSQL();
   }
 
-//  headley:  20210115  Integrating Sean's fixes for suspicious code; added parameter
+    //headley:  20210115  Integrating Sean's fixes for suspicious code; added parameter
   constructWhereClause(forDisplay: boolean){
     //Manually join the where clause adding in the appropriate conditioning statements
     let wStr: string = "WHERE ";
@@ -194,7 +220,7 @@ export class QueryResultComponent implements OnInit {
 			  	case "ntext":
 				case "text":
   				case "uniqueidentifier":
-//  headleyt:  20210205  added a check to parse/build the proper string for the IN operator
+    //headleyt:  20210205  added a check to parse/build the proper string for the IN operator
             {
               if (row.operator.toUpperCase() != "IN")
                 wStr += "'" + this.checkForWildcards(row.value, forDisplay) + "'";
@@ -338,7 +364,7 @@ export class QueryResultComponent implements OnInit {
     return jStr;
   }
 
-constructJoinSentence2(sentence: string){
+  constructJoinSentence2(sentence: string){
     let jStr: string = "";
     let tableString: string = sentence.substr(0, sentence.indexOf("table") + 6);
     let leftdb: string = "";
@@ -487,7 +513,7 @@ constructJoinSentence2(sentence: string){
 
     this.data.getQueryData(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table.name,
     (col.length == 0) ? '0' : col, (where.length == 0) ? '0' : where, (join.length == 0) ? '0' : join, (order.length == 0) ? '0' : order,
-      this.tabinfo.getcount, this.tabinfo.limitRows, this.tabinfo.selectcnt).subscribe((results) => {
+      this.tabinfo.getcount, this.tabinfo.limitRows, this.tabinfo.selectcnt, this.store.user.username).subscribe((results) => {
         this.processReturnedData(results);
       });
   }

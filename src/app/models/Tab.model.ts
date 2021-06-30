@@ -11,6 +11,7 @@ export class Tab {
   database: string;  // Primary Database (first in the databasearr)
   table: Table;  // Primary selected table
   columns: Column[];  //List of columns or primary table
+  distinctcol: string;  //Used to identify the single distinct column for this query
 
   hasPrimKey: boolean;  // Set to true if the table has a primary key already set
   tempPrimKey: any = null;    //Storage location of a temporary primary key.  May include multiple columns
@@ -37,7 +38,7 @@ export class Tab {
 
   getcount: boolean;
   limitRows: boolean;
-  selectcnt: string;
+  selectcnt: string = "100";
 
   //Variabled for stored query use
   isstoredquery: boolean = false;

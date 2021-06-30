@@ -3,6 +3,7 @@ import { System } from '../models/System.model';
 import { User } from '../models/User.model';
 import { Tab } from '../models/Tab.model';
 import {HttpParams} from '@angular/common/http';
+import {Toaster} from 'ngx-toast-notifications';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +34,7 @@ export class StorageService {
   dbNumericals: string[] = ["bit","tinyint","bool","boolean","smallint","mediumint","int","integer","bigint","float","double","decimal","double precision","dec"];
   ignoreChars: string[] = ["/"];
 
-  constructor() { }
+  constructor(private toaster: Toaster) { }
 
   // This will allow you to set a specific object for either the tab or the user variables
   setTabValue(section: string, value: any) {
@@ -187,5 +188,14 @@ export class StorageService {
       paramValue = httpParams.get(paramName);
     }
     return paramValue;
+  }
+
+  generateToast(text: string,issuccess: boolean = true): void {
+    this.toaster.open({
+      text: text,
+      caption: 'Notification',
+      type: (!issuccess) ? 'warning' : 'success',
+      position: 'top-center'
+    });
   }
 }

@@ -29,9 +29,6 @@ export class AppComponent implements OnInit {
     this.getServerConfig();
     this.identifyLocale();
 
-    //alert("System: " + this.store.system['webservice']['locale'] + "\n DevMode:" + this.store.isDevMode() + "\n Path:" + this.store.system['webservice']['path']);
-    //alert("urlToken: " + this.urlToken);
-
     // Get and manage the user access token
     if(this.store.isDevMode()) {
       // Manually set the necessary variables
@@ -131,7 +128,10 @@ export class AppComponent implements OnInit {
           this.store.setUserValue("appdata", row["AppData"]);
           this.store.setUserValue("lastversion", row["UpdateVersion"]);
           this.store.setUserValue("lastversiondt", row["UpdateDate"]);
+          this.store.setUserValue("lastlogin", row["LastLogIn"]);
+          this.store.setUserValue("curlogin", row["CurrentLogIn"]);
           this.store.setUserValue("userid", row["UserID"]);
+          this.store.setUserValue("priv", row["Priv"]);
 
           let n: any = row["Network"].split("|");
           this.store.setUserValue("servername", n[0]);

@@ -19,7 +19,7 @@
 <!-- Display Results Datatable -->
 <div class="divResults" [text-copy]>
   <div *ngIf="colHeader">
-    <table mat-table [dataSource]="dataSource" class=" table-striped table-bordered row-border hover table-sm" matSort>
+    <table mat-table [dataSource]="dataSource" class="table-striped table-bordered row-border hover table-sm" matSort>
 
       <!-- Column Definitions (Dynamic) -->
       <ng-container *ngFor="let col of colHeader" matColumnDef="{{ col }}">

@@ -39,6 +39,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material';
 import { MatButtonModule } from '@angular/material/button';
+import { MatRadioModule } from '@angular/material/radio';
 
 // Dialog Imports
 import { ColumnsDialogComponent } from './dialogs/columns-dialog/columns-dialog.component';
@@ -55,6 +56,8 @@ import { CopyTextDirective } from './services/copy-text.directive';
 import { UpdaterDialogComponent } from './dialogs/updater-dialog/updater-dialog.component';
 import { PrimkeyDialogComponent } from './dialogs/primkey-dialog/primkey-dialog.component';
 import { ModifierDialogComponent } from './dialogs/modifier-dialog/modifier-dialog.component';
+import { UsermgrDialogComponent } from './dialogs/usermgr-dialog/usermgr-dialog.component';
+import {ToastNotificationsModule} from 'ngx-toast-notifications';
 
 
 @NgModule({
@@ -83,7 +86,8 @@ import { ModifierDialogComponent } from './dialogs/modifier-dialog/modifier-dial
     CopyTextDirective,
     UpdaterDialogComponent,
     PrimkeyDialogComponent,
-    ModifierDialogComponent
+    ModifierDialogComponent,
+    UsermgrDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -101,10 +105,12 @@ import { ModifierDialogComponent } from './dialogs/modifier-dialog/modifier-dial
     MatDialogModule,
     MatCheckboxModule,
     MatSelectModule,
+    MatRadioModule,
     DragDropModule,
     MatExpansionModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    ToastNotificationsModule
   ],
   providers: [
     DataService,
@@ -126,7 +132,8 @@ import { ModifierDialogComponent } from './dialogs/modifier-dialog/modifier-dial
     QueryDialogComponent,
     WhatsnewDialogComponent,
     UpdaterDialogComponent,
-    PrimkeyDialogComponent
+    PrimkeyDialogComponent,
+    UsermgrDialogComponent
   ]
 })
 export class AppModule { }

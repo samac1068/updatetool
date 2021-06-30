@@ -6,7 +6,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Tab } from 'src/app/models/Tab.model';
 import { DataService } from 'src/app/services/data.service';
 import { ConfirmationDialogService } from 'src/app/services/confirm-dialog.service';
-import { OkDialogService } from 'src/app/services/ok-dialog.service';
 
 @Component({
   selector: 'app-join-dialog',
@@ -19,10 +18,7 @@ export class JoinDialogComponent implements OnInit {
   server: string = "";
 
   //Local Global Variables
-  tablearr = [];
   operators: string[] = [];
-  availtblleft: string[] = [];
-  availtblright: string[] = [];
   msgarr: string = "";
 
   joinclausearr: Join[] = [];    //Maintains all of the various joins for this tab
@@ -42,7 +38,7 @@ export class JoinDialogComponent implements OnInit {
   trighttblarr: any[] = [];
   trightcolarr: Column[] = [];
 
-  tjtype: string = "JOIN";
+  tjtype: string = "LEFT JOIN";
   tjop: string = "=";
   tjoinid: number = -1;
 
@@ -183,27 +179,28 @@ export class JoinDialogComponent implements OnInit {
       this.ws.getTableProperties(this.serverfull.replace('{0}',
         (side == "left") ? this.store.getSelectedDBName(this.tleftdb) : this.store.getSelectedDBName(this.trightdb)),
         (side == "left") ? this.store.getSelectedDBName(this.tleftdb) : this.store.getSelectedDBName(this.trightdb),
-        (side == "left") ? this.tlefttable : this.trighttable).subscribe((results) => {
-        for(let row of results)
-        {
-          let r: Column = new Column();
-          r.tablename = row.TableName;
-          r.columnid = row.ColumnID;
-          r.columnname = row.ColumnName;
-          r.vartype = row.VarType;
-          r.maxlength = row.MaxLength;
-          r.primarykey = row.PrimaryKey;
-          r.precise = row.Precise;
-          r.scale = row.Scale;
-          r.charfulllength = row.CharFullLength;
+        (side == "left") ? this.tlefttable : this.trighttable)
+        .subscribe((results) => {
+          for(let row of results)
+          {
+            let r: Column = new Column();
+            r.tablename = row.TableName;
+            r.columnid = row.ColumnID;
+            r.columnname = row.ColumnName;
+            r.vartype = row.VarType;
+            r.maxlength = row.MaxLength;
+            r.primarykey = row.PrimaryKey;
+            r.precise = row.Precise;
+            r.scale = row.Scale;
+            r.charfulllength = row.CharFullLength;
 
-          //Shove into the appropriate columns side
-          if(side == "left")
-            this.tleftcolarr.push(r);
-          else
-            this.trightcolarr.push(r);
-        }
-      });
+            //Shove into the appropriate columns side
+            if(side == "left")
+              this.tleftcolarr.push(r);
+            else
+              this.trightcolarr.push(r);
+          }
+        });
     }
   }
 
@@ -228,7 +225,7 @@ export class JoinDialogComponent implements OnInit {
     this.trighttblarr = [];
     this.trightcolarr = [];
 
-    this.tjtype = "JOIN";
+    this.tjtype = "LEFT JOIN";
     this.tjop = "=";
     this.tjoinid = -1;
 
@@ -285,8 +282,10 @@ export class JoinDialogComponent implements OnInit {
     //  headleyt;  20210219  Added a check on the length of the join string.  It seems it is good with 260 but not good at 278 characters
     if ((this.checkJoinClauseLength() + temp.joinclausestr.length) > 260)
       this.msgarr = "The join string cannot be more than 260 characters. This join will not be added.";
-    else
+    else {
       this.joinclausearr.push(temp);
+      this.data.columns = this.data.columns.concat(this.trightcolarr); // Need to add the joined table's column to the list of available columns, so they can be limited using the column limiter.
+    }
 
     this.resetAllFields();
   }
@@ -304,6 +303,8 @@ export class JoinDialogComponent implements OnInit {
   removeJoinItem(itemid: number) {
     this.dialogBox.confirm('Confirm Deletion', 'Are you sure you want to delete this item?')
     .then((confirmed) => {
+      // Remove the delete join columns from the available column array
+      this.data.columns = this.data.columns.filter(item => item.tablename != this.joinclausearr[this.findIndexByID(itemid)].tableright);
       this.joinclausearr.splice(this.findIndexByID(itemid),1);
       this.resetAllFields();
     });
