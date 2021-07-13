@@ -29,29 +29,30 @@ export class TabComponent implements OnInit {
       //Need to pull all of the columns for the selected table
       //  headleyt:  20210120  Added a condition so this action will only take place on the active tab
       if (this.tabinfo === this.store.selectedTab){
-        this.data.getTableProperties(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table.name).subscribe((results) => {
-          this.tabinfo.columns = [];
-          this.tabinfo.availcolarr = [];
-          for(let row of results)
-          {
-            var r: Column = new Column();
-            r.tablename = row.TableName;
-            r.columnid = row.ColumnID;
-            r.columnname = row.ColumnName;
-            r.vartype = row.VarType;
-            r.maxlength = row.MaxLength;
-            r.primarykey = row.PrimaryKey;
-            r.precise = row.Precise;
-            r.scale = row.Scale;
-            r.charfulllength = row.CharFullLength;
-            r.selected = this.tabinfo.colfilterarr.indexOf(r.columnname) > -1;
-            r.colSelected = null;
+        this.data.getTableProperties(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table.name)
+          .subscribe((results) => {
+            this.tabinfo.columns = [];
+            this.tabinfo.availcolarr = [];
+            for(let row of results)
+            {
+              var r: Column = new Column();
+              r.tablename = row.TableName;
+              r.columnid = row.ColumnID;
+              r.columnname = row.ColumnName;
+              r.vartype = row.VarType;
+              r.maxlength = row.MaxLength;
+              r.primarykey = row.PrimaryKey;
+              r.precise = row.Precise;
+              r.scale = row.Scale;
+              r.charfulllength = row.CharFullLength;
+              r.selected = this.tabinfo.colfilterarr.indexOf(r.columnname) > -1;
+              r.colSelected = null;
 
-            this.tabinfo.columns.push(r);
-            this.tabinfo.availcolarr.push(r);
-            if(r.primarykey) this.tabinfo.hasPrimKey = true;
-          }
-        });
+              this.tabinfo.columns.push(r);
+              this.tabinfo.availcolarr.push(r);
+              if(r.primarykey) this.tabinfo.hasPrimKey = true;
+            }
+          });
 
         this.comm.columnsUpdated.emit(this.tabinfo);
        }

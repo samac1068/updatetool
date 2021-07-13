@@ -134,6 +134,7 @@ export class ServersComponent implements OnInit {
           q.database = results[i].DatabaseName;
           q.server = results[i].ServerName;
           q.querybody = this.store.customURLDecoder(results[i].QueryBody);
+          q.displayquery = this.store.customURLDecoder(results[i].DisplayQuery);
           q.qtype = results[i].Qtype;
 
            this.queries.push(q);

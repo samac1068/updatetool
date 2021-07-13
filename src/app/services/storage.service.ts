@@ -14,7 +14,7 @@ export class StorageService {
   private _appKey = 'MMA';
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.21.0623';
+  private _appVersion = '2.21.0713';
   private _inDev: boolean = false;
 
   // Public
@@ -32,7 +32,7 @@ export class StorageService {
   //  headleyt:  20210129  Adding a text version of the operators
   operatorsText: string[] = ["like","not like","equals","not equal to ","not equal to","greater than","greater than or equal to","not greater than","less than","less than or equal to","not less than","in","is null","is not null"];
   dbNumericals: string[] = ["bit","tinyint","bool","boolean","smallint","mediumint","int","integer","bigint","float","double","decimal","double precision","dec"];
-  ignoreChars: string[] = ["/"];
+  ignoreChars: string[] = ["/","\\", "`"];
 
   constructor(private toaster: Toaster) { }
 

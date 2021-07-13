@@ -24,8 +24,6 @@ export class QueryResultComponent implements OnInit {
   colHeader: string[];
   dataSource: any;
   rowsReturned: string;
-  //showEditCol: boolean = false;
-  //selRow: any;
 
   constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog) { }
 
@@ -35,7 +33,6 @@ export class QueryResultComponent implements OnInit {
       this.newTableSelected();
     });
 
-    //Change to the query has happened so run the query
     this.comm.runQueryChange.subscribe(() => {
       this.constructSQLString();
     });
@@ -93,18 +90,18 @@ export class QueryResultComponent implements OnInit {
     //Build the return
     if(this.tabinfo.getcount) {
       strSQL += "COUNT (*) AS [Count] FROM ";
-      displayStrSQL += " the number of records ";
+      displayStrSQL += "the number of records ";
     }
     else if (parseInt(this.tabinfo.selectcnt) > 0) {
       strSQL += "TOP " + this.tabinfo.selectcnt + " ";
-      displayStrSQL += " the top " + this.tabinfo.selectcnt + " records ";
+      displayStrSQL += "the top " + this.tabinfo.selectcnt + " records ";
     }
     else if (this.tabinfo.wherearrcomp.length == 0 && this.tabinfo.colfilterarr[0] == "*" && parseInt(this.tabinfo.selectcnt) != -9){
       strSQL += "TOP 10 ";
-      displayStrSQL += " the top 10 records ";
+      displayStrSQL += "the top 10 records ";
     }
     else if (this.tabinfo.wherearrcomp.length == 0 && this.tabinfo.colfilterarr[0] == "*" && parseInt(this.tabinfo.selectcnt) == -9){
-      displayStrSQL += " all records "
+      displayStrSQL += "all records "
     }
 
     //What columns do we want
@@ -115,13 +112,13 @@ export class QueryResultComponent implements OnInit {
       strSQL += "* ";
     //headleyt:  20210201  Added this checked to keep from having at top #n statement and the all records statement
       if (this.tabinfo.wherearrcomp.length > 0) {
-        displayStrSQL += " all records ";
+        displayStrSQL += "all records ";
       }
     }
     else if (parseInt(this.tabinfo.selectcnt) == -9)
     {
       strSQL += "* ";
-      displayStrSQL += " all records ";
+      displayStrSQL += "all records ";
     }
     else
     {
@@ -180,12 +177,13 @@ export class QueryResultComponent implements OnInit {
       strSQL += this.constructOrderBy();
 
     //Display the information
-    //headleyt:  20210129 displaying the text version of the query on the screen instead of the sql version
-    //this.tabinfo.querystr = strSQL;
+    this.tabinfo.rawquerystr = strSQL;
     this.tabinfo.querystr = displayStrSQL;
 
     //Run the string based on this information (it won't be a direct run)
-    console.log("SQL:" + strSQL);
+    console.log("SQL: " + strSQL);
+    console.log("DISPLAY: " + displayStrSQL);
+
     this.executeSQL();
   }
 
@@ -421,7 +419,7 @@ export class QueryResultComponent implements OnInit {
     return jStr;
   }
 
-  constructJoinSentence(sentence: string) {
+  /*constructJoinSentence(sentence: string) {
     let jStr: string = "";
     let tableString: string = sentence.substr(0, sentence.indexOf("table") + 6);
 
@@ -462,10 +460,10 @@ export class QueryResultComponent implements OnInit {
       }
     }
     return jStr;
-  }
+  }*/
 
   //  headleyt:  20210226  Added this function to add the " in the <dbname> database" if there are multiple tables in the query
-  lastDbReference(i: number, dbName: string){
+  /*lastDbReference(i: number, dbName: string){
     let bFound: boolean = true;
 
     for (let j = i; j < this.tabinfo.joinarr.length; j++){
@@ -473,7 +471,7 @@ export class QueryResultComponent implements OnInit {
     }
 
     return bFound;
-  }
+  }*/
   //  headleyt: 20210217  Added this function to build the sentence version of the join clause
   /*constructJoinSentence(sentence: string) {
     let jStr: string = "";
@@ -521,7 +519,7 @@ export class QueryResultComponent implements OnInit {
   executeStoredQuery(tab: Tab) {
     //I need to confirm what tab I should be on
     if(tab.sqid != undefined){
-      tab.querystr = this.tabinfo.sqbody;
+      //tab.querystr = this.tabinfo.querystr;
       this.data.executeQStr(tab.sqid).subscribe((results) => {
         this.processReturnedData(results);
       });
@@ -557,7 +555,15 @@ export class QueryResultComponent implements OnInit {
         const dialogQuery = this.dialog.open(QueryDialogComponent, {width: '500px', height: '175px', autoFocus: true, data: this.tabinfo });
         dialogQuery.afterClosed().subscribe(() => {
           if(this.tabinfo.querytitle != undefined) {
-            this.data.storeNewQuery(this.tabinfo.querytitle.toUpperCase(), this.checkForWildcards(this.tabinfo.querystr, false), this.tabinfo.server, this.tabinfo.database, this.store.getUserValue("userid"), this.tabinfo.qtype)
+            // May need to translate and pull the correct value from the question.
+
+            this.data.storeNewQuery(this.tabinfo.querytitle.toUpperCase(),
+              this.checkForWildcards(this.tabinfo.rawquerystr, false),
+              this.tabinfo.server,
+              this.tabinfo.database,
+              this.store.getUserValue("userid"),
+              this.tabinfo.qtype,
+              this.checkForWildcards(this.tabinfo.querystr, true))
             .subscribe(() => {
               this.comm.populateQueryList.emit();
               alert("The query has been stored under the title: " + this.tabinfo.querytitle.toUpperCase() + ".");

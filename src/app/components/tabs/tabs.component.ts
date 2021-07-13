@@ -37,15 +37,15 @@ export class TabsComponent implements OnInit {
 
   addTab(queryid?: string) {
     //Create a new tab
-    var tabCont:Tab = new Tab();
+    let tabCont:Tab = new Tab();
     tabCont.tabid = "tab0" + (this.tabs.length + 1);
     tabCont.tabindex = this.tabs.length;
 
     if(queryid != undefined) {
       //The user has selected a stored query, so feed the info.
-      var queries: any[] = this.store.getUserValue('storedqueries');
+      let queries: any[] = this.store.getUserValue('storedqueries');
 
-      for(var i=0; i < queries.length; i++) {
+      for(let i=0; i < queries.length; i++) {
         if(queries[i].id === parseInt(queryid))
         {
           tabCont.isstoredquery = true;
@@ -54,6 +54,8 @@ export class TabsComponent implements OnInit {
           tabCont.servername = this.store.returnColByStringKey(this.store.system['servers'], 'offName', tabCont.server, 'id');
           tabCont.database = queries[i].database;
           tabCont.sqbody = queries[i].querybody;
+          tabCont.rawquerystr = queries[i].querybody;
+          tabCont.querystr = (queries[i].displayquery == "") ? queries[i].querybody : queries[i].displayquery;
          break;
         }
       }
@@ -78,7 +80,7 @@ export class TabsComponent implements OnInit {
   }
 
    selectTab(tab: Tab) {
-    for(var i =0; i < this.tabs.length; i++)
+    for(let i =0; i < this.tabs.length; i++)
       this.tabs[i].active = false;
 
     tab.active = true;

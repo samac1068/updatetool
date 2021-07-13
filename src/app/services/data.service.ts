@@ -122,9 +122,9 @@ export class DataService {
   }
 
   //  headleyt:  20210106  added a new parameter, qtype, to be added when the query is created
-  storeNewQuery(title: string, body: string, server: string, database: string, userid: string, qtype: string) {
+  storeNewQuery(title: string, body: string, server: string, database: string, userid: string, qtype: string, display: string) {
     console.log('storeNewQuery');
-    return this.http.get<any[]>(`${this.getWSPath()}StoreUserQuery/${this.store.getPassKey()}/${this.store.customURLEncoder(title)}/${this.store.customURLEncoder(body)}/${server}/${database}/${userid}/${qtype}`);
+    return this.http.get<any[]>(`${this.getWSPath()}StoreUserQuery/${this.store.getPassKey()}/${this.store.customURLEncoder(title)}/${this.store.customURLEncoder(body)}/${server}/${database}/${userid}/${qtype}/${display}`);
   }
 
   updateRowInfo(server: string, db:string, table:string, updatekey:string, extwhere: string) {

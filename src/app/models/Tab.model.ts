@@ -22,6 +22,8 @@ export class Tab {
   seltbllist: Table[];  //list of table for the primary database
 
   querystr: string;
+  rawquerystr: string;
+
   querytitle: string;
   qtype: string;  // headleyt:  20210106 added qtype to make it available as a parameter when saving a query
 
