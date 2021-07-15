@@ -139,6 +139,8 @@ export class ServersComponent implements OnInit {
 
            this.queries.push(q);
         }
+
+        this.store.setUserValue('storedqueries', this.queries);
     });
   }
 

@@ -76,7 +76,6 @@ export class TabsComponent implements OnInit {
     this.tabs.push(tabCont);
 
     this.selectTab(this.tabs[this.tabs.length - 1]);
-
   }
 
    selectTab(tab: Tab) {
