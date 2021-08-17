@@ -28,6 +28,7 @@ export class AppComponent implements OnInit {
     this.getSystemConfig();
     this.getServerConfig();
     this.identifyLocale();
+    this.getApplicationBuild();
 
     // Get and manage the user access token
     if(this.store.isDevMode()) {
@@ -58,7 +59,6 @@ export class AppComponent implements OnInit {
   continueInitialization(){
     if(this.urlToken != undefined){
       this.validateCapturedToken();
-      this.getApplicationBuild();
     } else {
       alert("Your access cannot be validated.  Returning to previous application.");
     }
@@ -81,26 +81,36 @@ export class AppComponent implements OnInit {
   getApplicationBuild() {
     this.data.getAppUpdates().subscribe((results) => {
       this.store.setSystemValue('build', results);
-    });
+    },
+      error => {
+        alert("getApplicationBuild: " + error.message);
+      });
   }
 
   identifyLocale(){
     switch(this.store.system['webservice']['type'].toUpperCase())
     {
-        case 'LOCAL':
-          this.store.system['webservice']['locale'] = 'herndon';
-          console.log("local webservice - devmode is " + this.store.isDevMode());
-          break;
-        case 'DEV':
-        case 'DEMO':
-          this.store.system['webservice']['locale'] = 'development';
-          console.log('development (herndon) webservice - devmode is ' + this.store.isDevMode());
-          break;
-        case 'PROD':
-          this.store.system['webservice']['locale'] = 'production';
-          this.store.shutOffDev();
-          console.log('production webservice - devmode is ' + this.store.isDevMode());
-          break;
+      case 'LOCAL':
+        this.store.system['webservice']['locale'] = 'herndon';
+        console.log("local webservice - devmode is " + this.store.isDevMode());
+        break;
+      case 'DEMO':
+        this.store.system['webservice']['locale'] = 'demo';
+        console.log('demo (herndon) webservice - devmode is ' + this.store.isDevMode());
+        break;
+      case 'DEV':
+        this.store.system['webservice']['locale'] = 'development';
+        console.log("ccsa development webservice - devmode is " + this.store.isDevMode());
+        break;
+      case 'PREPROD':
+        this.store.system['webservice']['locale'] = 'preprod';
+        console.log('ccsa preprod (herndon) webservice - devmode is ' + this.store.isDevMode());
+        break;
+      case 'PROD':
+        this.store.system['webservice']['locale'] = 'production';
+        this.store.shutOffDev();
+        console.log('production webservice - devmode is ' + this.store.isDevMode());
+        break;
     }
   }
 
@@ -115,11 +125,15 @@ export class AppComponent implements OnInit {
 
       //Signal that user has been validated - They should be able to use the tool at this point.
       this.getUserInformation();
-    });
+    },
+      error => {
+        alert("validateCaptureToken: " + error.message);
+      });
   }
 
   getUserInformation() {
-    this.data.getUserInfo().subscribe((results) => {
+    this.data.getUserInfo()
+      .subscribe((results) => {
       if(results[0] != undefined) {
         let row: any = results[0];
         if(results[0].UserID != -9) {
@@ -155,6 +169,9 @@ export class AppComponent implements OnInit {
       } else {
         this.comm.noToolUserInfoFound.emit();
       }
-    });
+    },
+        error=> {
+        alert("getUserInformation: " + error.message);
+        });
   }
 }
