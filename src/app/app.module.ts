@@ -19,6 +19,7 @@ import { DataTablesModule } from 'angular-datatables';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TableFilterPipe } from './services/tablefilter.pipe';
+import { ListboxComponent } from './components/listbox/listbox.component';
 
 // Services
 import { StorageService } from './services/storage.service';
@@ -57,7 +58,7 @@ import { UpdaterDialogComponent } from './dialogs/updater-dialog/updater-dialog.
 import { PrimkeyDialogComponent } from './dialogs/primkey-dialog/primkey-dialog.component';
 import { ModifierDialogComponent } from './dialogs/modifier-dialog/modifier-dialog.component';
 import { UsermgrDialogComponent } from './dialogs/usermgr-dialog/usermgr-dialog.component';
-import {ToastNotificationsModule} from 'ngx-toast-notifications';
+import { ToastNotificationsModule } from 'ngx-toast-notifications';
 
 
 @NgModule({
@@ -87,7 +88,8 @@ import {ToastNotificationsModule} from 'ngx-toast-notifications';
     UpdaterDialogComponent,
     PrimkeyDialogComponent,
     ModifierDialogComponent,
-    UsermgrDialogComponent
+    UsermgrDialogComponent,
+    ListboxComponent
   ],
   imports: [
     BrowserModule,

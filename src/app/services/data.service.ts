@@ -11,13 +11,14 @@ import {Admin} from '../models/Admin.model';
 })
 export class DataService {
 
-  constructor(private http: HttpClient, private store: StorageService) { }
+  constructor(private http: HttpClient, private store: StorageService) {
+  }
 
   private getWSPath(): string {
     return this.store.system['webservice']['path'];
   }
 
-  private errorHandler(error){
+  private errorHandler(error) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {
       // client-side error
@@ -115,7 +116,7 @@ export class DataService {
     return this.http.get<any[]>(`${this.getWSPath()}CaptureQStr/${this.store.getPassKey()}/${queryid}`);
   }
 
-  addEditUpdateUserInfo(username: string, firstname: string, lastname:string, network: string, userid: number) {
+  addEditUpdateUserInfo(username: string, firstname: string, lastname: string, network: string, userid: number) {
     console.log('addEditUpdateUserInfo');
     var action: string = (userid == -9) ? "add" : "edit";
     return this.http.get<any[]>(`${this.getWSPath()}AddEditUpdateUserInfo/${this.store.getPassKey()}/${action}/${username}/${firstname}/${lastname}/${network}/${userid}`);
@@ -127,7 +128,7 @@ export class DataService {
     return this.http.get<any[]>(`${this.getWSPath()}StoreUserQuery/${this.store.getPassKey()}/${this.store.customURLEncoder(title)}/${this.store.customURLEncoder(body)}/${server}/${database}/${userid}/${qtype}/${display}`);
   }
 
-  updateRowInfo(server: string, db:string, table:string, updatekey:string, extwhere: string) {
+  updateRowInfo(server: string, db: string, table: string, updatekey: string, extwhere: string) {
     console.log('updateRowInfo');
     return this.http.get<any[]>(`${this.getWSPath()}UpdateRowInfo/${this.store.getPassKey()}/${server}/${db}/${table}/${updatekey}/${extwhere}/${this.store.getUserValue('userid')}`);
   }
@@ -136,4 +137,20 @@ export class DataService {
     console.log("adminManager");
     return this.http.get<any[]>(`${this.getWSPath()}QtAdminManager/${this.store.getPassKey()}/${ad.action}/${this.store.user.username}/${ad.purgedate}/${ad.useridstr}/${ad.userid}/${ad.username}/${ad.firstname}/${ad.lastname}/${ad.network}/${ad.version}/${ad.isadmin}`);
   }
+
+  getUserColumnSelection(userid: number) {
+    console.log('getUserColummnSelection');
+    return this.http.get<any[]>(`${this.getWSPath()}GetUserColumnSelections/${this.store.getPassKey()}/${userid}`);
+  }
+
+  updateUserColumnSelection(colObj: any) {
+    console.log("updateUserColumnSelection");
+    return this.http.get<any[]>(`${this.getWSPath()}UpdateUserColumnSelection/${this.store.getPassKey()}/${this.store.getUserValue('userid')}/${colObj.action}/${colObj.rtype}/${colObj.tablename}/${colObj.columnnames}/${colObj.distinctcol}/${colObj.id}`);
+  }
+
+  clearUserDefinedPK(tablename: string) {
+    console.log("clearUserDefinedPK");
+    return this.http.get<any[]>(`${this.getWSPath()}ClearUserDefinedPK/${this.store.getPassKey()}/${this.store.getUserValue('userid')}/${tablename}`);
+  }
 }
+

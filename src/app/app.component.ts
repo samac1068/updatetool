@@ -73,9 +73,12 @@ export class AppComponent implements OnInit {
   }
 
   getServerConfig() {
+    console.log('getServerConfig');
     const results = this.config.getServerConfig();
     this.store.setSystemValue('servers', results.servers);
     this.store.setSystemValue('databases', results.databases);
+    //console.log(this.store.getSystemValue('servers'));
+    //console.log(this.store.getSystemValue('databases'));
   }
 
   getApplicationBuild() {
@@ -91,7 +94,7 @@ export class AppComponent implements OnInit {
     switch(this.store.system['webservice']['type'].toUpperCase())
     {
       case 'LOCAL':
-        this.store.system['webservice']['locale'] = 'herndon';
+        this.store.system['webservice']['locale'] = 'local';
         console.log("local webservice - devmode is " + this.store.isDevMode());
         break;
       case 'DEMO':
@@ -148,7 +151,7 @@ export class AppComponent implements OnInit {
           this.store.setUserValue("priv", row["Priv"]);
 
           let n: any = row["Network"].split("|");
-          this.store.setUserValue("servername", n[0]);
+          this.store.setUserValue("servername", this.implementNameChange(n[0]));
 
           if(n[1] == undefined) n[1]=n[0];
 
@@ -173,5 +176,15 @@ export class AppComponent implements OnInit {
         error=> {
         alert("getUserInformation: " + error.message);
         });
+  }
+
+  // This should only affect HERNDON developers.
+  implementNameChange(network: string): string{
+    if(network.indexOf('HERNDON') > -1) {
+      let re = /HERNDON/gi;
+      network = network.replace(re, "LOCAL");
+    }
+
+    return network;
   }
 }

@@ -18,4 +18,5 @@ export class User {
   datamodified: boolean = false;
   priv: number;
   network: string;
+  storedcolumns: string[];
 }

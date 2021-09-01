@@ -7,13 +7,15 @@
     <span style="font-weight:bold">Use the CTRL key while clicking to select multiple columns.</span>
   </div>
   <br/>
-  <div id="divDDL" style="text-align:center" >
-    <select id="ddlPrimeKey" style="width: 250px; height: 175px;" multiple="multiple" [(ngModel)]="selectCols">
-      <option *ngFor="let column of availcol" [ngValue]="column.columnid" [selected]="isItemSelected(column.columnid)">{{column.columnname}}</option>
-    </select>
+  <div id="divDDL" style="text-align:left;" >
+    <div id="lstPrimeKey">
+      <app-listbox *ngFor="let column of availcol" [item]="column" [selected]="isItemSelected(column.columnid)" (click)="columnClickedHandler(column)"></app-listbox>
+    </div>
   </div>
-  <div style="margin-top: 10px; margin-bottom: 5px; text-align: right;">
+
+  <div style="margin-top: 10px; margin-bottom: 5px; text-align: right; margin-right: 5px;">
+    <button id="btnClear" class="standardRedBtn" (click)="clearHandler()" style="margin-right: 90px;" [disabled]="selectCols.length == 0">Clear</button>
     <button id="btnSubmit" class="standardBtn" (click)="submitHandler()">Submit</button>&nbsp;&nbsp;
-    <button id="btnCancel" class="standardBtn" (click)="cancelHandler()">Cancel</button>
+    <button id="btnCancel" class="standardBtn" (click)="cancelHandler()">Close</button>
   </div>
 </div>

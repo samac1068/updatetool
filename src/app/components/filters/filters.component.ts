@@ -18,7 +18,7 @@ export class FiltersComponent implements OnInit {
 
   curCondition: string;
   curInput: string = "";  //  headleyt:  20210205  Set default to empty string as it was causing an error
-  curOperator: string = "LIKE";
+  curOperator: string = "=";
   curColumn: string;
   curColumnType: string;
   curWID: number;
@@ -158,7 +158,7 @@ export class FiltersComponent implements OnInit {
     this.curColumn = "";
     this.curColumnType = "";
     this.curCondition = "";
-    this.curOperator = "LIKE";
+    this.curOperator = "=";
     this.curInput = "";
     this.curIndex = -1;
     this.curWID = -1;

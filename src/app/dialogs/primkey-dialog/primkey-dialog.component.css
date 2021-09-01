@@ -14,3 +14,16 @@
   margin: 0;
   overflow: hidden !important;
 }
+
+#lstPrimeKey {
+  width: 250px;
+  height: 175px;
+  padding: 5px;
+
+  margin-left: 25px;
+
+  border: 1px solid slategray;
+  box-shadow: black 2px 2px;
+
+  overflow: auto;
+}

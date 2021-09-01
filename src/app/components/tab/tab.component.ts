@@ -52,9 +52,9 @@ export class TabComponent implements OnInit {
               this.tabinfo.availcolarr.push(r);
               if(r.primarykey) this.tabinfo.hasPrimKey = true;
             }
-          });
 
-        this.comm.columnsUpdated.emit(this.tabinfo);
+            this.comm.columnsUpdated.emit(this.tabinfo);
+          });
        }
     });
 

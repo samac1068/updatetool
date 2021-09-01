@@ -48,11 +48,18 @@ export class ServersComponent implements OnInit {
         this.queries = [];
         this.populateStoredQueryList();
 
+        // Grab any stored column selection for the user
+        this.getUserStoredColumnSelection();
+
         //Now load the selection fields.
         this.store.setUserValue('storedqueries', this.queries);
-        this.servers = this.store.system['servers'];
-        this.databases = this.store.system['databases'];
+        this.servers = this.store.getSystemValue('servers');
+        this.databases = this.store.getSystemValue('databases');
         this.resetDatabaseList(this.defaultServer);
+    });
+
+    this.comm.reloadStoredColumnData.subscribe(() => {
+      this.getUserStoredColumnSelection();
     });
   }
 
@@ -142,6 +149,13 @@ export class ServersComponent implements OnInit {
 
         this.store.setUserValue('storedqueries', this.queries);
     });
+  }
+
+  getUserStoredColumnSelection() {
+    this.data.getUserColumnSelection(this.user.userid)
+      .subscribe((results) => {
+        this.store.setUserValue('storedcolumns', results);
+      });
   }
 
   cleanUpString(value: string) {

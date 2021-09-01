@@ -7,7 +7,7 @@
   </servers>
 
   <databases>
-    <database id="AOS" system="herndon" />
+    <database id="AOS" system="local" />
     <database id="AIR_FORCE" system="production,local,demo" altname="AIRFORCE" />
     <database id="CIND" system="production,local,development,preprod" />
     <database id="COADOS" system="production,local,development,preprod" />

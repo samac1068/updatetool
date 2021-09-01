@@ -62,6 +62,7 @@ export class QueryResultComponent implements OnInit {
     //  headleyt:  20210120  Added condition so this will be performed only on the active tab
     if (this.tabinfo === this.store.selectedTab){
       this.initializeTheQuery();
+      this.preloadUserSelectedColumns();
       this.constructSQLString();
       this.tabinfo.limitRows = false;
     }
@@ -78,6 +79,43 @@ export class QueryResultComponent implements OnInit {
     this.tabinfo.limitRows = false;
     this.tabinfo.selectcnt = "0";
     this.colHeader = [];
+  }
+
+  preloadUserSelectedColumns() {
+    // This is used to return any previously selected column list for the selected table
+    let storedColumns: any = this.store.getUserValue('storedcolumns');
+
+    // Identify all preselected preferred columns for this table
+    if(storedColumns != null) {
+      let columnListArr: any = storedColumns.filter(row => row.TableName.toUpperCase() == this.tabinfo.table.name.toUpperCase() && row.RType == 'C');
+
+      // If there is a return, then populate the associated variable, otherwise, leave as is
+      if (columnListArr.length == 1) {
+        this.tabinfo.colfilterarr = columnListArr[0].ColumnNames.split();
+        if (columnListArr[0].DistinctCol != null) this.tabinfo.distinctcol = columnListArr[0].DistinctCol;
+      }
+    }
+
+    // Identify and updated all primary keys for this table
+    if(storedColumns != null) {
+      let primaryKeyList: any = storedColumns.filter(row => row.TableName.toUpperCase() == this.tabinfo.table.name.toUpperCase() && row.RType == 'P');
+      if(primaryKeyList.length == 1) {
+        this.tabinfo.tempPrimKey = primaryKeyList[0].ColumnNames.split();
+        this.tabinfo.primKeyID = primaryKeyList[0].ID;
+
+        // Account for all of the primary keys
+        if (this.tabinfo.tempPrimKey != null) {
+          if (this.tabinfo.tempPrimKey.length > 0) {
+            for (let c = 0; c < this.tabinfo.tempPrimKey.length; c++) {
+              let selCol = this.tabinfo.availcolarr.find(x => x.columnid == this.tabinfo.tempPrimKey[c]);
+              if (selCol != undefined)
+                selCol.primarykey = true;
+            }
+            this.tabinfo.hasPrimKey = true;
+          }
+        }
+      }
+    }
   }
 
   constructSQLString() {
@@ -123,7 +161,6 @@ export class QueryResultComponent implements OnInit {
     else
     {
       // identify and mark the distinct column, if selected
-
       /*TODO - Would like to clean this up and make it efficient.  Currently coded to make it work, but def not clean */
       let sqlCopy = [...this.tabinfo.colfilterarr];
       let displayCopy = [...this.tabinfo.colfilterarr];
@@ -181,8 +218,8 @@ export class QueryResultComponent implements OnInit {
     this.tabinfo.querystr = displayStrSQL;
 
     //Run the string based on this information (it won't be a direct run)
-    console.log("SQL: " + strSQL);
-    console.log("DISPLAY: " + displayStrSQL);
+    //console.log("SQL: " + strSQL);
+    //console.log("DISPLAY: " + displayStrSQL);
 
     this.executeSQL();
   }
@@ -211,12 +248,12 @@ export class QueryResultComponent implements OnInit {
 	  			case "varchar":
 		  		case "datetime":
 			  	case "date":
-				case "time":
+				  case "time":
   				case "xml":
 	  			case "nvarchar":
 		  		case "nchar":
 			  	case "ntext":
-				case "text":
+				  case "text":
   				case "uniqueidentifier":
     //headleyt:  20210205  added a check to parse/build the proper string for the IN operator
             {
@@ -264,7 +301,7 @@ export class QueryResultComponent implements OnInit {
 	  			case "varchar":
 		  		case "datetime":
 			  	case "date":
-				case "time":
+				  case "time":
   				case "xml":
 	  			case "nvarchar":
 		  		case "nchar":
@@ -280,7 +317,7 @@ export class QueryResultComponent implements OnInit {
             }
 		  			break;
 			  	case "float":
-				case "bigint":
+				  case "bigint":
   				case "int":
 	  			case "bit":
 		  		case "decimal":
