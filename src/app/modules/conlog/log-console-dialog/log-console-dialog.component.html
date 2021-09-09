@@ -1,0 +1,10 @@
+<div id="titlebar">MOBCOP CONSOLE TOOL</div>
+<div id="container">
+  <div id="logItem" [ngClass]="{'class-array':log.arr, 'class-single':!log.arr}" *ngFor="let log of conlog.logConsoleArr; let i = index"><strong>{{ i }}: {{ log.txt }}</strong>
+    <div class="arrList" *ngIf="log.arr != null">
+      <div *ngFor="let aitem of log.arr; let a = index">
+        <strong>{{ a }}</strong>: {{ generateStringFromArrObj(aitem) }}
+      </div>
+    </div>
+  </div>
+</div>

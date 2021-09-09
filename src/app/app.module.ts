@@ -20,6 +20,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TableFilterPipe } from './services/tablefilter.pipe';
 import { ListboxComponent } from './components/listbox/listbox.component';
+import { ConlogModule } from './modules/conlog/conlog.module';
 
 // Services
 import { StorageService } from './services/storage.service';
@@ -27,6 +28,8 @@ import { ConfirmationDialogService } from  './services/confirm-dialog.service';
 import { ConfigService } from './services/config.service';
 import { DataService } from './services/data.service';
 import { ExcelService } from './services/excel.service';
+import { CopyTextDirective } from './services/copy-text.directive';
+import { ConlogService } from './modules/conlog/conlog.service';
 
 // Angular Material Imports
 import { MatTabsModule } from '@angular/material';
@@ -41,6 +44,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatListModule } from '@angular/material/list';
 
 // Dialog Imports
 import { ColumnsDialogComponent } from './dialogs/columns-dialog/columns-dialog.component';
@@ -53,7 +57,6 @@ import { ViewerDialogComponent } from './dialogs/viewer-dialog/viewer-dialog.com
 import { OptionsDialogComponent } from './dialogs/options-dialog/options-dialog.component';
 import { QueryDialogComponent } from './dialogs/query-dialog/query-dialog.component';
 import { WhatsnewDialogComponent } from './dialogs/whatsnew-dialog/whatsnew-dialog.component';
-import { CopyTextDirective } from './services/copy-text.directive';
 import { UpdaterDialogComponent } from './dialogs/updater-dialog/updater-dialog.component';
 import { PrimkeyDialogComponent } from './dialogs/primkey-dialog/primkey-dialog.component';
 import { ModifierDialogComponent } from './dialogs/modifier-dialog/modifier-dialog.component';
@@ -112,7 +115,9 @@ import { ToastNotificationsModule } from 'ngx-toast-notifications';
     MatExpansionModule,
     MatInputModule,
     MatButtonModule,
-    ToastNotificationsModule
+    ToastNotificationsModule,
+    MatListModule,
+    ConlogModule
   ],
   providers: [
     DataService,

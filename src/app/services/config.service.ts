@@ -17,7 +17,7 @@ export class ConfigService {
 
   // Return a list of servers and databases unassigned
   getServerConfig() {
-    var xml:XMLHttpRequest = new XMLHttpRequest();
+    let xml:XMLHttpRequest = new XMLHttpRequest();
     xml.open('GET', this.serverUrl, false);
     xml.send();
 
@@ -32,7 +32,7 @@ export class ConfigService {
       serverList.push(this.server);
     }
 
-    // Pulling server data
+    // Pulling database data
     const databases = xmlData.getElementsByTagName('database');
     const databaseList = [];
     for (let i = 0; i < databases.length; i++) {

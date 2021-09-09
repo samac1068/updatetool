@@ -1,24 +1,25 @@
 <data>
   <servers>
     <server id="LOCAL" offName="HERNDON_{0}" />
+    <server id="DEMO" offName="HERNDON_{0}" />
     <server id="DEVELOPMENT" offName="DEV_{0}" />
     <server id="PREPROD" offName="{0})PREPROD" />
     <server id="PRODUCTION" offName="{0}_PROD" />
   </servers>
 
   <databases>
-    <database id="AOS" system="local" />
+    <database id="AOS" system="production,local,development,preprod,demo" />
     <database id="AIR_FORCE" system="production,local,demo" altname="AIRFORCE" />
-    <database id="CIND" system="production,local,development,preprod" />
-    <database id="COADOS" system="production,local,development,preprod" />
-    <database id="CONUSA" system="production,local,development,preprod" />
-    <database id="CTCS" system="production,local,development,preprod" />
-    <database id="DAMPSA" system="production,local,development,preprod" />
-    <database id="DOCUMENTS" system="production,local,development,preprod" altname="MOBCOP_DOCUMENT" />
-    <database id="FINANCE_MANAGEMENT" system="production,local,development,preprod" altname="MOBCOP_FINANCE" />
-    <database id="MARRS" system="production,local,development,preprod" />
-    <database id="MOBCOP" system="production,local,development,preprod" />
-    <database id="ORDER_VIEWER" system="production,local,development,preprod" />
-    <database id="MOBCOP_INTERFACE" system="production,local,development,preprod" />
+    <database id="CIND" system="production,local,development,preprod,demo" />
+    <database id="COADOS" system="production,local,development,preprod,demo" />
+    <database id="CONUSA" system="production,local,development,preprod,demo" />
+    <database id="CTCS" system="production,local,development,preprod,demo" />
+    <database id="DAMPSA" system="production,local,development,preprod,demo" />
+    <database id="DOCUMENTS" system="production,local,development,preprod,demo" altname="MOBCOP_DOCUMENT" />
+    <database id="FINANCE_MANAGEMENT" system="production,local,development,preprod,demo" altname="MOBCOP_FINANCE" />
+    <database id="MARRS" system="production,local,development,preprod,demo" />
+    <database id="MOBCOP" system="production,local,development,preprod,demo" />
+    <database id="ORDER_VIEWER" system="production,local,development,preprod,demo" />
+    <database id="MOBCOP_INTERFACE" system="production,local,development,preprod,demo" />
   </databases>
 </data>

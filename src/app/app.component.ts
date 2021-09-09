@@ -1,12 +1,13 @@
 import { CommService } from './services/comm.service';
-import {Component, ElementRef, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 
 import { ConfigService } from './services/config.service';
 import { StorageService } from './services/storage.service';
 import { DataService } from './services/data.service';
 
-// using the new environment files to determine the dev mode and the url to the api
-import {environment} from '../environments/environment';
+import { MatDialog } from '@angular/material';
+import { LogConsoleDialogComponent } from './modules/conlog/log-console-dialog/log-console-dialog.component';
+import { ConlogService } from './modules/conlog/conlog.service';
 
 @Component({
   selector: 'app-root',
@@ -18,8 +19,37 @@ export class AppComponent implements OnInit {
   minHeightDefault: number = 943;
   minWidthDefault: number = 1322;
   urlToken: any = "";
+  isConsoleOpen: boolean = false;
+  dialogQuery: any;
 
-  constructor(private config: ConfigService, private store: StorageService, private data: DataService, private comm: CommService) { }
+  constructor(private config: ConfigService, private store: StorageService, private data: DataService, private comm: CommService, public dialog: MatDialog,
+              private conlog: ConlogService) { }
+
+  // Adding global host listener for single global keyboard command of CTRL+\
+  @HostListener('document:keypress', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if(event.ctrlKey && event.code == "KeyY") {
+      // A request to open the logging console has been executed
+      this.conlog.log("CTRL+Y was selected.");
+
+      if(!this.isConsoleOpen) {
+        this.isConsoleOpen = true;
+        this.dialogQuery = this.dialog.open(LogConsoleDialogComponent, {
+          width: '650px',
+          height: '870px',
+          autoFocus: false,
+          position: { right: '20px', top: '10px'}
+        });
+
+        this.dialogQuery.afterClosed().subscribe(() => {
+          this.isConsoleOpen = false;
+        });
+      } else {
+        // close the window, but keep the information.
+        this.dialogQuery.close();
+      }
+    }
+  }
 
   ngOnInit() {
     // Get the query string parameter for key
@@ -47,7 +77,7 @@ export class AppComponent implements OnInit {
         this.data.getLocalToken("sean.mcgill")  // Generate a token at this point and introduce it into the application.
           .subscribe(result => {
             this.urlToken += result["token"];
-            console.log(this.urlToken);
+            this.store.log(this.urlToken);
           });
       }*/
     } else {
@@ -69,16 +99,16 @@ export class AppComponent implements OnInit {
     const results = this.config.getSystemConfig();
     this.store.setSystemValue('webservice', results);
     this.store.setSystemValue('window', { minHeight: this.minHeightDefault, minWidth: this.minWidthDefault });
-    this.store.setDevMode(results.type == "local");
+    this.store.setDevMode(results.type == "local"); //|| results.type == "demo"
   }
 
   getServerConfig() {
-    console.log('getServerConfig');
+    this.conlog.log('getServerConfig');
     const results = this.config.getServerConfig();
     this.store.setSystemValue('servers', results.servers);
     this.store.setSystemValue('databases', results.databases);
-    //console.log(this.store.getSystemValue('servers'));
-    //console.log(this.store.getSystemValue('databases'));
+    this.conlog.log(this.store.getSystemValue('servers'));
+    this.conlog.log(this.store.getSystemValue('databases'));
   }
 
   getApplicationBuild() {
@@ -95,24 +125,24 @@ export class AppComponent implements OnInit {
     {
       case 'LOCAL':
         this.store.system['webservice']['locale'] = 'local';
-        console.log("local webservice - devmode is " + this.store.isDevMode());
+        this.conlog.log("local webservice - devmode is " + this.store.isDevMode());
         break;
       case 'DEMO':
         this.store.system['webservice']['locale'] = 'demo';
-        console.log('demo (herndon) webservice - devmode is ' + this.store.isDevMode());
+        this.conlog.log('demo (azure) webservice - devmode is ' + this.store.isDevMode());
         break;
       case 'DEV':
         this.store.system['webservice']['locale'] = 'development';
-        console.log("ccsa development webservice - devmode is " + this.store.isDevMode());
+        this.conlog.log("ccsa development webservice - devmode is " + this.store.isDevMode());
         break;
       case 'PREPROD':
         this.store.system['webservice']['locale'] = 'preprod';
-        console.log('ccsa preprod (herndon) webservice - devmode is ' + this.store.isDevMode());
+        this.conlog.log('ccsa preprod (herndon) webservice - devmode is ' + this.store.isDevMode());
         break;
       case 'PROD':
         this.store.system['webservice']['locale'] = 'production';
         this.store.shutOffDev();
-        console.log('production webservice - devmode is ' + this.store.isDevMode());
+        this.conlog.log('production webservice - devmode is ' + this.store.isDevMode());
         break;
     }
   }
@@ -182,7 +212,7 @@ export class AppComponent implements OnInit {
   implementNameChange(network: string): string{
     if(network.indexOf('HERNDON') > -1) {
       let re = /HERNDON/gi;
-      network = network.replace(re, "LOCAL");
+      network = network.replace(re, this.store.system['webservice']['type'].toUpperCase());
     }
 
     return network;
