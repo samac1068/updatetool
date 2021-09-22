@@ -18,7 +18,7 @@ export class DataService {
     return this.store.system['webservice']['path'];
   }
 
-  private errorHandler(error) {
+  private static errorHandler(error) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {
       // client-side error
@@ -77,7 +77,7 @@ export class DataService {
   getTableDBList(server: string, db: string) {
     console.log('getTableDBList');
     return this.http.get<any[]>(`${this.getWSPath()}GetDbTableList/${this.store.getPassKey()}/${server}/${db}`)
-      .pipe(catchError(this.errorHandler));
+      .pipe(catchError(DataService.errorHandler));
   }
 
   getQueryData(server: string, db: string, tbl: string, col: string, where: string, join: string, order: string, cnt: boolean, lmtrow: boolean, speccnt: string, username: string) {
@@ -88,7 +88,7 @@ export class DataService {
   getTableProperties(server: string, db: string, tbl: string): Observable<any[]> {
     console.log('getTableProperties');
     return this.http.get<any[]>(`${this.getWSPath()}GetTableProperties/${this.store.getPassKey()}/${server}/${db}/${tbl}`)
-      .pipe(catchError(this.errorHandler));
+      .pipe(catchError(DataService.errorHandler));
   }
 
   getStoreProcList(server: string, db: string) {

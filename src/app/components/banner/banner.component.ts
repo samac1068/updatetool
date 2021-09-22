@@ -29,7 +29,7 @@ export class BannerComponent implements OnInit {
       this.user = this.store.getUser();
       this.isAdmin = this.user.priv == 1;
       this.setupVersion();
-      //this.confirmDisplayWhatsNew();
+      this.confirmDisplayWhatsNew();
     });
 
     this.comm.noToolUserInfoFound.subscribe(() => {
@@ -73,7 +73,7 @@ export class BannerComponent implements OnInit {
   }
 
   confirmDisplayWhatsNew() {
-    if((this.store.getVersion() > this.user.lastversion) && this.build[0].BuildVersion == this.store.getVersion())
+    if((this.store.getVersion() > this.user.lastversion))
       this.displayWhatsNew();
   }
 
@@ -81,7 +81,7 @@ export class BannerComponent implements OnInit {
     //Display the What's new page if there is something new since the last time it was checked.
     const dialogBannerRef = this.dialog.open(WhatsnewDialogComponent, { width: '700px', height: '550px', autoFocus: true, data: this.user });
     dialogBannerRef.afterClosed().subscribe((u) => {
-      this.user = u;
+      if(u != null) this.user = u;
     });
   }
 }

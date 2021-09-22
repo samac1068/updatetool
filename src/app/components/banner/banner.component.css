@@ -15,7 +15,11 @@
 
 .version {
   font-size: 8px;
-  bottom: 0;
+  bottom: 1px;
+}
+
+.version:hover {
+  color: yellow;
 }
 
 .userControls {

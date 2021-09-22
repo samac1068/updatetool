@@ -23,32 +23,36 @@ export class WhatsnewDialogComponent implements OnInit {
   private data: DataService) { }
 
   ngOnInit() {
-    //Parse and organize the change history
-    var changes: any = this.store.getSystemValue('build');
+    try {
+      //Parse and organize the change history
+      let changes: any = this.store.getSystemValue('build');
 
-    this.latestBuild = changes[0].BuildVersion;
-    this.curVersion = this.store.getVersion();
+      this.latestBuild = changes[0].BuildVersion;
+      this.curVersion = this.store.getVersion();
 
-    for(var i=0; i < changes.length; i++){
-       if(changes[i].BuildVersion > this.user.lastversion){
-        if(this.newchange[changes[i].BuildVersion] == undefined)
-          this.newchange[changes[i].BuildVersion] = []; 
-        this.newchange[changes[i].BuildVersion].push({ver: changes[i].BuildVersion, txt: changes[i].BuildChanges});
+      for (let i = 0; i < changes.length; i++) {
+        if (changes[i].BuildVersion <= this.curVersion) {
+          if (changes[i].BuildVersion > this.user.lastversion) {
+            if (this.newchange[changes[i].BuildVersion] == undefined) this.newchange[changes[i].BuildVersion] = [];
+            this.newchange[changes[i].BuildVersion].push({ver: changes[i].BuildVersion, txt: changes[i].BuildChanges});
+          } else {
+            if (this.history[changes[i].BuildVersion] == undefined) this.history[changes[i].BuildVersion] = [];
+            this.history[changes[i].BuildVersion].push({ver: changes[i].BuildVersion, txt: changes[i].BuildChanges});
+          }
+        }
       }
-      else {
-        if(this.history[changes[i].BuildVersion] == undefined)
-          this.history[changes[i].BuildVersion] = []; 
-        this.history[changes[i].BuildVersion].push({ver: changes[i].BuildVersion, txt: changes[i].BuildChanges});
-      } 
-    }
 
-    this.buttonTitle = (this.objectKeys(this.newchange).length > 0) ? "Acknowledge" : "Close";
-    
-    //Adjust the height of the appropriate visible div
-    if(this.objectKeys(this.newchange).length > 0 && this.objectKeys(this.history).length > 0 ){
-      this.classheight = "220px";
-    } else if(this.objectKeys(this.newchange).length > 0 || this.objectKeys(this.history).length > 0 ){
-      this.classheight = "440px";
+      this.buttonTitle = (this.objectKeys(this.newchange).length > 0) ? "Acknowledge" : "Close";
+
+      //Adjust the height of the appropriate visible div
+      if (this.objectKeys(this.newchange).length > 0 && this.objectKeys(this.history).length > 0) {
+        this.classheight = "220px";
+      } else if (this.objectKeys(this.newchange).length > 0 || this.objectKeys(this.history).length > 0) {
+        this.classheight = "440px";
+      }
+    } catch(e) {
+      console.log(e);
+      this.closeDialog();
     }
   }
 
@@ -58,7 +62,7 @@ export class WhatsnewDialogComponent implements OnInit {
         this.user.lastversion = this.latestBuild;
         this.closeDialog();
       });
-    } else 
+    } else
       this.closeDialog();
   }
 
