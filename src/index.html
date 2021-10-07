@@ -10,16 +10,26 @@
 </head>
 <body>
   <script>
-	/*function evalStr(str) {
-		str.replace("<", "");
-		str.replace(">", "");
-		str.replace("/", "");
-	}
+    /* Used to remove any potential dangerous tag elements from incoming string */
+    function evalStr(str) {
+      str.replace("<", "");
+      str.replace(">", "");
+      str.replace("/", "");
+    }
 
-    var token = evalStr(window.location.href.split("=")[1]);
-    var jstr = "<app-root token='" + token + "'>Standby Loading Application</app-root>";
-    document.write(jstr);*/
+    let jstr = "";
+    let token = window.location.href.split("=")[1];
+
+    if(token !== undefined)
+    {
+      evalStr(token);
+      jstr = `<app-root token='${token}'></app-root>`;
+      //jstr = "<app-root token='" + token + "'></app-root>";
+    } else
+      jstr = `<app-root></app-root>`;
+
+    // Display the angular application either in prod or dev mode.
+    document.write(jstr);
   </script>
-  <app-root></app-root>
 </body>
 </html>

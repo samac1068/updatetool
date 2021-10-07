@@ -78,10 +78,16 @@ export class BannerComponent implements OnInit {
   }
 
   displayWhatsNew() {
-    //Display the What's new page if there is something new since the last time it was checked.
-    const dialogBannerRef = this.dialog.open(WhatsnewDialogComponent, { width: '700px', height: '550px', autoFocus: true, data: this.user });
-    dialogBannerRef.afterClosed().subscribe((u) => {
-      if(u != null) this.user = u;
-    });
+    // Only display if the stored build version is greater than the user version
+    let builds: any = this.store.getSystemValue('build');
+    if(builds[0].BuildVersion > this.user.lastversion) {
+
+      //Display the What's new page if there is something new since the last time it was checked.
+      const dialogBannerRef = this.dialog.open(WhatsnewDialogComponent, {
+        width: '700px', height: '550px', autoFocus: true, data: this.user });
+      dialogBannerRef.afterClosed().subscribe((u) => {
+        if (u != null) this.user = u;
+      });
+    }
   }
 }

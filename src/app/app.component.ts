@@ -30,8 +30,6 @@ export class AppComponent implements OnInit {
   handleKeyboardEvent(event: KeyboardEvent) {
     if(event.ctrlKey && event.code == "KeyY") {
       // A request to open the logging console has been executed
-      this.conlog.log("CTRL+Y was selected.");
-
       if(!this.isConsoleOpen) {
         this.isConsoleOpen = true;
         this.dialogQuery = this.dialog.open(LogConsoleDialogComponent, {
