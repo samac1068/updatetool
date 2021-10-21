@@ -77,10 +77,10 @@ export class BannerComponent implements OnInit {
       this.displayWhatsNew();
   }
 
-  displayWhatsNew() {
+  displayWhatsNew(requested: boolean = false) {
     // Only display if the stored build version is greater than the user version
     let builds: any = this.store.getSystemValue('build');
-    if(builds[0].BuildVersion > this.user.lastversion) {
+    if(builds[0].BuildVersion > this.user.lastversion || requested) {
 
       //Display the What's new page if there is something new since the last time it was checked.
       const dialogBannerRef = this.dialog.open(WhatsnewDialogComponent, {
