@@ -9,6 +9,7 @@ import { QueryDialogComponent } from 'src/app/dialogs/query-dialog/query-dialog.
 import { UpdaterDialogComponent } from '../../dialogs/updater-dialog/updater-dialog.component';
 import { PrimkeyDialogComponent } from '../../dialogs/primkey-dialog/primkey-dialog.component';
 import { ModifierDialogComponent } from '../../dialogs/modifier-dialog/modifier-dialog.component';
+import {ConlogService} from '../../modules/conlog/conlog.service';
 
 
 @Component({
@@ -25,7 +26,7 @@ export class QueryResultComponent implements OnInit {
   dataSource: any;
   rowsReturned: string;
 
-  constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog) { }
+  constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog, private conlog: ConlogService) { }
 
   ngOnInit() {
     //Listner
@@ -125,67 +126,54 @@ export class QueryResultComponent implements OnInit {
     let strSQL = "SELECT ";
     let displayStrSQL = "Select ";
 
-    //Build the return
+    //How many records are we pulling for this select
     if(this.tabinfo.getcount) {
-      strSQL += "COUNT (*) AS [Count] FROM ";
-      displayStrSQL += "the number of records ";
+      strSQL += "COUNT (*) AS [Count] ";
+      displayStrSQL += "the total number of records ";
     }
-    else if (parseInt(this.tabinfo.selectcnt) > 0) {
-      strSQL += "TOP " + this.tabinfo.selectcnt + " ";
-      displayStrSQL += "the top " + this.tabinfo.selectcnt + " records ";
-    }
-    else if (this.tabinfo.wherearrcomp.length == 0 && this.tabinfo.colfilterarr[0] == "*" && parseInt(this.tabinfo.selectcnt) != -9){
-      strSQL += "TOP 10 ";
-      displayStrSQL += "the top 10 records ";
-    }
-    else if (this.tabinfo.wherearrcomp.length == 0 && this.tabinfo.colfilterarr[0] == "*" && parseInt(this.tabinfo.selectcnt) == -9){
-      displayStrSQL += "all records "
-    }
+    else if (this.tabinfo.wherearrcomp.length == 0){
+      if(this.tabinfo.selectcnt == "0") this.tabinfo.selectcnt = "10";
 
-    //What columns do we want
-    //  headleyt:  20210129  adding the displayStrSQL variable for the text version of the query
-    //  made the selectcnt == -9 it's own check to make it work correctly
-    if(this.tabinfo.colfilterarr[0] == "*" /*|| parseInt(this.tabinfo.selectcnt) == -9*/)
-    {
-      strSQL += "* ";
-    //headleyt:  20210201  Added this checked to keep from having at top #n statement and the all records statement
-      if (this.tabinfo.wherearrcomp.length > 0) {
-        displayStrSQL += "all records ";
-      }
+      strSQL += "TOP " + this.tabinfo.selectcnt + " ";
+      displayStrSQL += "the first " + this.tabinfo.selectcnt + " record(s) ";
     }
-    else if (parseInt(this.tabinfo.selectcnt) == -9)
-    {
-      strSQL += "* ";
+    else if (this.tabinfo.wherearrcomp.length > 0) {
       displayStrSQL += "all records ";
     }
-    else
-    {
-      // identify and mark the distinct column, if selected
-      /*TODO - Would like to clean this up and make it efficient.  Currently coded to make it work, but def not clean */
-      let sqlCopy = [...this.tabinfo.colfilterarr];
-      let displayCopy = [...this.tabinfo.colfilterarr];
 
-      if(this.tabinfo.distinctcol != "") {
-        let ddistinct: string = "";
-        let sdistinct: string = "";
-        for(let c = 0; c < this.tabinfo.colfilterarr.length; c++) {
-          if(this.tabinfo.colfilterarr[c] == this.tabinfo.distinctcol) {
-            ddistinct = "Distinct " + this.tabinfo.distinctcol;
-            sdistinct = "DISTINCT " + this.tabinfo.distinctcol;
-            sqlCopy.splice(c, 1);
-            displayCopy.splice(c, 1);
-            break;
+    // Specific columns or all columns
+    if(!this.tabinfo.getcount) {
+      // Do we have multiple columns selected? Is there a distinct column selected?
+      if(this.tabinfo.colfilterarr.length > 1 || this.tabinfo.colfilterarr[0] != "*") {
+        // identify and mark the distinct column, if selected
+        /*TODO - Would like to clean this up and make it efficient.  Currently coded to make it work, but def not clean */
+        let sqlCopy = [...this.tabinfo.colfilterarr];
+        let displayCopy = [...this.tabinfo.colfilterarr];
+
+        if(this.tabinfo.distinctcol != "") {
+          let ddistinct: string = "";
+          let sdistinct: string = "";
+          for(let c = 0; c < this.tabinfo.colfilterarr.length; c++) {
+            if(this.tabinfo.colfilterarr[c] == this.tabinfo.distinctcol) {
+              ddistinct = "distinct " + this.tabinfo.distinctcol;
+              sdistinct = "DISTINCT " + this.tabinfo.distinctcol;
+              sqlCopy.splice(c, 1);
+              displayCopy.splice(c, 1);
+              break;
+            }
           }
+
+          sqlCopy.unshift(sdistinct);  // Now we have identified and remove, reinsert in the front of the column selection list
+          displayCopy.unshift(ddistinct);
         }
 
-        sqlCopy.unshift(sdistinct);  // Now we have identified and remove, reinsert in the front of the column selection list
-        displayCopy.unshift(ddistinct);
+        strSQL += sqlCopy.join() + " ";
+        displayStrSQL += displayCopy.join() + " ";
       }
-
-      strSQL += sqlCopy.join() + " ";
-      displayStrSQL += displayCopy.join() + " ";
-      //strSQL += this.tabinfo.colfilterarr.join() + " ";
-      //displayStrSQL += this.tabinfo.colfilterarr.join() + " ";
+      if(this.tabinfo.colfilterarr[0] == "*") {
+        strSQL += "* ";
+        displayStrSQL += "of all columns ";
+      }
     }
 
     //Include the FROM
@@ -199,14 +187,14 @@ export class QueryResultComponent implements OnInit {
     //Add Join statement
     if(this.tabinfo.joinarr.length > 0){
       strSQL += this.constructJoin();
-      displayStrSQL = this.constructJoinSentence2(displayStrSQL);
+      displayStrSQL = this.constructJoinSentence(displayStrSQL);
     }
 
     //Where Clause
     if(this.tabinfo.wherearrcomp.length > 0){
       strSQL += this.constructWhereClause(true);
       displayStrSQL += this.constructWhereClauseSentence();
-      console.log("after where clause, after join:  " + strSQL);
+      //console.log("after where clause, after join:  " + strSQL);
     }
 
     // Order By
@@ -218,13 +206,13 @@ export class QueryResultComponent implements OnInit {
     this.tabinfo.querystr = displayStrSQL;
 
     //Run the string based on this information (it won't be a direct run)
-    //console.log("SQL: " + strSQL);
-    //console.log("DISPLAY: " + displayStrSQL);
+    this.conlog.log("SQL: " + strSQL);
+    this.conlog.log("DISPLAY: " + displayStrSQL);
 
     this.executeSQL();
   }
 
-    //headley:  20210115  Integrating Sean's fixes for suspicious code; added parameter
+  //headley:  20210115  Integrating Sean's fixes for suspicious code; added parameter
   constructWhereClause(forDisplay: boolean){
     //Manually join the where clause adding in the appropriate conditioning statements
     let wStr: string = "WHERE ";
@@ -232,7 +220,7 @@ export class QueryResultComponent implements OnInit {
       let row: any = this.tabinfo.wherearrcomp[i];
 
       //Add in the condition for the second + where item
-      if(i > 0) wStr += " " + row.condition + " ";
+      if(i > 0) wStr += " " + (row.condition.length == 0 ? " AND " : " " + row.condition + " ") + " ";
 
       //Add the column and operator
       //  headleyt:  20210115  modifications integrated from Sean
@@ -287,8 +275,8 @@ export class QueryResultComponent implements OnInit {
       let row: any = this.tabinfo.wherearrcomp[i];
 
       //Add in the condition for the second + where item
-      if(i > 0)
-        wStr += " " + (row.condition == 'IS NOT NULL' || row.condition == 'IS NULL') ? row.condition.toUpperCase() : row.condition + " ";
+      //if(i > 0) wStr += " " + (row.condition == 'IS NOT NULL' || row.condition == 'IS NULL') ? row.condition.toUpperCase() : row.condition + " ";
+      if(i > 0) wStr += " " + (row.condition.length == 0 ? " and " : " " + row.condition.toUpperCase() + " ") ;
 
       //Add the column and operator
       //  headleyt:  20210115  modifications integrated from Sean
@@ -306,7 +294,7 @@ export class QueryResultComponent implements OnInit {
 	  			case "nvarchar":
 		  		case "nchar":
 			  	case "ntext":
-				case "text":
+				  case "text":
   				case "uniqueidentifier":
 //  headleyt:  20210205  added a check to parse/build the proper string for the IN operator
             {
@@ -399,7 +387,7 @@ export class QueryResultComponent implements OnInit {
     return jStr;
   }
 
-  constructJoinSentence2(sentence: string){
+  constructJoinSentence(sentence: string){
     let jStr: string = "";
     let tableString: string = sentence.substr(0, sentence.indexOf("table") + 6);
     let leftdb: string = "";
@@ -455,89 +443,6 @@ export class QueryResultComponent implements OnInit {
     }
     return jStr;
   }
-
-  /*constructJoinSentence(sentence: string) {
-    let jStr: string = "";
-    let tableString: string = sentence.substr(0, sentence.indexOf("table") + 6);
-
-    for (let i = 0; i < this.tabinfo.joinarr.length; i++){
-      if (this.tabinfo.joinarr[i].dbleft == this.tabinfo.joinarr[i].dbright){
-        if (tableString.indexOf("tables") == -1){
-          tableString = tableString.replace("table", "tables");
-        }
-          if (tableString.indexOf(this.tabinfo.joinarr[i].tableleft) == -1){
-           tableString += this.tabinfo.joinarr[i].tableleft;
-        }
-        if (tableString.indexOf(this.tabinfo.joinarr[i].tableright) == -1){
-          if (this.tabinfo.joinarr.length == 1)
-            tableString += " and " + this.tabinfo.joinarr[i].tableright;
-          else if (i < this.tabinfo.joinarr.length - 1)
-            tableString += ", " + this.tabinfo.joinarr[i].tableright;
-          else
-            tableString += ", and " + this.tabinfo.joinarr[i].tableright;
-        }
-        if (this.lastDbReference(i + 1, this.tabinfo.joinarr[i].dbleft)){
-          tableString += " in the " + this.tabinfo.joinarr[i].dbleft + " database ";
-        }
-        jStr = tableString;
-      }
-      else if (this.tabinfo.joinarr[i].dbleft != this.tabinfo.joinarr[i].dbright){
-        if (i == 0){
-          tableString = sentence + " and table " + this.tabinfo.joinarr[i].tableright + " in the " + this.tabinfo.joinarr[i].dbright + " database ";
-        }
-        else {
-          if (tableString.indexOf(this.tabinfo.joinarr[i].tableleft) == -1){
-            tableString += " and table " + this.tabinfo.joinarr[i].tableleft + " in the " + this.tabinfo.joinarr[i].dbleft + " database "
-          }
-          if (tableString.indexOf(this.tabinfo.joinarr[i].tableright) == -1){
-            tableString += " and table " + this.tabinfo.joinarr[i].tableright + " in the " + this.tabinfo.joinarr[i].dbright + " database "
-          }
-        }
-        jStr = tableString;
-      }
-    }
-    return jStr;
-  }*/
-
-  //  headleyt:  20210226  Added this function to add the " in the <dbname> database" if there are multiple tables in the query
-  /*lastDbReference(i: number, dbName: string){
-    let bFound: boolean = true;
-
-    for (let j = i; j < this.tabinfo.joinarr.length; j++){
-      bFound = !(dbName == this.tabinfo.joinarr[j].dbleft && dbName == this.tabinfo.joinarr[j].dbright);
-    }
-
-    return bFound;
-  }*/
-  //  headleyt: 20210217  Added this function to build the sentence version of the join clause
-  /*constructJoinSentence(sentence: string) {
-    let jStr: string = "";
-    let tableString: string = "";
-
-    //console.log("sentence passed in:  " + sentence);
-    //console.log("constructJoinSentece:  " + this.tabinfo.joinarr.length);
-    for (let i = 0; i < this.tabinfo.joinarr.length; i++){
-      if (this.tabinfo.joinarr[i].dbleft == this.tabinfo.joinarr[i].dbright){
-        //console.log("looping through join rows (right table):  " + this.tabinfo.joinarr[i].tableright);
-        if (tableString.indexOf(this.tabinfo.joinarr[i].tableleft) == -1){
-          tableString += this.tabinfo.joinarr[i].tableleft;
-        }
-        if (tableString.indexOf(this.tabinfo.joinarr[i].tableright) == -1){
-          if (i < this.tabinfo.joinarr.length - 1)
-            tableString += ", " + this.tabinfo.joinarr[i].tableright;
-          else
-            tableString += ", and " + this.tabinfo.joinarr[i].tableright;
-        }
-        jStr = sentence.replace("table", "tables").replace(this.tabinfo.joinarr[i].tableleft, tableString);
- //       jStr = sentence.replace("table", "tables").replace(this.tabinfo.joinarr[i].tableleft, (this.tabinfo.joinarr[i].tableleft + " and " + this.tabinfo.joinarr[i].tableright));
-      }
-      else if (this.tabinfo.joinarr[i].dbleft != this.tabinfo.joinarr[i].dbright){
-        jStr = sentence + " and table " + this.tabinfo.joinarr[i].tableright + " in the " + this.tabinfo.joinarr[i].dbright + " database ";
-      }
-    }
-
-    return jStr;
-  }*/
 
   executeSQL(){
     //Run out and get what we need

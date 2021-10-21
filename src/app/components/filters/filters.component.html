@@ -43,7 +43,7 @@
     <span class="fieldLabel" style="margin-left: 135px;">Operators:</span>
 
     <div style="margin-top: 3px;">
-      <select id="ddlConditionalList" style="width: 60px" [(ngModel)]="curCondition" [disabled]="!tableSelected">
+      <select id="ddlConditionalList" style="width: 60px" [(ngModel)]="curCondition" [disabled]="!tableSelected" (change)="onConditionChange()">
           <option value="-9"></option>
           <option *ngFor="let condit of conditionalOpt" value="{{ condit }}">{{ condit }}</option>
       </select>

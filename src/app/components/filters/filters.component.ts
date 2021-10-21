@@ -68,6 +68,10 @@ export class FiltersComponent implements OnInit {
     } else this.noValueNeeded = false;
   }
 
+  onConditionChange() {
+    this.evaluateBtnStatus();
+  }
+
   updateGetCount(){
     this.tabinfo.getcount = !this.tabinfo.getcount;
     this.optionChanged = true;
@@ -101,9 +105,9 @@ export class FiltersComponent implements OnInit {
     let whereItemStr = "";
 
     // set the conditional
-    this.curCondition = ((this.curCondition != "" && this.curCondition != '-9') ? this.curCondition : "AND");
-
-    if(this.noValueNeeded) this.curCondition = "";
+    if(this.tabinfo.wherearrcomp.length >= 1)
+      this.curCondition = ((this.curCondition != "") ? this.curCondition : "AND");
+    else this.curCondition = "";
 
     // Add the where string
     whereItemStr += this.curColumn + " " + this.curOperator + " ";
@@ -210,11 +214,10 @@ export class FiltersComponent implements OnInit {
     this.hasValue = this.curInput.length > 0;
 
     //Apply button
-      this.filterAdded = this.tabinfo.wherearrcomp.length > 0 || this.tabinfo.getcount || this.tabinfo.limitRows;
+    this.filterAdded = this.tabinfo.wherearrcomp.length > 0 || this.tabinfo.getcount || this.tabinfo.limitRows;
 
     // Clear all button
     this.hasWhere = (this.tabinfo.wherearrcomp.length > 0);
-
   }
 
   applyWhereClause(){
@@ -225,7 +228,7 @@ export class FiltersComponent implements OnInit {
       if(this.tabinfo.limitRows)
         this.tabinfo.selectcnt = this.localSelectCtn;
       else {
-        this.tabinfo.selectcnt = "0";
+        this.tabinfo.selectcnt = "10";
         this.localSelectCtn = "100";
       }
     }
