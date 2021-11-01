@@ -20,11 +20,14 @@ export class BannerComponent implements OnInit {
   build: Build;
   version: string;
   isAdmin: boolean = false;
+  network: string;
 
   constructor(private data: DataService, private store: StorageService, private comm: CommService, public dialog: MatDialog) { }
 
   ngOnInit() {
     //Listing listeners and services
+    this.network = this.store.system['webservice']['network'];
+
     this.comm.userInfoLoaded.subscribe(() => {
       this.user = this.store.getUser();
       this.isAdmin = this.user.priv == 1;

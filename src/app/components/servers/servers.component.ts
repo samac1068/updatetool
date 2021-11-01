@@ -28,10 +28,14 @@ export class ServersComponent implements OnInit {
   selectedQueryID: number = -1;
   isTableSelected:  boolean = false;
 
+  network: string;
+
   constructor(private store: StorageService, private comm: CommService, private data: DataService, private config: ConfigService) { }
 
   ngOnInit() {
-      //Listeners
+    this.network = this.store.system['webservice']['network'];
+
+    //Listeners
       this.comm.setQueryButton.subscribe(() => { this.setQueryButton() });  //  enable/disable the Save Current Query when table is selected
       this.comm.populateQueryList.subscribe(() => { this.populateStoredQueryList() });  //  Repopulate the Your Saved Queries dropdown after query is saved
       this.comm.selectTab.subscribe(() => { this.setSettingsByTab() });  //  enable/disable the Save Current Query button when tabs are changed

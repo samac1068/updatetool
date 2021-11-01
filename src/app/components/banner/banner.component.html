@@ -1,5 +1,9 @@
-<div class="title">
+<div [ngClass]="{'nipr_bg':network == 'nipr', 'sipr_bg': network == 'sipr' }">
   <img id="bannerImg" style="float:left;" src="assets/image/updatetooltitle.png" alt="" />
+
+  <div [ngClass]="{'classification_nipr':network == 'nipr', 'classification_sipr': network == 'sipr' }">
+    {{ network == 'sipr' ? 'SECRET' : 'UNCLASSIFIED' }}
+  </div>
 
   <div class="copyright">
     (c) Copyright 2021 by MKGCS, LLC. | All Rights Reserved
@@ -12,7 +16,7 @@
   <div id="buttonGrp">
     <button (click)="displayWhatsNew(true)" mat-button style="height:20px"><span class="version">{{ version }}</span></button>
     <button class="standardRedBtn" *ngIf="isAdmin" (click)="openUserManagerDialog()" title="Used to Manage QT Users">User Manager</button>
-    <button class="standardBtn" (click)="openOptionsDialog()">User Options</button>&nbsp;&nbsp;
-    <button class="standardBtn" (click)="returnToOrders()">Return to Orders</button>
+    <button class="standardGreenBtn" (click)="openOptionsDialog()">User Options</button>&nbsp;&nbsp;
+    <button class="standardGreenBtn" (click)="returnToOrders()">Return to Orders</button>
   </div>
 </div>

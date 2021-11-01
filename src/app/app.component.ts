@@ -97,7 +97,7 @@ export class AppComponent implements OnInit {
     const results = this.config.getSystemConfig();
     this.store.setSystemValue('webservice', results);
     this.store.setSystemValue('window', { minHeight: this.minHeightDefault, minWidth: this.minWidthDefault });
-    this.store.setDevMode(results.type == "local"); //|| results.type == "demo"
+    this.store.setDevMode(results.type == "local");
   }
 
   getServerConfig() {

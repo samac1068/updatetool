@@ -65,8 +65,8 @@
             </mat-select>
           </mat-form-field>
         </div>
-        <button class="standardBtn" style="margin-top: 30px; margin-left: -2px" (click)="addJoin()"
-              [disabled]="tleftcolumn.length  == 0 || trightcolumn.length == 0">Add</button>
+        <button class="standardGreenBtn" style="margin-top: 30px; margin-left: -2px" (click)="addJoin()"
+                [disabled]="tleftcolumn.length  == 0 || trightcolumn.length == 0">Add</button>
       </div>
 
       <div class="col-sm-4 section">
@@ -103,9 +103,9 @@
 
   <div id="buttons" class="buttonbox">
     <div class="row pushleft">
-      <div class="col"><button class="standardBtn" (click)="resetAllFields()">Reset</button></div>
+      <div class="col"><button class="standardGreenBtn" (click)="resetAllFields()">Reset</button></div>
       <div class="col"><button class="focusBtn" [disabled]="joinclausearr.length == 0" (click)="saveJoinClause()">Apply</button></div>
-      <div class="col"><button class="standardBtn" (click)="closeDialog()">Close</button></div>
+      <div class="col"><button class="standardGreenBtn" (click)="closeDialog()">Close</button></div>
     </div>
   </div>
 

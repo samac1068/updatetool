@@ -1,16 +1,10 @@
-.title {
-  background: #169B59 url("../../../assets/image/banner_repeat.png") repeat-x;
-  width: 100% !important;
-  height: 55px !important;
-  display: inline-block;
-}
-
 .copyright {
   color: ghostwhite;
   position:absolute;
   margin-top: 35px;
   margin-left: 70px;
   opacity: .5;
+  cursor: default;
 }
 
 .version {

@@ -71,8 +71,8 @@
 
     <div style="margin-top: 10px; margin-left: -10px; width:97%;">
       <div class="row">
-        <div class="col-sm-4"><button class="standardBtn" style="width: 100px" (click)="removeAllWhereItems()" [disabled]="!hasWhere">Clear All</button></div>
-        <div class="col-sm-4"><button class="standardBtn" style="width:100px;" (click)="buildWhereItem()" [disabled]="!curInput && !noValueNeeded">{{ addUpdateBtn }}</button></div>
+        <div class="col-sm-4"><button class="standardGreenBtn" style="width: 100px" (click)="removeAllWhereItems()" [disabled]="!hasWhere">Clear All</button></div>
+        <div class="col-sm-4"><button class="standardGreenBtn" style="width:100px;" (click)="buildWhereItem()" [disabled]="!curInput && !noValueNeeded">{{ addUpdateBtn }}</button></div>
         <div class="col-sm-4"><button class="focusBtn" style="width:100px;" (click)="applyWhereClause()" [disabled]="!tableSelected && !filterAdded">Apply</button></div>
       </div>
     </div>

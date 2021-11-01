@@ -53,7 +53,7 @@ export class ConfigService {
     const sys = xmlData.getElementsByTagName('system');
     for (let i = 0; i < sys.length; i++) {
       if (sys[i].getAttribute('active') === 'true') {
-        return {type: sys[i].getAttribute('type'), path: sys[i].getAttribute('path') };
+        return {type: sys[i].getAttribute('type'), path: sys[i].getAttribute('path'), network: sys[i].getAttribute('network') };
       }
     }
   }

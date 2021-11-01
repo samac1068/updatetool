@@ -17,13 +17,13 @@
         <button style="float:right;" (click)="updateSortSelection(row)" [(ngModel)]="row.sort" ngDefaultControl>{{ row.sort }}</button>
       </div>
     </div>
-  </div> 
-  
+  </div>
+
   <div class="lowerbtn">
     <div class="btn-group">
-      <button id="btnResetColumns" class="standardBtn" (click)="resetAllColumns()">Reset</button>
-      <button id="btnSaveColumns" class="standardBtn" (click)="saveOrderByColumns()">Save</button>
-      <button id="btnCloseColumns" class="standardBtn" (click)="closeDialog()">Close</button>
+      <button id="btnResetColumns" class="standardGreenBtn" (click)="resetAllColumns()">Reset</button>
+      <button id="btnSaveColumns" class="standardGreenBtn" (click)="saveOrderByColumns()">Save</button>
+      <button id="btnCloseColumns" class="standardGreenBtn" (click)="closeDialog()">Close</button>
     </div>
   </div>
 </div>
