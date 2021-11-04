@@ -101,14 +101,14 @@ export class ServersComponent implements OnInit {
 
     numdatabases = this.databases.length;
     servername = servername.toLowerCase();
-    for (let x = numdatabases - 1; x >= 0; x--){
-        let obj = this.databases[x];
-        dbsystem = obj.system.toLowerCase();
-        found = dbsystem.indexOf(servername);
+    //for (let x = numdatabases - 1; x >= 0; x--){
+        //let obj = this.databases[x];
+        //dbsystem = obj.system.toLowerCase();
+        /*found = dbsystem.indexOf(servername);
          if (found < 0){
           this.databases.splice(x,1);
-        }
-    }
+        }*/
+    //}
     return;
   }
 

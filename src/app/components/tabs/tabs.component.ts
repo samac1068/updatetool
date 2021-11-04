@@ -50,8 +50,8 @@ export class TabsComponent implements OnInit {
         {
           tabCont.isstoredquery = true;
           tabCont.sqid = parseInt(queryid);
-          tabCont.server = queries[i].server;
-          tabCont.servername = this.store.returnColByStringKey(this.store.system['servers'], 'offName', tabCont.server, 'id');
+          tabCont.server = this.store.getSystemValue("server");
+          tabCont.servername = this.store.getSystemValue("servername"); //this.store.returnColByStringKey(this.store.system['servers'], 'offName', tabCont.server, 'id');
           tabCont.database = queries[i].database;
           tabCont.sqbody = queries[i].querybody;
           tabCont.rawquerystr = queries[i].querybody;
@@ -67,10 +67,9 @@ export class TabsComponent implements OnInit {
 
     tabCont.databasearr = [];
     tabCont.databasearr.push({id: tabCont.databasearr.length + 1, name: tabCont.database });
-    tabCont.tabtitle = tabCont.servername.toUpperCase() + " - " + tabCont.database.toUpperCase() + " ";
+    tabCont.tabtitle = tabCont.database.toUpperCase();
     tabCont.tablearr = [];
     tabCont.availcolarr = [];
-
     tabCont.active = false;
 
     this.tabs.push(tabCont);
@@ -88,8 +87,6 @@ export class TabsComponent implements OnInit {
     this.selectedTabID = tab.tabid;
     this.store.selectedTabID = tab.tabid;
     this.store.selectedTab = tab;
-
-    //headleyt:  20210121  Raise event when a tab has been selected so the Save Current Query button will turn enable/disable based on whether a table has been selected
     this.comm.selectTab.emit();
   }
 

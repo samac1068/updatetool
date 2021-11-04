@@ -7,6 +7,7 @@ import {DataService} from '../../services/data.service';
 import {Admin} from '../../models/Admin.model';
 import {SelectionModel} from '@angular/cdk/collections';
 import {User} from '../../models/User.model';
+import {ConlogService} from '../../modules/conlog/conlog.service';
 
 @Component({
   selector: 'app-usermgr-dialog',
@@ -24,9 +25,10 @@ export class UsermgrDialogComponent implements OnInit {
   selectUser: any;
   buttonLbl: string = "Add";
   curUser: User;
+  onSipr: boolean = false;
 
 
-  constructor(private dialogRef: MatDialogRef<UsermgrDialogComponent>, private fb: FormBuilder, private store: StorageService, private data: DataService) {
+  constructor(private dialogRef: MatDialogRef<UsermgrDialogComponent>, private fb: FormBuilder, private store: StorageService, private data: DataService, private conlog: ConlogService) {
     dialogRef.disableClose = true;
   }
 
@@ -48,6 +50,8 @@ export class UsermgrDialogComponent implements OnInit {
     this.adminItem.adminuser = this.store.user.username;
     this.curUser = this.store.getUser();
 
+    this.onSipr = this.store.getSystemValue('webservice').network == "sipr";
+
     this.getQTUserList();
   }
 
@@ -67,19 +71,19 @@ export class UsermgrDialogComponent implements OnInit {
   purgeTokens(): void{
     let obj = new Admin()
     obj.action = 'purgetokens';
-    this.data.adminManager(obj).subscribe(() => { console.log("purge complete"); this.store.generateToast("QT Orphan Tokens have been purged");});
+    this.data.adminManager(obj).subscribe(() => { this.conlog.log("purge token complete"); this.store.generateToast("QT Orphan Tokens have been purged");});
   }
 
   purgeLogs():void {
     let obj = new Admin()
     obj.action = 'purgelogs';
-    this.data.adminManager(obj).subscribe(() => { console.log("purge complete"); this.store.generateToast("QT Logs have been purged");});
+    this.data.adminManager(obj).subscribe(() => { this.conlog.log("purge logs complete"); this.store.generateToast("QT Logs have been purged");});
   }
 
   purgeCUTDuplicates():void {
     let obj = new Admin()
     obj.action = 'dropcutdups';
-    this.data.adminManager(obj).subscribe(() => { console.log("purge complete"); this.store.generateToast("Duplicates have been purged"); });
+    this.data.adminManager(obj).subscribe(() => { this.conlog.log("purge duplicates complete"); this.store.generateToast("Duplicates have been purged"); });
   }
 
   purgeSelectedUsers() {
@@ -136,7 +140,7 @@ export class UsermgrDialogComponent implements OnInit {
     this.selectUser.version = this.store.getVersion();
     this.selectUser.network = this.curUser.servername + "|" + this.curUser.server + "#" + this.mgrGrp.controls.database.value;
     this.selectUser.action = (this.selectUser.userid == 0) ? 'adduser' : 'edituser';
-    console.log(this.selectUser);
+    this.conlog.log(this.selectUser);
 
     //Send the information to the database
     this.data.adminManager(this.selectUser)

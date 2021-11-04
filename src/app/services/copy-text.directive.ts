@@ -1,4 +1,5 @@
 import {Directive, HostListener, Input} from '@angular/core';
+import {ConlogService} from '../modules/conlog/conlog.service';
 
 @Directive({
   selector: '[text-copy]'
@@ -7,7 +8,7 @@ export class CopyTextDirective {
 
   @Input('text-copy') text:string;
 
-  constructor() { }
+  constructor(private conlog: ConlogService) { }
 
   // The HostListener will listen to click events and run the below function, the HostListener supports other standard events such as mouseenter, mouseleave etc.
   @HostListener('click') copyText() {
@@ -42,7 +43,7 @@ export class CopyTextDirective {
       //console.log(msg);
     } catch (err) {
       // Tell the user copying is not supported and give alternative, e.g alert window with the text to copy
-      console.log('unable to copy');
+      this.conlog.log('unable to copy');
     }
 
     // Finally we remove the textarea from the DOM

@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material';
 import {DataService} from '../../services/data.service';
 import {StorageService} from '../../services/storage.service';
 import {User} from '../../models/User.model';
+import {ConlogService} from '../../modules/conlog/conlog.service';
 
 @Component({
   selector: 'app-query-btns',
@@ -18,7 +19,7 @@ export class QueryBtnsComponent implements OnInit {
 
   user: User;
 
-  constructor(private comm: CommService, public dialog: MatDialog, private data: DataService, private store: StorageService) { }
+  constructor(private comm: CommService, public dialog: MatDialog, private data: DataService, private store: StorageService, private conlog: ConlogService) { }
 
   ngOnInit() {
     this.comm.columnsUpdated.subscribe((seltab) => {
@@ -113,7 +114,7 @@ export class QueryBtnsComponent implements OnInit {
   copyToClipboard() {
     if(this.tabinfo.table != undefined){
       this.comm.copyToClipboardClicked.emit();
-      console.log("copy to clipboard");
+      this.conlog.log("copy to clipboard");
     }
     else
       alert("You must select table and have results to export data.");

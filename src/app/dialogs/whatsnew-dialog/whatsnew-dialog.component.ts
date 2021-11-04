@@ -3,6 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { User } from 'src/app/models/User.model';
 import { StorageService } from 'src/app/services/storage.service';
 import { DataService } from 'src/app/services/data.service';
+import {ConlogService} from '../../modules/conlog/conlog.service';
 
 @Component({
   selector: 'app-whatsnew-dialog',
@@ -20,7 +21,7 @@ export class WhatsnewDialogComponent implements OnInit {
   curVersion: string = "";
 
   constructor(public dialogRef: MatDialogRef<WhatsnewDialogComponent>, @Inject(MAT_DIALOG_DATA) public user: User, private store: StorageService,
-  private data: DataService) { }
+  private data: DataService, private conlog: ConlogService) { }
 
   ngOnInit() {
     try {
@@ -51,7 +52,7 @@ export class WhatsnewDialogComponent implements OnInit {
         this.classheight = "440px";
       }
     } catch(e) {
-      console.log(e);
+      this.conlog.log(e);
       this.closeDialog();
     }
   }

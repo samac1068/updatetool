@@ -36,7 +36,7 @@ export class ConfigService {
     const databases = xmlData.getElementsByTagName('database');
     const databaseList = [];
     for (let i = 0; i < databases.length; i++) {
-      this.database = {id: databases[i].getAttribute('id'), system: databases[i].getAttribute('system'), altname: databases[i].getAttribute('altname')}
+      this.database = {id: databases[i].getAttribute('id'), altname: databases[i].getAttribute('altname')}
       databaseList.push(this.database);
     }
     return {servers: serverList, databases: databaseList};

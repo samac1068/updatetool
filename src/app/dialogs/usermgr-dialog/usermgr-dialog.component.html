@@ -85,9 +85,9 @@
     <div class="lower">
       <span class="subtitle">Log Manager Buttons</span>
       <div>
-        <button class="standardGreenBtn" style="width: 95%; margin-left: 5px" (click)="purgeTokens()">Purge Tokens</button>
-        <button class="standardGreenBtn" style="width: 95%; margin-left: 5px" (click)="purgeLogs()">Purge Logs</button>
-        <button class="standardGreenBtn" style="width: 95%; margin-left: 5px" (click)="purgeCUTDuplicates()">Purge CUT Duplicates</button>
+        <button class="standardGreenBtn" style="width: 95%; margin-left: 5px" (click)="purgeTokens()" [disabled]="onSipr">Purge Tokens</button>
+        <button class="standardGreenBtn" style="width: 95%; margin-left: 5px" (click)="purgeLogs()" [disabled]="onSipr">Purge Logs</button>
+        <button class="standardGreenBtn" style="width: 95%; margin-left: 5px" (click)="purgeCUTDuplicates()" [disabled]="onSipr">Purge CUT Duplicates</button>
       </div>
     </div>
 

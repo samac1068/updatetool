@@ -72,13 +72,11 @@ export class JoinDialogComponent implements OnInit {
     let i: number;
     let found: boolean = false;
 
-    console.log('tbl (identifyLimitSide):  ' + tbl);
     if(this.joinclausearr.length > 0) {
       // Search for the table
       for(i = 0; i < this.joinclausearr.length; i++) {
         if(this.joinclausearr[i].tableleft == tbl || this.joinclausearr[i].tableright == tbl) {
           found = true;
-          console.log('itap is in the left side:  ' + tbl);
           break;
         }
       }
@@ -98,11 +96,11 @@ export class JoinDialogComponent implements OnInit {
             dbarr.push({id: this.joinclausearr[i].dbright});
 
           // Add the table to the temp arr
-          console.log('tblarr length - before:  ' + tblarr.length);
+          //console.log('tblarr length - before:  ' + tblarr.length);
           if(this.store.findIndexByValue(tblarr, 'id', this.joinclausearr[i].tableleft) == -1)
             tblarr.push({Name: this.joinclausearr[i].tableleft});
 
-          console.log("tblarr length - after:  " + tblarr.length);
+          //console.log("tblarr length - after:  " + tblarr.length);
           if(this.store.findIndexByValue(tblarr, 'id', this.joinclausearr[i].tableright) == -1)
             tblarr.push({Name: this.joinclausearr[i].tableright});
         }

@@ -4,6 +4,7 @@ import { User } from '../models/User.model';
 import { Tab } from '../models/Tab.model';
 import {HttpParams} from '@angular/common/http';
 import {Toaster} from 'ngx-toast-notifications';
+import {ConlogService} from '../modules/conlog/conlog.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class StorageService {
   private _appKey = 'MMA';
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.21.1101';
+  private _appVersion = '2.21.1104';
   private _inDev: boolean = false;
 
   // Public
@@ -34,7 +35,7 @@ export class StorageService {
   dbNumericals: string[] = ["bit","tinyint","bool","boolean","smallint","mediumint","int","integer","bigint","float","double","decimal","double precision","dec"];
   ignoreChars: string[] = ["/","\\", "`"];
 
-  constructor(private toaster: Toaster) { }
+  constructor(private toaster: Toaster, private conlog: ConlogService) { }
 
   // This will allow you to set a specific object for either the tab or the user variables
   setTabValue(section: string, value: any) {
@@ -102,9 +103,7 @@ export class StorageService {
   }
 
   findIndexByValue(arr: any, key: string, value: any){
-  console.log("value in storage service:  " + value);
     for (let i = 0; i < arr.length; i++) {
-      console.log('value of i:  ' + i);
       if (arr[i][key].toLowerCase() === value.toLowerCase()) {
           return i;
       }
@@ -191,6 +190,7 @@ export class StorageService {
   }
 
   generateToast(text: string,issuccess: boolean = true): void {
+    this.conlog.log("Toast Generated: " + text + "(" + issuccess + ")");
     this.toaster.open({
       text: text,
       caption: 'Notification',

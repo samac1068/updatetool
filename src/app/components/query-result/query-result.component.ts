@@ -51,7 +51,7 @@ export class QueryResultComponent implements OnInit {
     });
 
     this.comm.copyToClipboardClicked.subscribe(() => {
-      console.log("clipboard copy subscription but nothing is coded");
+      this.conlog.log("clipboard copy subscription but nothing is coded");
     });
 
     this.comm.dataModifierClicked.subscribe(() => {
@@ -482,6 +482,14 @@ export class QueryResultComponent implements OnInit {
     this.dataSource = new MatTableDataSource(results);
     this.dataSource.sort = this.sort;
     this.rowsReturned = "Rows Returned: " + results.length;
+
+    // If this was executed by the updater, then now send a response to display the update complete
+    this.conlog.log(this.tabinfo.updateRecReq);
+    if(this.tabinfo.updateRecReq){
+      this.tabinfo.updateRecReq = false;
+      this.store.generateToast("Record Successfully Updated");
+      //alert("Record updated.");
+    }
   }
 
   exportAsXLSX(type: string):void {
@@ -491,7 +499,7 @@ export class QueryResultComponent implements OnInit {
   saveCurrentQuery() {
     //Only save if this query ISN'T a currently store query
     if(this.tabinfo.isstoredquery)
-      alert("This query is already saved.");
+      this.store.generateToast("This query is already saved.");
     else {
       if (this.tabinfo === this.store.selectedTab) {
         const dialogQuery = this.dialog.open(QueryDialogComponent, {width: '500px', height: '175px', autoFocus: true, data: this.tabinfo });
@@ -508,7 +516,7 @@ export class QueryResultComponent implements OnInit {
               this.checkForWildcards(this.tabinfo.querystr, true))
             .subscribe(() => {
               this.comm.populateQueryList.emit();
-              alert("The query has been stored under the title: " + this.tabinfo.querytitle.toUpperCase() + ".");
+              this.store.generateToast("The query has been stored under the title: " + this.tabinfo.querytitle.toUpperCase() + ".");
             });
           }
         });
@@ -569,7 +577,7 @@ export class QueryResultComponent implements OnInit {
       const dialogProcessChg = this.dialog.open(UpdaterDialogComponent, { width: '385px', height: '320px', autoFocus: true, data: {tabinfo: this.tabinfo, datasource: this.dataSource.filteredData }});
       dialogProcessChg.afterClosed()
         .subscribe((rtn) => {
-        if (rtn.table["setvalue"] != undefined){
+        if (rtn != undefined){
           //Value has been set to something new, so let's save it (//this.comm.runQueryChange.emit();)
           let selcol = this.tabinfo.availcolarr.find(x => x.columnname == this.tabinfo.table["selectedColumn"]);
           let updatekey = "SET [" + selcol.columnname + "] = " + this.store.determineValueType(this.tabinfo.table["setvalue"], selcol.vartype);
@@ -589,7 +597,6 @@ export class QueryResultComponent implements OnInit {
           this.data.updateRowInfo(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table["name"], updatekey + wheredata, this.tabinfo.wherearr.length > 0 ? this.tabinfo.wherearr.join(' and ') : "0")
             .subscribe((result) => {
               this.comm.runQueryChange.emit();
-              alert("Record updated.");
             });
         }
       });

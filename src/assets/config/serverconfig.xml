@@ -1,25 +1,44 @@
-<data>
+<!--<data>
   <servers>
-    <server id="LOCAL" offName="HERNDON_{0}" />
-    <server id="DEMO" offName="HERNDON_{0}" />
-    <server id="DEVELOPMENT" offName="DEV_{0}" />
-    <server id="PREPROD" offName="{0})PREPROD" />
-    <server id="PRODUCTION" offName="{0}_PROD" />
+    <server id="DEVELOPMENT" offName="{0}" />
   </servers>
 
   <databases>
-    <database id="AOS" system="production,local,development,preprod,demo" />
-    <database id="AIR_FORCE" system="production,local,demo" altname="AIRFORCE" />
-    <database id="CIND" system="production,local,development,preprod,demo" />
-    <database id="COADOS" system="production,local,development,preprod,demo" />
-    <database id="CONUSA" system="production,local,development,preprod,demo" />
-    <database id="CTCS" system="production,local,development,preprod,demo" />
-    <database id="DAMPSA" system="production,local,development,preprod,demo" />
-    <database id="DOCUMENTS" system="production,local,development,preprod,demo" altname="MOBCOP_DOCUMENT" />
-    <database id="FINANCE_MANAGEMENT" system="production,local,development,preprod,demo" altname="MOBCOP_FINANCE" />
-    <database id="MARRS" system="production,local,development,preprod,demo" />
-    <database id="MOBCOP" system="production,local,development,preprod,demo" />
-    <database id="ORDER_VIEWER" system="production,local,development,preprod,demo" />
-    <database id="MOBCOP_INTERFACE" system="production,local,development,preprod,demo" />
+    <database id="AOS" />
+    <database id="AIR_FORCE" altname="AIRFORCE" />
+    <database id="CIND" />
+    <database id="COADOS" />
+    <database id="CONUSA" />
+    <database id="CTCS" />
+    <database id="DAMPSA" />
+    <database id="DOCUMENTS" altname="MOBCOP_DOCUMENT" />
+    <database id="FINANCE_MANAGEMENT" altname="MOBCOP_FINANCE" />
+    <database id="MARRS" />
+    <database id="MOBCOP" />
+    <database id="ORDER_VIEWER" />
+    <database id="MOBCOP_INTERFACE" />
+  </databases>
+</data>-->
+
+<!-- These are for testing SIPR -->
+<data>
+  <servers>
+    <server id="DEVELOPMENT" offName="{0}" />
+  </servers>
+
+  <databases>
+    <database id="COADOS" />
+    <database id="DOCS" />
+    <database id="LOCATIONS" />
+    <database id="MAPPING" />
+    <database id="MARRS" />
+    <database id="MOB" />
+    <database id="JSTO" altname="MOB_JSTO"/>
+    <database id="ORDERS" altname="MOB_ORDERS" />
+    <database id="PLANNING" altname="MOB_PLANNING" />
+    <database id="MOBCOP" />
+    <database id="TFT_FORWARD" altname="TFT-FORWARD" />
+    <database id="USERS" />
+    <database id="WAMS" />
   </databases>
 </data>

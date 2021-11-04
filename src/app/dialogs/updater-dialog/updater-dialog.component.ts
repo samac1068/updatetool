@@ -71,18 +71,18 @@ export class UpdaterDialogComponent implements OnInit {
     return wStatement;
   }
 
-  closeHandler() {
-    this.dialogRef.close(this.data.tabinfo);
+  cancelHandler() {
+    this.dialogRef.close();
   }
 
   submitHandler() {
-    console.log("submitHandler");
     if(this.newValue != null) {
       if(this.newValue.length > 0)
       this.data.tabinfo.table["setvalue"] = this.newValue;
+      this.data.tabinfo.updateRecReq = true;
     } else
       alert("No value updated; operation canceled.");
 
-    this.closeHandler();
+    this.dialogRef.close(this.data.tabinfo);
   }
 }

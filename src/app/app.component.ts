@@ -59,7 +59,11 @@ export class AppComponent implements OnInit {
     this.getApplicationBuild();
 
     // Get and manage the user access token
-    if(this.store.isDevMode()) {
+    this.conlog.log("urlToken: " + this.urlToken);
+    this.conlog.log("Development Mode: " + this.store.isDevMode());
+    this.conlog.log("Network: " + this.store.system['webservice']['network']);
+
+    if(this.store.isDevMode() || this.store.system['webservice']['network'] == 'sipr') {
       // Manually set the necessary variables
 
       this.store.setUserValue("token", null);
@@ -97,7 +101,7 @@ export class AppComponent implements OnInit {
     const results = this.config.getSystemConfig();
     this.store.setSystemValue('webservice', results);
     this.store.setSystemValue('window', { minHeight: this.minHeightDefault, minWidth: this.minWidthDefault });
-    this.store.setDevMode(results.type == "local");
+    this.store.setDevMode(results.type == "development");
   }
 
   getServerConfig() {
@@ -121,26 +125,14 @@ export class AppComponent implements OnInit {
   identifyLocale(){
     switch(this.store.system['webservice']['type'].toUpperCase())
     {
-      case 'LOCAL':
-        this.store.system['webservice']['locale'] = 'local';
-        this.conlog.log("local webservice - devmode is " + this.store.isDevMode());
-        break;
-      case 'DEMO':
-        this.store.system['webservice']['locale'] = 'demo';
-        this.conlog.log('demo (azure) webservice - devmode is ' + this.store.isDevMode());
-        break;
-      case 'DEV':
+      case 'DEVELOPMENT':
         this.store.system['webservice']['locale'] = 'development';
-        this.conlog.log("ccsa development webservice - devmode is " + this.store.isDevMode());
+        //this.conlog.log("development webservice - devmode is " + this.store.isDevMode());
         break;
-      case 'PREPROD':
-        this.store.system['webservice']['locale'] = 'preprod';
-        this.conlog.log('ccsa preprod (herndon) webservice - devmode is ' + this.store.isDevMode());
-        break;
-      case 'PROD':
+      case 'PRODUCTION':
         this.store.system['webservice']['locale'] = 'production';
         this.store.shutOffDev();
-        this.conlog.log('production webservice - devmode is ' + this.store.isDevMode());
+        //this.conlog.log('production webservice - devmode is ' + this.store.isDevMode());
         break;
     }
   }
@@ -178,14 +170,19 @@ export class AppComponent implements OnInit {
           this.store.setUserValue("userid", row["UserID"]);
           this.store.setUserValue("priv", row["Priv"]);
 
-          let n: any = row["Network"].split("|");
-          this.store.setUserValue("servername", this.implementNameChange(n[0]));
+          this.store.setUserValue("servername", this.store.system['webservice']['type'].toUpperCase());
+          this.store.setUserValue("server", '{0}');
 
-          if(n[1] == undefined) n[1]=n[0];
-
-          let p: any = n[1].split("#");
-          this.store.setUserValue("server", p[0]);
-          this.store.setUserValue("database", p[1]);
+          // In many cases, the network information will be the old version, but instead of modifying it, we are now just ignoring everything but the preferred database
+          if(row["Network"].indexOf("|") > -1 && row["Network"].indexOf("#") > -1) {
+            let n: any = row["Network"].split("|");
+            if (n[1] == undefined) n[1] = n[0];
+            let p: any = n[1].split("#");
+            this.store.setUserValue("database", p[1]);
+          } else {
+            // Use the new network system information
+            this.store.setUserValue("database", row["Network"]);
+          }
 
           //Signal that user data has been loaded
           this.comm.userInfoLoaded.emit(true);
@@ -204,15 +201,5 @@ export class AppComponent implements OnInit {
         error=> {
         alert("getUserInformation: " + error.message);
         });
-  }
-
-  // This should only affect HERNDON developers.
-  implementNameChange(network: string): string{
-    if(network.indexOf('HERNDON') > -1) {
-      let re = /HERNDON/gi;
-      network = network.replace(re, this.store.system['webservice']['type'].toUpperCase());
-    }
-
-    return network;
   }
 }

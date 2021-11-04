@@ -51,4 +51,6 @@ export class Tab {
   sqbody: string;
 
   selectedrow: any;
+
+  updateRecReq: boolean = false;
 }

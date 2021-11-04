@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { User } from 'src/app/models/User.model';
 import { StorageService } from 'src/app/services/storage.service';
+import {ConlogService} from '../../modules/conlog/conlog.service';
 
 @Component({
   selector: 'app-options-dialog',
@@ -15,13 +16,13 @@ export class OptionsDialogComponent implements OnInit {
 
   userServer: string = "0";
   userDB: string = "0";
-  
+
   userid: string = "";
   username: string = "";
   firstname: string = "";
   lastname: string = "";
 
-  constructor(public dialogRef: MatDialogRef<OptionsDialogComponent>, @Inject(MAT_DIALOG_DATA) public user: User, private store: StorageService) { }
+  constructor(public dialogRef: MatDialogRef<OptionsDialogComponent>, @Inject(MAT_DIALOG_DATA) public user: User, private store: StorageService, private conlog: ConlogService) { }
 
   ngOnInit() {
     //Load the default options
@@ -44,15 +45,15 @@ export class OptionsDialogComponent implements OnInit {
   saveUpdatedOptions(){
     this.user.servername = this.userServer;
     this.user.datamodified = true;
-    for(var i = 0; i < this.servers.length; i++) {
+    for(let i = 0; i < this.servers.length; i++) {
       if(this.servers[i].id == this.userServer) {
         this.user.server = this.servers[i].offName;
         break;
       }
     }
- 
+
     this.user.database = this.userDB;
     this.closeDialog();
-    console.log("saveUpdatedOptions");
+    this.conlog.log("saveUpdatedOptions");
   }
 }
