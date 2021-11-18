@@ -25,6 +25,7 @@ export class QueryResultComponent implements OnInit {
   colHeader: string[];
   dataSource: any;
   rowsReturned: string;
+  loadingQuery: boolean = false;
 
   constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog, private conlog: ConlogService) { }
 
@@ -51,6 +52,7 @@ export class QueryResultComponent implements OnInit {
     });
 
     this.comm.copyToClipboardClicked.subscribe(() => {
+      alert("Clipboard coding has not been completed.");
       this.conlog.log("clipboard copy subscription but nothing is coded");
     });
 
@@ -121,6 +123,7 @@ export class QueryResultComponent implements OnInit {
 
   constructSQLString() {
     this.tabinfo.querystr = "";
+    this.loadingQuery = true;
 
     //Build the string exactly like the web service
     let strSQL = "SELECT ";
@@ -490,6 +493,8 @@ export class QueryResultComponent implements OnInit {
       this.store.generateToast("Record Successfully Updated");
       //alert("Record updated.");
     }
+
+    this.loadingQuery = false;
   }
 
   exportAsXLSX(type: string):void {
@@ -508,14 +513,14 @@ export class QueryResultComponent implements OnInit {
             // May need to translate and pull the correct value from the question.
 
             this.data.storeNewQuery(this.tabinfo.querytitle.toUpperCase(),
-              this.checkForWildcards(this.tabinfo.rawquerystr, false),
+              this.tabinfo.rawquerystr,
               this.tabinfo.server,
               this.tabinfo.database,
               this.store.getUserValue("userid"),
               this.tabinfo.qtype,
-              this.checkForWildcards(this.tabinfo.querystr, true))
+              this.tabinfo.querystr)
             .subscribe(() => {
-              this.comm.populateQueryList.emit();
+              /*this.comm.populateQueryList.emit();*/
               this.store.generateToast("The query has been stored under the title: " + this.tabinfo.querytitle.toUpperCase() + ".");
             });
           }

@@ -1,10 +1,9 @@
 
 .divQuery {
   height: 36vh;
-  width: 100%;
+  width: 99.6%;
   overflow-y: auto;
-  margin-left: 5px;
-  margin-right: 5px;
+  margin-left: 2px;
 }
 
 .separator {
@@ -81,4 +80,13 @@ th.mat-sort-header-sorted {
 .mat-row {
   height: 25px;
   word-wrap: break-word;
+}
+
+.spinner {
+  width: 100%;
+  height: 100%;
+}
+
+.loadIcon {
+  margin: 50px auto;
 }

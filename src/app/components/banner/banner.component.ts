@@ -55,8 +55,8 @@ export class BannerComponent implements OnInit {
     dialogRef.afterClosed().subscribe((rtn) => {
       if(rtn.datamodified) {
         this.user.datamodified = false;
-        let network: string = this.user.servername + "|" + this.user.server + "#" + this.user.database;
-        this.data.addEditUpdateUserInfo(this.user.username, this.user.fname, this.user.lname, network, this.user.userid).subscribe((results) => {
+        this.data.addEditUpdateUserInfo(this.user)
+          .subscribe((results) => {
           if(results[0].UserID > 0) {
             this.comm.userUpdatedReloadSys.emit();
             this.store.generateToast("Your options have been updated.");
@@ -69,8 +69,9 @@ export class BannerComponent implements OnInit {
 
   openUserManagerDialog() {
     const dialogUserMgrRef = this.dialog.open(UsermgrDialogComponent, { width: '750px', height: '500px', autoFocus: true, data: this.user });
-    dialogUserMgrRef.afterClosed().subscribe((rtn) => {
-      this.conlog.log(rtn);
+    dialogUserMgrRef.afterClosed()
+      .subscribe((rtn) => {
+        this.conlog.log(rtn);
     });
   }
 

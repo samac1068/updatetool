@@ -1,4 +1,10 @@
-<app-banner></app-banner>
-<app-servers></app-servers>
-<!-- <app-exporter></app-exporter> -->
-<app-tabs></app-tabs>
+<div *ngIf="!invalidLoad">
+  <app-banner></app-banner>
+  <app-servers></app-servers>
+  <!-- <app-exporter></app-exporter> -->
+  <app-tabs></app-tabs>
+</div>
+
+<div *ngIf="invalidLoad" style="text-align: center">
+  <span class="invalidNotice">You are attempting to access the Update Tool with an invalid token key. You must close this tab, and open again from DAMPS-ORDERS.</span>
+</div>

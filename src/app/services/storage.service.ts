@@ -139,7 +139,8 @@ export class StorageService {
   }
 
    //  headleyt:  20200105  added additional encoding characters to be consistent with what is in the API
-   customURLEncoder(str: string) {
+  customURLEncoder(str: string) {
+    str = str.replace(/%/g, "{14}");
     str = str.replace(/^\s+|\s+$/gm,'');
     str = str.replace(/ /gi, "%20");
     str = str.replace(/\*/gi, "~");
@@ -148,6 +149,7 @@ export class StorageService {
     str = str.replace(/\'/gi, "^");
     str = str.replace(/\>/gi, "gt");
     str = str.replace(/\</gi, "lt");
+
     return str;
   }
 
@@ -158,6 +160,7 @@ export class StorageService {
     str = str.replace(/\! /gi, "*");
     str = str.replace(/\`/gi, "\\");
     str = str.replace(/\^/gi, "'");
+    str = str.replace(/\{14\}/g, "%");
     return str;
   }
 

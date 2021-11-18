@@ -21,6 +21,7 @@ export class AppComponent implements OnInit {
   urlToken: any = "";
   isConsoleOpen: boolean = false;
   dialogQuery: any;
+  invalidLoad: boolean = false;
 
   constructor(private config: ConfigService, private store: StorageService, private data: DataService, private comm: CommService, public dialog: MatDialog,
               private conlog: ConlogService) { }
@@ -141,13 +142,18 @@ export class AppComponent implements OnInit {
   validateCapturedToken() {
     this.data.validateUserToken(this.urlToken)
     .subscribe(result => {
-      this.store.setUserValue("token", this.urlToken);
-      this.store.setUserValue("username", result[0]["Username"]);
-      this.store.setUserValue("initalapp", result[0]["InitalApp"]);
-      this.store.setUserValue("tokencreatedate", result[0]["CreateDate"]);
+      // Need to account for people hitting the refresh or back buttons - The entry key needs to be regenerated to access the application again.
+      if(result != null) {
+        this.store.setUserValue("token", this.urlToken);
+        this.store.setUserValue("username", result[0]["Username"]);
+        this.store.setUserValue("initalapp", result[0]["InitalApp"]);
+        this.store.setUserValue("tokencreatedate", result[0]["CreateDate"]);
 
-      //Signal that user has been validated - They should be able to use the tool at this point.
-      this.getUserInformation();
+        //Signal that user has been validated - They should be able to use the tool at this point.
+        this.getUserInformation();
+      } else {
+        alert("The access entry key is now invalid. It is not recommended to use the refresh page at anytime while using this application.  You must close this tab and open from DAMPS-Orders.");
+      }
     },
       error => {
         alert("validateCaptureToken: " + error.message);

@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild} from '@angular/core';
 import { Tab } from '../../models/Tab.model';
 import { StorageService } from '../../services/storage.service';
 import { CommService } from '../../services/comm.service';
+import {ConlogService} from '../../modules/conlog/conlog.service';
 
 @Component({
   selector: 'app-tabs',
@@ -14,7 +15,7 @@ export class TabsComponent implements OnInit {
   selectedTab: number = -1;
   selectedTabID: string = "";
 
-  constructor(private store: StorageService, private comm: CommService) { }
+  constructor(private store: StorageService, private comm: CommService, private conlog: ConlogService) { }
 
   ngOnInit() {
     this.comm.userInfoLoaded.subscribe(() => {
@@ -54,8 +55,10 @@ export class TabsComponent implements OnInit {
           tabCont.servername = this.store.getSystemValue("servername"); //this.store.returnColByStringKey(this.store.system['servers'], 'offName', tabCont.server, 'id');
           tabCont.database = queries[i].database;
           tabCont.sqbody = queries[i].querybody;
-          tabCont.rawquerystr = queries[i].querybody;
-          tabCont.querystr = (queries[i].displayquery == "") ? queries[i].querybody : queries[i].displayquery;
+          tabCont.rawquerystr = this.store.customURLDecoder(queries[i].querybody);
+          tabCont.querystr = (queries[i].displayquery == "") ? this.store.customURLDecoder(queries[i].querybody) : this.store.customURLDecoder(queries[i].displayquery);
+
+          this.conlog.log("QueryBody: " + queries[i].querybody + " - " + this.store.customURLDecoder(queries[i].querybody));
          break;
         }
       }

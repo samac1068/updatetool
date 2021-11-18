@@ -6,6 +6,7 @@ import { StorageService } from './storage.service';
 import {catchError} from 'rxjs/operators';
 import {Admin} from '../models/Admin.model';
 import {ConlogService} from '../modules/conlog/conlog.service';
+import {User} from '../models/User.model';
 
 @Injectable({
   providedIn: 'root'
@@ -128,17 +129,17 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  addEditUpdateUserInfo(username: string, firstname: string, lastname: string, network: string, userid: number) {
+  addEditUpdateUserInfo(user: User) {
     this.conlog.log('addEditUpdateUserInfo');
-    var action: string = (userid == -9) ? "add" : "edit";
-    return this.http.get<any[]>(`${this.getWSPath()}AddEditUpdateUserInfo/${this.store.getPassKey()}/${action}/${username}/${firstname}/${lastname}/${network}/${userid}`)
+    let action: string = (user.userid == -9) ? "add" : "edit";
+    return this.http.get<any[]>(`${this.getWSPath()}AddEditUpdateUserInfo/${this.store.getPassKey()}/${action}/${user.username}/${user.fname}/${user.lname}/${user.servername}/${user.database}/${user.appdata}/${user.userid}`)
       .pipe(catchError(this.errorHandler));
   }
 
   //  headleyt:  20210106  added a new parameter, qtype, to be added when the query is created
   storeNewQuery(title: string, body: string, server: string, database: string, userid: string, qtype: string, display: string) {
     this.conlog.log('storeNewQuery');
-    return this.http.get<any[]>(`${this.getWSPath()}StoreUserQuery/${this.store.getPassKey()}/${this.store.customURLEncoder(title)}/${this.store.customURLEncoder(body)}/${server}/${database}/${userid}/${qtype}/${display}`)
+    return this.http.get<any[]>(`${this.getWSPath()}StoreUserQuery/${this.store.getPassKey()}/${this.store.customURLEncoder(title)}/${this.store.customURLEncoder(body)}/${server}/${database}/${userid}/${qtype}/${this.store.customURLEncoder(display)}`)
       .pipe(catchError(this.errorHandler));
   }
 

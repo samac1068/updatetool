@@ -12,7 +12,7 @@
 
   <div class="btnGroup">
     <button id="btnExcel" class="standardGreenBtn" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="exportToExcelHandler('excel')" ngbTooltip="Export results to XLSX" placement="bottom"><i class="fa fa-file-excel-o"></i> Excel</button>
-    <button class="standardGreenBtn" id="btnClipboard" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="copyToClipboard()" ngbTooltip="Copy results to clipboard" placement="bottom"><i class="fa fa-clipboard"></i> Clipboard</button>
+    <button class="standardGreenBtn" id="btnClipboard" [disabled]="tabinfo.table == undefined || tabinfo.table == null || 1==1" (click)="copyToClipboard()" ngbTooltip="Copy results to clipboard" placement="bottom"><i class="fa fa-clipboard"></i> Clipboard</button>
   </div>
 
   <div class="btnGroup">

@@ -32,4 +32,7 @@
 
     </table>
   </div>
+  <div *ngIf="!colHeader && loadingQuery" class="spinner">
+    <mat-spinner class="loadIcon"></mat-spinner>
+  </div>
 </div>

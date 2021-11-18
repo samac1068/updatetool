@@ -1,4 +1,4 @@
-<!--<data>
+<data>
   <servers>
     <server id="DEVELOPMENT" offName="{0}" />
   </servers>
@@ -18,10 +18,10 @@
     <database id="ORDER_VIEWER" />
     <database id="MOBCOP_INTERFACE" />
   </databases>
-</data>-->
+</data>
 
 <!-- These are for testing SIPR -->
-<data>
+<!--<data>
   <servers>
     <server id="DEVELOPMENT" offName="{0}" />
   </servers>
@@ -41,4 +41,4 @@
     <database id="USERS" />
     <database id="WAMS" />
   </databases>
-</data>
+</data>-->
