@@ -138,19 +138,20 @@ export class JoinDialogComponent implements OnInit {
     .subscribe((results) => {
 //  headleyt:  20210218  Added a check on the size of the joinclausearr to see if there are 5 rows already.  If there are 5 rows already, no more can be added
       if (this.joinclausearr.length >= 5){
-        this.msgarr = "You cannot have more than 5 join statements. Please try again.";
+        this.msgarr = "You cannot have more than 4 join statements. Please try again.";
       }
-      else{
-      let arr: any = [];
-      for(let i = 0; i < results.length; i++) {
-          arr.push(results[i]);
-      }
-
-      //Now add to the appropriate side
-      if(side == "left")
-        this.tlefttblarr = arr;
       else
-        this.trighttblarr = arr;
+      {
+        let arr: any = [];
+        for(let i = 0; i < results.length; i++) {
+            arr.push(results[i]);
+        }
+
+        //Now add to the appropriate side
+        if(side == "left")
+          this.tlefttblarr = arr;
+        else
+          this.trighttblarr = arr;
       }
     });
   }
@@ -288,7 +289,7 @@ export class JoinDialogComponent implements OnInit {
     this.resetAllFields();
   }
 
-  //  headleyt:  20210219  Added fuction to check the length of the join string to be added.  Adding one to it to account for the spade that
+  //  headleyt:  20210219  Added function to check the length of the join string to be added.  Adding one to it to account for the spade that
   //   needs to be added between each join clause
   checkJoinClauseLength(){
     let iJoinLength: number = 0;
