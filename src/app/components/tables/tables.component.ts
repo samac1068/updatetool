@@ -2,9 +2,6 @@ import { CommService } from '../../services/comm.service';
 import { DataService } from 'src/app/services/data.service';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
-import * as $ from 'jquery';
-import 'datatables.net';
-import 'datatables.net-bs4';
 import { Tab } from 'src/app/models/Tab.model';
 import { Table } from 'src/app/models/Table.model';
 import { StorageService } from '../../services/storage.service';
