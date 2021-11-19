@@ -42,7 +42,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DataTablesModule } from 'angular-datatables';
 import { HttpClientModule } from '@angular/common/http';
-import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
@@ -98,7 +97,6 @@ import { ToastNotificationsModule } from 'ngx-toast-notifications';
   ],
   imports: [
     BrowserModule,
-    AngularFontAwesomeModule,
     FormsModule,
     ReactiveFormsModule,
     NgbModule,
