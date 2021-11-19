@@ -1,7 +1,7 @@
 import { Tab } from './../../models/Tab.model';
 import { CommService } from './../../services/comm.service';
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { User } from 'src/app/models/User.model';
 import { DataService } from 'src/app/services/data.service';
 

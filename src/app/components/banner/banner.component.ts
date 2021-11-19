@@ -6,7 +6,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { User } from '../../models/User.model';
 import { StorageService } from '../../services/storage.service';
 import { OptionsDialogComponent } from 'src/app/dialogs/options-dialog/options-dialog.component';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { WhatsnewDialogComponent } from '../../dialogs/whatsnew-dialog/whatsnew-dialog.component';
 import {UsermgrDialogComponent} from '../../dialogs/usermgr-dialog/usermgr-dialog.component';
 import {ConlogService} from '../../modules/conlog/conlog.service';

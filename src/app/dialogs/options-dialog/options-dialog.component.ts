@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { User } from 'src/app/models/User.model';
 import { StorageService } from 'src/app/services/storage.service';
 import {ConlogService} from '../../modules/conlog/conlog.service';

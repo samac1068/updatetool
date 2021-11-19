@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {CommService} from '../../services/comm.service';
 import {DataService} from '../../services/data.service';
 import {StorageService} from '../../services/storage.service';

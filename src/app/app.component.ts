@@ -5,7 +5,7 @@ import { ConfigService } from './services/config.service';
 import { StorageService } from './services/storage.service';
 import { DataService } from './services/data.service';
 
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { LogConsoleDialogComponent } from './modules/conlog/log-console-dialog/log-console-dialog.component';
 import { ConlogService } from './modules/conlog/conlog.service';
 

@@ -1,6 +1,6 @@
 import { Column } from '../../models/Column.model';
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Tab } from 'src/app/models/Tab.model';
 import {ConfirmationDialogService} from '../../services/confirm-dialog.service';
 import {StorageService} from '../../services/storage.service';

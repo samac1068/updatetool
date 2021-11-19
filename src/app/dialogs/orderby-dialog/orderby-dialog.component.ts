@@ -1,7 +1,7 @@
 import { StorageService } from '../../services/storage.service';
 import { Column } from '../../models/Column.model';
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Tab } from 'src/app/models/Tab.model';
 import { SortItem } from 'src/app/models/SortItem.model';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';

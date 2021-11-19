@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {MatDialogRef} from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {StorageService} from '../../services/storage.service';

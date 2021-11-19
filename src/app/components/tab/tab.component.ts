@@ -4,7 +4,7 @@ import { DataService } from '../../services/data.service';
 import { StorageService } from '../../services/storage.service';
 import { Tab } from '../../models/Tab.model';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { Column } from '../../models/Column.model';
 
 import { ColumnsDialogComponent } from '../../dialogs/columns-dialog/columns-dialog.component';

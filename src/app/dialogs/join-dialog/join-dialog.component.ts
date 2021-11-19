@@ -2,7 +2,7 @@ import { Join } from '../../models/Join.model';
 import { StorageService } from '../../services/storage.service';
 import { Column } from '../../models/Column.model';
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Tab } from 'src/app/models/Tab.model';
 import { DataService } from 'src/app/services/data.service';
 import { ConfirmationDialogService } from 'src/app/services/confirm-dialog.service';
