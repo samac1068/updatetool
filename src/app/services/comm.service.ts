@@ -32,8 +32,7 @@ export class CommService {
   copyToClipboardClicked = new EventEmitter();      //Copy results to the clipboard
 
   tabFault = new EventEmitter();            //Used when there is an issue withe the data updating the wrong tab
-
   dataModifierClicked = new EventEmitter();   // Calls the new data modifier dialog to be opened.
-
   reloadStoredColumnData = new EventEmitter();    // Used to reload the loaded column value information which are the selected and primary key information for the current table
+  joinsModified = new EventEmitter();            // Called when a join has been applied to the table.
 }

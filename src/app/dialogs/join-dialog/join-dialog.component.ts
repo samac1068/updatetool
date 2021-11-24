@@ -6,6 +6,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Tab } from 'src/app/models/Tab.model';
 import { DataService } from 'src/app/services/data.service';
 import { ConfirmationDialogService } from 'src/app/services/confirm-dialog.service';
+import {CommService} from '../../services/comm.service';
+import {ConlogService} from '../../modules/conlog/conlog.service';
 
 @Component({
   selector: 'app-join-dialog',
@@ -45,7 +47,7 @@ export class JoinDialogComponent implements OnInit {
   useDefault: boolean = false;
 
   constructor(public dialogRef: MatDialogRef<JoinDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: Tab, private store: StorageService,
-  private ws: DataService, private dialogBox: ConfirmationDialogService) { }
+  private ws: DataService, private dialogBox: ConfirmationDialogService, private comm: CommService, private conlog: ConlogService) { }
 
   ngOnInit() {
       // Get the stored information from the tab
@@ -239,6 +241,7 @@ export class JoinDialogComponent implements OnInit {
 
   saveJoinClause() {
     this.data.joinarr = this.joinclausearr;
+    this.comm.runQueryChange.emit();
   }
 
   addJoin() {
