@@ -27,13 +27,14 @@ export class StorageService {
 
   // Variable Constant
   rowOptions: any[] = [{lbl:'1 Row', value: 1}, {lbl: '10 Rows', value: 10}, {lbl: '50 Rows', value: 50}, {lbl:'100 Rows', value: 100},
-    {lbl: '1000 Rows', value: 1000}, {lbl: '2000 Rows', value: 2000}, {lbl:'All Rows', value: -9}];
+    {lbl: '1000 Rows', value: 1000}];  //, {lbl: '2000 Rows', value: 2000}, {lbl:'All Rows', value: -9}
   conditionals: string[] = ["AND", "OR"];
   operators: string[] = ["LIKE","NOT LIKE","=","<>","!=",">",">=","!>","<","<=","!<","IN","IS NULL","IS NOT NULL"];
   //  headleyt:  20210129  Adding a text version of the operators
   operatorsText: string[] = ["like","not like","equals","not equal to ","not equal to","greater than","greater than or equal to","not greater than","less than","less than or equal to","not less than","in","is null","is not null"];
   dbNumericals: string[] = ["bit","tinyint","bool","boolean","smallint","mediumint","int","integer","bigint","float","double","decimal","double precision","dec"];
   ignoreChars: string[] = ["/","\\", "`"];
+  maximumRowReturnCnt: number = 1000;
 
   constructor(private toaster: Toaster, private conlog: ConlogService) { }
 

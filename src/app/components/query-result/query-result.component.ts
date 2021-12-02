@@ -136,11 +136,17 @@ export class QueryResultComponent implements OnInit {
       strSQL += "COUNT (*) AS [Count] ";
       displayStrSQL += "the total number of records ";
     }
-    else if (this.tabinfo.wherearrcomp.length == 0){
+
+    if (this.tabinfo.wherearrcomp.length == 0){
       if(this.tabinfo.selectcnt == "0") this.tabinfo.selectcnt = "10";
 
-      strSQL += "TOP " + this.tabinfo.selectcnt + " ";
-      displayStrSQL += "the first " + this.tabinfo.selectcnt + " record(s) ";
+      if(this.tabinfo.selectcnt == "-9") {
+          strSQL += " ";
+          displayStrSQL += "all record(s) ";
+      } else {
+        strSQL += "TOP " + this.tabinfo.selectcnt + " ";
+        displayStrSQL += "the first " + this.tabinfo.selectcnt + " record(s) ";
+      }
     }
     else if (this.tabinfo.wherearrcomp.length > 0) {
       displayStrSQL += "all records ";
@@ -483,6 +489,9 @@ export class QueryResultComponent implements OnInit {
       this.colHeader.push(key);
     }
 
+    // Only display results less than 1001 rows
+    results = results.splice(0, this.store.maximumRowReturnCnt);
+
     //Load the data into the common variable
     this.dataSource = new MatTableDataSource(results);
     this.dataSource.sort = this.sort;
@@ -522,7 +531,7 @@ export class QueryResultComponent implements OnInit {
               this.tabinfo.qtype,
               this.tabinfo.querystr)
             .subscribe(() => {
-              /*this.comm.populateQueryList.emit();*/
+              this.comm.populateQueryList.emit();
               this.store.generateToast("The query has been stored under the title: " + this.tabinfo.querytitle.toUpperCase() + ".");
             });
           }
