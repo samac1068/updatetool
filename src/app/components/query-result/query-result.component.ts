@@ -124,8 +124,11 @@ export class QueryResultComponent implements OnInit {
   }
 
   constructSQLString() {
-    this.tabinfo.querystr = "";
+    this.conlog.log("Start the indicator");
     this.loadingQuery = true;
+    this.colHeader = [];
+
+    this.tabinfo.querystr = "";
 
     //Build the string exactly like the web service
     let strSQL = "SELECT ";
@@ -483,8 +486,6 @@ export class QueryResultComponent implements OnInit {
 
   processReturnedData(results){
     //Need to collect the column headers first
-    this.colHeader = [];
-
     for(let key in results[0]){
       this.colHeader.push(key);
     }

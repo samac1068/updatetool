@@ -140,10 +140,12 @@ export class AppComponent implements OnInit {
 
   //Validate the token
   validateCapturedToken() {
+    this.conlog.log("validateCaptureToken:");
     this.data.validateUserToken(this.urlToken)
     .subscribe(result => {
       // Need to account for people hitting the refresh or back buttons - The entry key needs to be regenerated to access the application again.
-      if(result != null) {
+      this.conlog.log("validateCaptureToken: (return)" + result[0]);
+        if(result[0] != null) {
         this.store.setUserValue("token", this.urlToken);
         this.store.setUserValue("username", result[0]["Username"]);
         this.store.setUserValue("initalapp", result[0]["InitalApp"]);
