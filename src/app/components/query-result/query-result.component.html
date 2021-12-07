@@ -18,11 +18,12 @@
 
 <!-- Display Results Datatable -->
 <div class="divResults" [text-copy]>
-  <div *ngIf="colHeader">
+  <div *ngIf="!loadingQuery">
     <table mat-table [dataSource]="dataSource" class="table-striped table-bordered row-border hover table-sm" matSort>
 
       <!-- Column Definitions (Dynamic) -->
       <ng-container *ngFor="let col of colHeader" matColumnDef="{{ col }}">
+        <!--suppress HtmlUnknownBooleanAttribute -->
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ col | uppercase }}</th>
         <td mat-cell *matCellDef="let element" (dblclick)="cellClickedHandler(col, element[col])">{{ element[col]}}</td>
       </ng-container>
@@ -32,7 +33,7 @@
 
     </table>
   </div>
-  <div *ngIf="!colHeader && loadingQuery" class="spinner">
+  <div *ngIf="loadingQuery" class="spinner">
     <mat-spinner class="loadIcon"></mat-spinner>
   </div>
 </div>

@@ -108,8 +108,14 @@ export class AppComponent implements OnInit {
   getServerConfig() {
     this.conlog.log('getServerConfig');
     const results = this.config.getServerConfig();
+
     this.store.setSystemValue('servers', results.servers);
-    this.store.setSystemValue('databases', results.databases);
+    this.store.setSystemValue('databases', results.databases.sort((a,b) => {
+        if(a.id < b.id) return -1;
+        if(a.id > b.id) return 1;
+        return 0;
+      }));
+
     this.conlog.log(this.store.getSystemValue('servers'));
     this.conlog.log(this.store.getSystemValue('databases'));
   }

@@ -124,9 +124,8 @@ export class QueryResultComponent implements OnInit {
   }
 
   constructSQLString() {
-    this.conlog.log("Start the indicator");
-    this.loadingQuery = true;
-    this.colHeader = [];
+    this.loadingQuery = true;   // Display the loading indicator, so they know something is going on.
+    this.colHeader = [];        // Clear out the current displayed results
 
     this.tabinfo.querystr = "";
 
