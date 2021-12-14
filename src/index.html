@@ -9,7 +9,7 @@
   <script src="assets/common.js"></script>
   <script>
     // Need to verify the browser being used by the user - IE will auto redirect to the denial page
-    let browserAgent = navigator.userAgent.indexOf("MSIE") > -1 || navigator.userAgent.indexOf("rv:") > -1;
+    let browserAgent = navigator.userAgent.indexOf("MSIE") > -1 || navigator.userAgent.indexOf("rv:") > -1 || navigator.userAgent.indexOf("Trident") > -1;
     if(browserAgent) window.location.href ="./unsupportedBrowser.html";
   </script>
 </head>
