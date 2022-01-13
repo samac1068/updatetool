@@ -1,7 +1,7 @@
 import { Build } from '../../models/Build.model';
 import { CommService } from '../../services/comm.service';
 import { DataService } from '../../services/data.service';
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { User } from '../../models/User.model';
 import { StorageService } from '../../services/storage.service';
@@ -88,14 +88,17 @@ export class BannerComponent implements OnInit {
   displayWhatsNew(requested: boolean = false) {
     // Only display if the stored build version is greater than the user version
     let builds: any = this.store.getSystemValue('build');
-    if(builds[0].BuildVersion > this.user.lastversion || requested) {
+    if(builds != undefined) { // Ignore this entire process if the build information is not retrieved.
+      if (builds[0].BuildVersion > this.user.lastversion || requested) {
 
-      //Display the What's new page if there is something new since the last time it was checked.
-      const dialogBannerRef = this.dialog.open(WhatsnewDialogComponent, {
-        width: '700px', height: '550px', autoFocus: true, data: this.user });
-      dialogBannerRef.afterClosed().subscribe((u) => {
-        if (u != null) this.user = u;
-      });
+        //Display the What's new page if there is something new since the last time it was checked.
+        const dialogBannerRef = this.dialog.open(WhatsnewDialogComponent, {
+          width: '700px', height: '550px', autoFocus: true, data: this.user
+        });
+        dialogBannerRef.afterClosed().subscribe((u) => {
+          if (u != null) this.user = u;
+        });
+      }
     }
   }
 }

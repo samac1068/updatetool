@@ -15,7 +15,7 @@ export class StorageService {
   private _appKey = 'MMA';
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.21.1207';
+  private _appVersion = '2.22.0112 (Doc: 1.6)';
   private _inDev: boolean = false;
 
   // Public
@@ -147,9 +147,9 @@ export class StorageService {
     str = str.replace(/\*/gi, "~");
     str = str.replace(/\* /gi, "!");
     str = str.replace(/\\/gi, "`");
-    str = str.replace(/\'/gi, "^");
-    str = str.replace(/\>/gi, "gt");
-    str = str.replace(/\</gi, "lt");
+    str = str.replace(/'/gi, "^");
+    str = str.replace(/>/gi, "gt");
+    str = str.replace(/</gi, "lt");
 
     return str;
   }
@@ -157,11 +157,11 @@ export class StorageService {
   //  headleyt:  20200105  added additional decoding characters to be consistent with what is in the API
   customURLDecoder(str: string) {
     str = str.replace(/%20/gi, " ");
-    str = str.replace(/\~/gi, "*");
-    str = str.replace(/\! /gi, "*");
-    str = str.replace(/\`/gi, "\\");
+    str = str.replace(/~/gi, "*");
+    str = str.replace(/! /gi, "*");
+    str = str.replace(/`/gi, "\\");
     str = str.replace(/\^/gi, "'");
-    str = str.replace(/\{14\}/g, "%");
+    str = str.replace(/{14\}/g, "%");
     return str;
   }
 
@@ -203,8 +203,7 @@ export class StorageService {
     });
   }
 
-  sortObjectAlpha(obj: any, col: string): any {
-
-
+  setCapitlization(str: string): string {
+    return str.substr(0,1).toUpperCase() + str.substr(1).toLowerCase();
   }
 }

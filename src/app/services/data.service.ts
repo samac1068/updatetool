@@ -21,7 +21,7 @@ export class DataService {
   }
 
   private errorHandler(error) {
-    let errorMessage = '';
+    let errorMessage: string;
     if (error.error instanceof ErrorEvent) {
       // client-side error
       errorMessage = `Error: ${error.error.message}`;
@@ -87,9 +87,9 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  getQueryData(server: string, db: string, tbl: string, col: string, where: string, join: string, order: string, cnt: boolean, lmtrow: boolean, speccnt: string, username: string) {
+  getQueryData(server: string, db: string, tbl: string, col: string, where: string, join: string, order: string, cnt: boolean, lmtrow: boolean, speccnt: string, username: string, usedistinct: string) {
     this.conlog.log('getQueryData');
-    return this.http.get(`${this.getWSPath()}GetQueryData/${this.store.getPassKey()}/${server}/${db}/${tbl}/${col}/${where}/${join}/${order}/${cnt}/${lmtrow}/${speccnt}/${username}`)
+    return this.http.get(`${this.getWSPath()}GetQueryData/${this.store.getPassKey()}/${server}/${db}/${tbl}/${col}/${where}/${join}/${order}/${cnt}/${lmtrow}/${speccnt}/${username}/${usedistinct}`)
       .pipe(catchError(this.errorHandler));
   }
 
