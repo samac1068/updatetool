@@ -33,6 +33,7 @@ export class TabComponent implements OnInit {
           .subscribe((results) => {
             this.tabinfo.columns = [];
             this.tabinfo.availcolarr = [];
+
             for(let row of results)
             {
               var r: Column = new Column();

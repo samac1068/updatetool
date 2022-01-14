@@ -87,6 +87,7 @@ export class ColumnsDialogComponent implements OnInit {
     // Reset the values to default column selection
     this.data.colfilterarr = [];
     this.data.colfilterarr.push("*");
+    this.data.distinctcol = "";
   }
 
   /*resetStoredColFilterArr() {
@@ -114,6 +115,19 @@ export class ColumnsDialogComponent implements OnInit {
   }
 
   storeSelectedColumns() {
+    //If a distinct column is selected, then we need to make sure it falls first in the list followed by the rest of the selected columns
+    if(this.distinctCol != "") {
+      for (let d = 0; d < this.columnArr.length; d++) {
+        if(this.columnArr[d] == this.distinctCol) {
+          this.columnArr.splice(d,1);
+          break;
+        }
+      }
+
+      // Now move the distinct column to the beginning of the list
+      this.columnArr.unshift(this.distinctCol);
+    }
+
     this.data.colfilterarr = [];
     this.data.colfilterarr = this.columnArr;
     this.data.distinctcol = this.distinctCol; //Store the selected distinct column name

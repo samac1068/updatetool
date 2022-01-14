@@ -83,6 +83,7 @@ export class QueryResultComponent implements OnInit {
     this.tabinfo.getcount = false;
     this.tabinfo.limitRows = false;
     this.tabinfo.selectcnt = "0";
+    this.tabinfo.distinctcol = "";
     this.colHeader = [];
   }
 
