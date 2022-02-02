@@ -139,6 +139,7 @@ export class FiltersComponent implements OnInit {
         this.tabinfo.wherearrcomp[this.curIndex].name = this.curColumn;
         this.tabinfo.wherearrcomp[this.curIndex].operator = this.curOperator;
         this.tabinfo.wherearrcomp[this.curIndex].value = this.curInput;
+        this.tabinfo.wherearrcomp[this.curIndex].table = this.tabinfo.table.name;
     }
     else {
       //Add to the table
@@ -149,11 +150,12 @@ export class FiltersComponent implements OnInit {
         type: this.curColumnType,
         name: this.curColumn,
         operator: this.curOperator,
-        value: this.curInput
+        value: this.curInput,
+        table: this.tabinfo.table.name
       });
     }
 
-    //Finally reset the fields
+    //Finally, reset the fields
     this.resetFilterFields();
     this.evaluateBtnStatus();
   }

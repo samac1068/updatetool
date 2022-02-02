@@ -1,6 +1,6 @@
 <!-- SQL Statement display window -->
 <div class="divQuery">
-  {{ tabinfo.querystr }}
+  {{ userSqlDisplay == 1 ? tabinfo.querystr : tabinfo.rawquerystr }}
 </div>
 
 <!-- Modifier Buttons -->

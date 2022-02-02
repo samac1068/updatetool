@@ -15,7 +15,7 @@ export class StorageService {
   private _appKey = 'MMA';
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.22.0113 (Doc: 1.6)';
+  private _appVersion = '2.22.0202 (Doc: 1.6)';
   private _inDev: boolean = false;
 
   // Public
@@ -35,6 +35,7 @@ export class StorageService {
   dbNumericals: string[] = ["bit","tinyint","bool","boolean","smallint","mediumint","int","integer","bigint","float","double","decimal","double precision","dec"];
   ignoreChars: string[] = ["/","\\", "`"];
   maximumRowReturnCnt: number = 1000;
+  displayFormats: any[] = [{id: 1, text: "Sentence Format"}, {id:0, text:"SQL Format"}];
 
   constructor(private toaster: Toaster, private conlog: ConlogService) { }
 

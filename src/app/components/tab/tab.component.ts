@@ -102,7 +102,7 @@ export class TabComponent implements OnInit {
 
     // A stored query was requested
     if(this.tabinfo.isstoredquery) {
-      setTimeout(() => {
+      setTimeout(() => {    // This delay is added to wait until the tab is completely generated before we execute the stored query, otherwise it will appear on the wrong tab.
         if(this.tabinfo === this.store.selectedTab) {
           this.comm.runStoredQuery.emit(this.tabinfo);
         }

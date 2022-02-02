@@ -13,10 +13,11 @@ export class OptionsDialogComponent implements OnInit {
 
   servers: any[] = [];
   databases: any[] = [];
+  formats: any[] = [];
 
   userServer: string = "0";
   userDB: string = "0";
-
+  userFormat: string = "-1";
   userid: string = "";
   username: string = "";
   firstname: string = "";
@@ -28,6 +29,7 @@ export class OptionsDialogComponent implements OnInit {
     //Load the default options
     this.servers = this.store.getSystemValue('servers');
     this.databases = this.store.getSystemValue('databases');
+    this.formats = this.store.displayFormats;
 
     this.userServer = (this.user.servername != undefined) ? this.user.servername : "0";
     this.userDB = (this.user.database != undefined) ? this.user.database : "0";
@@ -36,6 +38,7 @@ export class OptionsDialogComponent implements OnInit {
     this.username = this.user.username;
     this.firstname = this.user.fname;
     this.lastname = this.user.lname;
+    this.userFormat = this.store.getUserValue("appdata").substr(0,1);
   }
 
   closeDialog() {
@@ -53,6 +56,8 @@ export class OptionsDialogComponent implements OnInit {
     }
 
     this.user.database = this.userDB;
+    this.store.setUserValue("appdata", this.userFormat + this.store.getUserValue("appdata").substring(1));
+    this.user.appdata = this.store.getUserValue("appdata");
     this.closeDialog();
     this.conlog.log("saveUpdatedOptions");
   }

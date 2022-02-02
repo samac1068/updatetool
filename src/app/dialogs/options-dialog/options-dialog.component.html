@@ -49,6 +49,14 @@
     </label>
   </div>
 
+  <div>
+    <label for="dbList">SQL Query Text Display:
+      <select id="displayList" class="form-control optionGrp" [(ngModel)]="userFormat">
+        <option *ngFor="let format of formats" [value]="format.id">{{ format.text }}</option>
+      </select>
+    </label>
+  </div>
+
   <div class="btnGroup">
     <button class="standardGreenBtn" (click)="saveUpdatedOptions()">Apply</button>
     <button class="standardGreenBtn" (click)="closeDialog()">Cancel</button>

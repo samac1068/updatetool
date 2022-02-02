@@ -51,7 +51,7 @@ export class BannerComponent implements OnInit {
   }
 
   openOptionsDialog() {
-    const dialogRef = this.dialog.open(OptionsDialogComponent, { width: '500px', height: '340px', autoFocus: true, data: this.user });
+    const dialogRef = this.dialog.open(OptionsDialogComponent, { width: '500px', height: '390px', autoFocus: true, data: this.user });
     dialogRef.afterClosed().subscribe((rtn) => {
       if(rtn.datamodified) {
         this.user.datamodified = false;
@@ -61,7 +61,7 @@ export class BannerComponent implements OnInit {
             this.comm.userUpdatedReloadSys.emit();
             this.store.generateToast("Your options have been updated.");
           } else
-            this.store.generateToast("Possible issue when save the option information.", false);
+            this.store.generateToast("Possible issue while attempting to save the option information.", false);
         });
       }
     });

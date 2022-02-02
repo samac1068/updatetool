@@ -49,6 +49,7 @@ export class Tab {
   sqdatabase: string;
   sqserver: string;
   sqbody: string;
+  sqcolumns: string[];
 
   selectedrow: any;
 

@@ -141,12 +141,13 @@ export class ServersComponent implements OnInit {
         for(let i=0; i < results.length; i++) {
           var q:Query = new Query();
           q.id = results[i].ID;
-          q.title = this.store.customURLDecoder(results[i].QueryTitle);
+          q.title = this.store.customURLDecoder(results[i].QueryTitle).toUpperCase();
           q.database = results[i].DatabaseName;
           q.server = results[i].ServerName;
           q.querybody = this.store.customURLDecoder(results[i].QueryBody);
           q.displayquery = this.store.customURLDecoder(results[i].DisplayQuery);
           q.qtype = results[i].Qtype;
+          q.columnlist = results[i].ColumnList;
 
            this.queries.push(q);
         }

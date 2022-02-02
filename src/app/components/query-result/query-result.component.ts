@@ -28,6 +28,8 @@ export class QueryResultComponent implements OnInit {
   dataSource: any;
   rowsReturned: string;
   loadingQuery: boolean = false;
+  queryid: number = -1;
+  userSqlDisplay: number = 1;
 
   constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog, private conlog: ConlogService) { }
 
@@ -109,7 +111,7 @@ export class QueryResultComponent implements OnInit {
         this.tabinfo.tempPrimKey = primaryKeyList[0].ColumnNames.split();
         this.tabinfo.primKeyID = primaryKeyList[0].ID;
 
-        // Account for all of the primary keys
+        // Account for all the primary keys
         if (this.tabinfo.tempPrimKey != null) {
           if (this.tabinfo.tempPrimKey.length > 0) {
             for (let c = 0; c < this.tabinfo.tempPrimKey.length; c++) {
@@ -207,6 +209,8 @@ export class QueryResultComponent implements OnInit {
       this.conlog.log("SQL: " + strSQL);
       this.conlog.log("DISPLAY: " + displayStrSQL);
 
+      this.userSqlDisplay = parseInt(this.store.getUserValue("appdata").substr(0,1));
+
       this.executeSQL();
     }
   }
@@ -252,7 +256,7 @@ export class QueryResultComponent implements OnInit {
       if(forDisplay)
         wStr += row.name + " " + row.operator + " ";
       else
-        wStr += row.name + " {" + this.store.operators.indexOf(row.operator) + "} ";
+        wStr += "[" + row.table + "].[" + row.name + "] {" + this.store.operators.indexOf(row.operator) + "} ";
 
       if (row.operator.toUpperCase() != "IS NULL" && row.operator.toUpperCase() != "IS NOT NULL"){
       //Add the value (quote if type requires)
@@ -292,7 +296,6 @@ export class QueryResultComponent implements OnInit {
     return wStr;
   }
 
-  //  headley:  20200129  Build the where clause to display as a sentence vice SQL syntax
   constructWhereClauseSentence(){
     //Manually join the where clause adding in the appropriate conditioning statements
     let wStr: string = "where ";
@@ -321,7 +324,7 @@ export class QueryResultComponent implements OnInit {
 			  	case "ntext":
 				  case "text":
   				case "uniqueidentifier":
-//  headleyt:  20210205  added a check to parse/build the proper string for the IN operator
+          //  headleyt:  20210205  added a check to parse/build the proper string for the IN operator
             {
               if (row.operator.toUpperCase() != "IN")
                 wStr += "'" + this.checkForWildcards(row.value, true) + "'";
@@ -373,16 +376,7 @@ export class QueryResultComponent implements OnInit {
     return (operator == 'IS NULL' || operator == 'IS NOT NULL') ? this.store.operatorsText[operator].toUpperCase() : this.store.operatorsText[operator];
   }
 
-  /* //  headleyt:  20210129  Added camelCase converter so the column names in sentence format are all the same
-  camelCase(str: string) {
-    // str = str.replace("_", "");
-    return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index)
-    {
-        return index === 0 ? word.toLowerCase() : word.toUpperCase();
-    }).replace(/\s+/g, '');
-  }  */
-
-   //  headleyt:  20210201  Added TitleCase converter so the column names in sentence format are all the same
+  //  headleyt:  20210201  Added TitleCase converter so the column names in sentence format are all the same
   TitleCase(str: string) {
     return str.toLowerCase().split('_').map(word => {
       return (word.charAt(0).toUpperCase() + word.slice(1));
@@ -420,12 +414,18 @@ export class QueryResultComponent implements OnInit {
     for (let i = 0; i < this.tabinfo.joinarr.length; i++){
       leftdb = this.tabinfo.joinarr[i].dbleft;
       if (leftdb == this.tabinfo.joinarr[i].dbright){
+
+        // Add the indicator that the tables are joined
+        tableString = tableString.replace("from table", "from joined table");
+
         if (tableString.indexOf("tables") == -1){
           tableString = tableString.replace("table", "tables");
         }
+
         if (tableString.indexOf(this.tabinfo.joinarr[i].tableleft) == -1){
           tableString += this.tabinfo.joinarr[i].tableleft;
         }
+
         if (tableString.indexOf(this.tabinfo.joinarr[i].tableright) == -1){
           if (this.tabinfo.joinarr.length == 1)
             tableString += " and " + this.tabinfo.joinarr[i].tableright;
@@ -434,6 +434,7 @@ export class QueryResultComponent implements OnInit {
           else
             tableString += ", and " + this.tabinfo.joinarr[i].tableright;
         }
+
         for (let j = (i + 1); j < this.tabinfo.joinarr.length; j++){
           if (leftdb == this.tabinfo.joinarr[j].dbleft){
             if (tableString.indexOf(this.tabinfo.joinarr[j].tableleft) == -1){
@@ -444,6 +445,7 @@ export class QueryResultComponent implements OnInit {
               else
                 tableString += ", and " + this.tabinfo.joinarr[j].tableleft;
             }
+
             if (leftdb == this.tabinfo.joinarr[j].dbright){
               if (tableString.indexOf(this.tabinfo.joinarr[j].tableright) == -1){
                 if (this.tabinfo.joinarr.length == 1)
@@ -461,9 +463,11 @@ export class QueryResultComponent implements OnInit {
           }
         }
       }
+
       if (leftdb != this.tabinfo.joinarr[i].dbright){
         tableString += " and table " + this.tabinfo.joinarr[i].tableright + " in the " + this.tabinfo.joinarr[i].dbright + " database ";
       }
+
       jStr = tableString;
     }
     return jStr;
@@ -487,20 +491,18 @@ export class QueryResultComponent implements OnInit {
   executeStoredQuery(tab: Tab) {
     //I need to confirm what tab I should be on
     if(tab.sqid != undefined){
-      //tab.querystr = this.tabinfo.querystr;
       this.data.executeQStr(tab.sqid).subscribe((results) => {
         this.processReturnedData(results);
+        this.loadingQuery = false;
       });
     } else {
-      alert("Current tab id doesn't match that for the selected stored query.  Execution aborted.");
+      alert("Current tab id doesn't match for the selected stored query.  Execution aborted.");
     }
   }
 
   processReturnedData(results){
-    //Need to collect the column headers first
-    for(let key in results[0]){
-      this.colHeader.push(key);
-    }
+    // Get all column headers for the returned information
+    this.colHeader = Object.keys(results[0]);
 
     // Only display results less than 1001 rows
     results = results.splice(0, this.store.maximumRowReturnCnt);
@@ -515,7 +517,6 @@ export class QueryResultComponent implements OnInit {
     if(this.tabinfo.updateRecReq){
       this.tabinfo.updateRecReq = false;
       this.store.generateToast("Record Successfully Updated");
-      //alert("Record updated.");
     }
 
     this.loadingQuery = false;
@@ -534,7 +535,11 @@ export class QueryResultComponent implements OnInit {
         const dialogQuery = this.dialog.open(QueryDialogComponent, {width: '500px', height: '175px', autoFocus: true, data: this.tabinfo });
         dialogQuery.afterClosed().subscribe(() => {
           if(this.tabinfo.querytitle != undefined) {
-            // May need to translate and pull the correct value from the question.
+            // Need to compile the list of columns used for this query.
+            let colarr: any = [];
+            this.tabinfo.availcolarr.forEach((col) => {
+              colarr.push(col.columnname);
+            });
 
             this.data.storeNewQuery(this.tabinfo.querytitle.toUpperCase(),
               this.tabinfo.rawquerystr,

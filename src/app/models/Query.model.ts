@@ -8,4 +8,5 @@ export class Query
     server: string;
     database: string;
     qtype: string;  //  headleyt:  20210106  added the qtype to the class in order to add it when a query is saved
+    columnlist: string;
 }

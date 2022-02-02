@@ -3,6 +3,7 @@ import { Tab } from '../../models/Tab.model';
 import { StorageService } from '../../services/storage.service';
 import { CommService } from '../../services/comm.service';
 import {ConlogService} from '../../modules/conlog/conlog.service';
+import {Query} from '../../models/Query.model';
 
 @Component({
   selector: 'app-tabs',
@@ -44,7 +45,7 @@ export class TabsComponent implements OnInit {
 
     if(queryid != undefined) {
       //The user has selected a stored query, so feed the info.
-      let queries: any[] = this.store.getUserValue('storedqueries');
+      let queries: Query[] = this.store.getUserValue('storedqueries');
 
       for(let i=0; i < queries.length; i++) {
         if(queries[i].id === parseInt(queryid))
@@ -57,6 +58,7 @@ export class TabsComponent implements OnInit {
           tabCont.sqbody = queries[i].querybody;
           tabCont.rawquerystr = this.store.customURLDecoder(queries[i].querybody);
           tabCont.querystr = (queries[i].displayquery == "") ? this.store.customURLDecoder(queries[i].querybody) : this.store.customURLDecoder(queries[i].displayquery);
+          tabCont.sqcolumns = (queries[i].columnlist != null) ? queries[i].columnlist.split(",") : null;
 
           this.conlog.log("QueryBody: " + queries[i].querybody + " - " + this.store.customURLDecoder(queries[i].querybody));
          break;
