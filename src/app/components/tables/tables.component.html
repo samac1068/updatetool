@@ -5,7 +5,7 @@
 
     <div class="tableFilter">
       <label for="txtTableName" class="fieldLabel">Filter:</label>&nbsp;
-      <input id="txtTableName" type="text" [(ngModel)]="searchTerm" />
+      <input id="txtTableName" type="text" [(ngModel)]="searchTerm" autocomplete="off" />
       <button class="standardGreenBtn" style="padding: 0 5px;" (click)="resetSearchTerm()"> X </button>
 
       <div class="innerTable">

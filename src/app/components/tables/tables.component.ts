@@ -31,11 +31,11 @@ export class TablesComponent implements OnInit {
   }
 
   processTableList(tables: any){
-    var tempArr = [];
+    let tempArr = [];
 
-    for (var tbl of tables)
+    for (let tbl of tables)
     {
-        var temp:Table = new Table();
+        let temp:Table = new Table();
         temp.name = tbl.Name;
 
         tempArr.push(temp);
@@ -46,18 +46,18 @@ export class TablesComponent implements OnInit {
   }
 
   storeTableList(tables: any) {
-    var index: number = 0;
-    var dbid: number = -1;
+    let index: number = 0;
+    let dbid: number = -1;
 
     //Determine the DB ID
-    for (var db of this.tabinfo.databasearr) {
+    for (let db of this.tabinfo.databasearr) {
       if((db.name == this.tabinfo.database)){
         dbid = db.id;
         break;
       }
     }
 
-    for(var i=0; i < tables.length; i++) {
+    for(let i=0; i < tables.length; i++) {
       index++;
       this.tabinfo.tablearr.push({id: index, name: tables[i].name, dbid: dbid});
     }
@@ -67,7 +67,7 @@ export class TablesComponent implements OnInit {
     //Make sure there was a change before sending the information
     if(this.tabinfo.table == undefined || this.tabinfo.table.name != table.name)
     {
-      for (var tbl of this.tabinfo.seltbllist)
+      for (let tbl of this.tabinfo.seltbllist)
         tbl.isSelected = (tbl.name == table.name);
 
       //Update tabinfo before sending

@@ -63,6 +63,10 @@ export class QueryResultComponent implements OnInit {
     this.comm.dataModifierClicked.subscribe(() => {
       this.processDataModifyClicked();
     });
+
+    this.comm.validatePrimKey.subscribe((tabdata) => {
+      this.validateTempPrimKey(tabdata);  //Line 587
+    })
   }
 
   newTableSelected(){
@@ -568,42 +572,80 @@ export class QueryResultComponent implements OnInit {
     this.tabinfo.table["curvalue"] = value;
 
     // Identify the appropriate column to be modified
-    let obj = this.tabinfo.availcolarr.find(x => col === x.columnname);
-    obj.colSelected = true;
+    let colObj = this.tabinfo.availcolarr.find(x => col === x.columnname);
+    colObj.colSelected = true;
 
-    //Does this table have a primary key (is required)
+    //Does this table have a primary key or a temporary primary key (is required)
     if(!this.tabinfo.hasPrimKey) {
-      // Doesn't have a primary key, so user must select a unique identifier to be used in the where clause
-      let tabdata: any = {col: col, tabinfo: this.tabinfo };
-      const dialogPrimeKey = this.dialog.open(PrimkeyDialogComponent, { width: '350px', height: '430px', autoFocus: true, data: tabdata });
-      dialogPrimeKey.afterClosed().subscribe((ids) => {
+      let tabdata: any = {col: this.tabinfo.table["selectedColumn"], tabinfo: this.tabinfo };
+      this.validateTempPrimKey(tabdata);   // Make sure a primary key get selected, since none is identified at this point
 
+      if(this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0)
+        this.processCellClicked(colObj);
+      else
+        this.tabinfo.tempPrimKey = null;
+    } else
+      this.processCellClicked(this.tabinfo.availcolarr.find(x => col === x.columnname));
+  }
+
+  validateTempPrimKey(tabdata: any) {
+    // Doesn't have a primary key, so user must select a unique identifier to be used in the where clause
+    let dialogPrimeKey;
+    if(!dialogPrimeKey) {
+      dialogPrimeKey = this.dialog.open(PrimkeyDialogComponent, {width: '350px', height: '430px', autoFocus: true, data: tabdata});
+
+      // Actions if the clear button is selected
+      dialogPrimeKey.componentInstance.onClear.subscribe(() => {
+        this.data.clearUserDefinedPK(this.tabinfo.table.name)
+          .subscribe(() => {
+              this.comm.reloadStoredColumnData.emit();
+              this.store.generateToast("All primary keys have been cleared.");
+            },
+            error => {
+              alert("There was an error while attempt to remove the stored primary key.");
+            });
+      });
+
+      // Actions when the dialog is closed
+      dialogPrimeKey.afterClosed().subscribe((ids) => {
         // Store the potentially multiple IDs in a variable
         this.tabinfo.tempPrimKey = ids;
 
-        // Account for all of the primary keys
-        if(this.tabinfo.tempPrimKey != null) {
-          if (this.tabinfo.tempPrimKey.length > 0) {
-            // Need to update our local variable with the information
-            for (let c = 0; c < ids.length; c++) {
-              let selCol = this.tabinfo.availcolarr.find(x => x.columnid == ids[c]);
-              if (selCol != undefined) selCol.primarykey = true;
-            }
-
-            // All done with identifying the primary keys, so move forward with the process
-            this.tabinfo.hasPrimKey = true;
-            this.processCellClicked(obj);
-          } else {
-            this.tabinfo.tempPrimKey = null;
-            alert("Unable to modify the selected value without a primary key. Operation canceled");
+        // Account for all selected primary keys
+        if (this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0) {
+          // Need to update our local variable with the information
+          for (let c = 0; c < ids.length; c++) {
+            let selCol = this.tabinfo.availcolarr.find(x => x.columnid == ids[c]);
+            if (selCol != undefined) selCol.primarykey = true;
           }
+
+          // All done with identifying the primary keys, so move forward with the process
+          this.tabinfo.hasPrimKey = true;
+
+          // Make sure to save the information also in the database
+          let pk: any = {};
+          pk.action = (this.tabinfo.primKeyID > 0) ? 'update' : 'insert';
+          pk.tablename = this.tabinfo.table.name;
+          pk.columnnames = ids.join();
+          pk.distinctcol = 'null';
+          pk.id = (this.tabinfo.primKeyID > 0) ? this.tabinfo.primKeyID : null;
+          pk.rtype = "P";
+
+          this.data.updateUserColumnSelection(pk)
+            .subscribe(() => {
+                this.comm.reloadStoredColumnData.emit();
+                this.store.generateToast('Your selected primary key(s) has been stored.');
+              },
+              error => {
+                alert("There was an error while attempt to store the primary key.");
+              });
         } else {
           this.tabinfo.tempPrimKey = null;
-          alert("Unable to modify the selected value without a primary key. Operation canceled");
+          if(tabdata.col != null)   // Only show this alert if a column was selected to open the dialog
+            alert("Unable to modify the selected value without a primary key. Operation canceled.");
         }
       });
-    } else
-        this.processCellClicked(obj);
+    }
   }
 
   processCellClicked(obj){

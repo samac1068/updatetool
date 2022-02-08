@@ -35,4 +35,6 @@ export class CommService {
   dataModifierClicked = new EventEmitter();   // Calls the new data modifier dialog to be opened.
   reloadStoredColumnData = new EventEmitter();    // Used to reload the loaded column value information which are the selected and primary key information for the current table
   joinsModified = new EventEmitter();            // Called when a join has been applied to the table.
+
+  validatePrimKey = new EventEmitter();           // Used to run the centralized function that allows the user to select or confirm selected temporary primary key
 }

@@ -50,7 +50,8 @@ export class QueryBtnsComponent implements OnInit {
   openTempPrimaryKey() {
     // Used to reopen the selected primary key for this table
     let tabdata: any = {col: null, tabinfo: this.tabinfo };
-    const dialogPrimeKey = this.dialog.open(PrimkeyDialogComponent, { width: '350px', height: '430px', autoFocus: true, data: tabdata });
+    this.comm.validatePrimKey.emit(tabdata);
+    /*const dialogPrimeKey = this.dialog.open(PrimkeyDialogComponent, { width: '350px', height: '430px', autoFocus: true, data: tabdata });
 
     // Dialog Emitters
     dialogPrimeKey.componentInstance.onClear.subscribe(() => {
@@ -62,10 +63,10 @@ export class QueryBtnsComponent implements OnInit {
           error => {
             alert("There was an error while attempt to remove the stored primary key.");
           });
-    });
+    });*/
 
     // Dialog Closing
-    dialogPrimeKey.afterClosed().subscribe((ids) => {
+    /*dialogPrimeKey.afterClosed().subscribe((ids) => {
       // Store the potentially multiple IDs in a variable
       if(ids != null) {
         this.tabinfo.tempPrimKey = ids;
@@ -83,7 +84,7 @@ export class QueryBtnsComponent implements OnInit {
           }
         }
 
-        // Make sure to save the information also in the database
+        /!*!// Make sure to save the information also in the database
         let pk:any = {};
         pk.action = (this.tabinfo.primKeyID > 0) ? 'update' : 'insert';
         pk.tablename = this.tabinfo.table.name;
@@ -99,9 +100,9 @@ export class QueryBtnsComponent implements OnInit {
           },
           error => {
             alert("There was an error while attempt to remove the stored primary key.");
-          });
+          });*!/
       }
-    });
+    });*/
   }
 
   exportToExcelHandler(type: string) {
