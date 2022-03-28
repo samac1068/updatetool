@@ -31,6 +31,7 @@ export class DataService {
     }
 
     alert(errorMessage);
+    this.conlog.log("ErrorHandler:");
     this.conlog.log(errorMessage);
     return throwError(errorMessage);
   }
@@ -170,6 +171,12 @@ export class DataService {
   clearUserDefinedPK(tablename: string) {
     this.conlog.log("clearUserDefinedPK");
     return this.http.get<any[]>(`${this.getWSPath()}ClearUserDefinedPK/${this.store.getPassKey()}/${this.store.getUserValue('userid')}/${tablename}`)
+      .pipe(catchError(this.errorHandler));
+  }
+
+  getResetPortalSession(action: string, cutidlist: string) {
+    this.conlog.log('getResetPortalSession');
+    return this.http.get<any[]>(`${this.getWSPath()}GetResetActivePortalSessions/${this.store.getPassKey()}/${action}/${cutidlist}`)
       .pipe(catchError(this.errorHandler));
   }
 }

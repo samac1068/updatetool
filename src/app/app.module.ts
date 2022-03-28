@@ -63,6 +63,7 @@ import { PrimkeyDialogComponent } from './dialogs/primkey-dialog/primkey-dialog.
 import { ModifierDialogComponent } from './dialogs/modifier-dialog/modifier-dialog.component';
 import { UsermgrDialogComponent } from './dialogs/usermgr-dialog/usermgr-dialog.component';
 import { ToastNotificationsModule } from 'ngx-toast-notifications';
+import { SessionDialogComponent } from './dialogs/session-dialog/session-dialog.component';
 
 
 @NgModule({
@@ -93,7 +94,8 @@ import { ToastNotificationsModule } from 'ngx-toast-notifications';
     PrimkeyDialogComponent,
     ModifierDialogComponent,
     UsermgrDialogComponent,
-    ListboxComponent
+    ListboxComponent,
+    SessionDialogComponent
   ],
   imports: [
     BrowserModule,

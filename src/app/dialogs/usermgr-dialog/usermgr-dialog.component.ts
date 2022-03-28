@@ -8,6 +8,7 @@ import {Admin} from '../../models/Admin.model';
 import {SelectionModel} from '@angular/cdk/collections';
 import {User} from '../../models/User.model';
 import {ConlogService} from '../../modules/conlog/conlog.service';
+import {CommService} from '../../services/comm.service';
 
 @Component({
   selector: 'app-usermgr-dialog',
@@ -28,7 +29,8 @@ export class UsermgrDialogComponent implements OnInit {
   onSipr: boolean = false;
 
 
-  constructor(private dialogRef: MatDialogRef<UsermgrDialogComponent>, private fb: FormBuilder, private store: StorageService, private data: DataService, private conlog: ConlogService) {
+  constructor(private dialogRef: MatDialogRef<UsermgrDialogComponent>, private fb: FormBuilder, private store: StorageService, private data: DataService, private conlog: ConlogService,
+              private comm: CommService) {
     dialogRef.disableClose = true;
   }
 
@@ -84,6 +86,11 @@ export class UsermgrDialogComponent implements OnInit {
     let obj = new Admin()
     obj.action = 'dropcutdups';
     this.data.adminManager(obj).subscribe(() => { this.conlog.log("purge duplicates complete"); this.store.generateToast("Duplicates have been purged"); });
+  }
+
+  resetPortalSession():void {
+    this.closeDialog();   // Everything we need to do for portal session reset, will be done with a new window
+    this.comm.resetPortalSessionClicked.emit();
   }
 
   purgeSelectedUsers() {
@@ -172,6 +179,7 @@ export class UsermgrDialogComponent implements OnInit {
     if (!row) {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
+
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.userid + 1}`;
   }
 
@@ -179,5 +187,4 @@ export class UsermgrDialogComponent implements OnInit {
     this.resetForm();
     this.dialogRef.close();
   }
-
 }

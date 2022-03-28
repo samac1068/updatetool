@@ -31,10 +31,12 @@ export class CommService {
   exportToExcelClicked = new EventEmitter();        //When the button is clicked
   copyToClipboardClicked = new EventEmitter();      //Copy results to the clipboard
 
-  tabFault = new EventEmitter();            //Used when there is an issue withe the data updating the wrong tab
+  tabFault = new EventEmitter();            //Used when there is an issue with the data updating the wrong tab
   dataModifierClicked = new EventEmitter();   // Calls the new data modifier dialog to be opened.
   reloadStoredColumnData = new EventEmitter();    // Used to reload the loaded column value information which are the selected and primary key information for the current table
   joinsModified = new EventEmitter();            // Called when a join has been applied to the table.
 
   validatePrimKey = new EventEmitter();           // Used to run the centralized function that allows the user to select or confirm selected temporary primary key
+
+  resetPortalSessionClicked = new EventEmitter();   // Used when the button to reset the portal from the User Manager is clicked.
 }

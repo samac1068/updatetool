@@ -15,7 +15,7 @@ export class StorageService {
   private _appKey = 'MMA';
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.22.0208 (Doc: 1.6)';
+  private _appVersion = '2.22.0328 (Doc: 1.7)';
   private _inDev: boolean = false;
 
   // Public
@@ -206,5 +206,12 @@ export class StorageService {
 
   setCapitlization(str: string): string {
     return str.substr(0,1).toUpperCase() + str.substr(1).toLowerCase();
+  }
+
+  formatDateTime(dt: string): string {
+    let dtpart = dt.split("T");
+    let timepart = dtpart[1].split(".");
+
+    return dtpart[0] + " " + timepart[0];
   }
 }

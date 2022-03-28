@@ -10,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { WhatsnewDialogComponent } from '../../dialogs/whatsnew-dialog/whatsnew-dialog.component';
 import {UsermgrDialogComponent} from '../../dialogs/usermgr-dialog/usermgr-dialog.component';
 import {ConlogService} from '../../modules/conlog/conlog.service';
+import {SessionDialogComponent} from '../../dialogs/session-dialog/session-dialog.component';
 
 @Component({
   selector: 'app-banner',
@@ -43,6 +44,10 @@ export class BannerComponent implements OnInit {
       this.openOptionsDialog();
     });
 
+    this.comm.resetPortalSessionClicked.subscribe(() => {
+      this.openPortalSessionDialog();
+    });
+
     this.onSipr = this.store.getSystemValue('webservice').network == "sipr";
   }
 
@@ -73,6 +78,14 @@ export class BannerComponent implements OnInit {
       .subscribe((rtn) => {
         this.conlog.log(rtn);
     });
+  }
+
+  openPortalSessionDialog() {
+    const dialogSessionMgrRef = this.dialog.open(SessionDialogComponent, { width: '750px', height: '500px', autoFocus: true, data: this.user });
+    dialogSessionMgrRef.afterClosed()
+      .subscribe((rtn) => {
+        this.conlog.log(rtn);
+      });
   }
 
   setupVersion() {

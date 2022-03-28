@@ -116,8 +116,8 @@ export class AppComponent implements OnInit {
         return 0;
       }));
 
-    this.conlog.log(this.store.getSystemValue('servers'));
-    this.conlog.log(this.store.getSystemValue('databases'));
+    //this.conlog.log(this.store.getSystemValue('servers'));
+    //this.conlog.log(this.store.getSystemValue('databases'));
   }
 
   getApplicationBuild() {

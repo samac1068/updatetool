@@ -506,23 +506,25 @@ export class QueryResultComponent implements OnInit {
 
   processReturnedData(results){
     // Get all column headers for the returned information
-    this.colHeader = Object.keys(results[0]);
+    if(results.length > 0) {
+      this.colHeader = Object.keys(results[0]);
 
-    // Only display results less than 1001 rows
-    results = results.splice(0, this.store.maximumRowReturnCnt);
+      // Only display results less than 1001 rows
+      results = results.splice(0, this.store.maximumRowReturnCnt);
 
-    //Load the data into the common variable
-    this.dataSource = new MatTableDataSource(results);
-    this.dataSource.sort = this.sort;
-    this.rowsReturned = "Rows Returned: " + results.length;
+      //Load the data into the common variable
+      this.dataSource = new MatTableDataSource(results);
+      this.dataSource.sort = this.sort;
 
-    // If this was executed by the updater, then now send a response to display the update complete
-    this.conlog.log(this.tabinfo.updateRecReq);
-    if(this.tabinfo.updateRecReq){
-      this.tabinfo.updateRecReq = false;
-      this.store.generateToast("Record Successfully Updated");
+      // If this was executed by the updater, then now send a response to display the update complete
+      this.conlog.log(this.tabinfo.updateRecReq);
+      if (this.tabinfo.updateRecReq) {
+        this.tabinfo.updateRecReq = false;
+        this.store.generateToast("Record Successfully Updated");
+      }
     }
 
+    this.rowsReturned = "Rows Returned: " + results.length;
     this.loadingQuery = false;
   }
 
