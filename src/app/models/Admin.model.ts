@@ -8,6 +8,7 @@ export class Admin {
   firstname: string;
   lastname: string;
   network: string;
+  database: string;
   version: string;
   isadmin: number;
 }

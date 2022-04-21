@@ -144,8 +144,9 @@ export class UsermgrDialogComponent implements OnInit {
     this.selectUser.username = this.mgrGrp.controls.username.value;
     this.selectUser.firstname = this.mgrGrp.controls.firstname.value;
     this.selectUser.lastname = this.mgrGrp.controls.lastname.value;
-    this.selectUser.version = this.store.getVersion();
-    this.selectUser.network = this.curUser.servername + "|" + this.curUser.server + "#" + this.mgrGrp.controls.database.value;
+    this.selectUser.version = this.store.getVersion().substr(0, this.store.getVersion().indexOf(" ") - 1);
+    this.selectUser.network = this.curUser.servername + "|" + this.curUser.server;
+    this.selectUser.database = this.mgrGrp.controls.database.value;
     this.selectUser.action = (this.selectUser.userid == 0) ? 'adduser' : 'edituser';
     this.conlog.log(this.selectUser);
 
@@ -154,6 +155,7 @@ export class UsermgrDialogComponent implements OnInit {
       .subscribe(() => {
           this.store.generateToast((this.selectUser.userid == 0) ? "The new user has been added to the system." : "The user's information has been updated.");
           this.resetForm();
+          this.getQTUserList();
       },
         err => {
           alert("There was an error while attempt to update this information. Error:" + err);

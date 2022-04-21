@@ -610,44 +610,64 @@ export class QueryResultComponent implements OnInit {
 
       // Actions when the dialog is closed
       dialogPrimeKey.afterClosed().subscribe((ids) => {
-        // Store the potentially multiple IDs in a variable
-        this.tabinfo.tempPrimKey = ids;
-
-        // Account for all selected primary keys
-        if (this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0) {
-          // Need to update our local variable with the information
-          for (let c = 0; c < ids.length; c++) {
-            let selCol = this.tabinfo.availcolarr.find(x => x.columnid == ids[c]);
-            if (selCol != undefined) selCol.primarykey = true;
-          }
-
-          // All done with identifying the primary keys, so move forward with the process
-          this.tabinfo.hasPrimKey = true;
-
-          // Make sure to save the information also in the database
-          let pk: any = {};
-          pk.action = (this.tabinfo.primKeyID > 0) ? 'update' : 'insert';
+        if (ids == undefined) {
+          // Nothing was selected, so just close this bloody window
+          this.store.generateToast('No primary key was altered or stored. Canceled by User.');
+        } else {
+          let pk: any = {}
           pk.tablename = this.tabinfo.table.name;
           pk.columnnames = ids.join();
           pk.distinctcol = 'null';
           pk.id = (this.tabinfo.primKeyID > 0) ? this.tabinfo.primKeyID : null;
           pk.rtype = "P";
 
-          this.data.updateUserColumnSelection(pk)
-            .subscribe(() => {
-                this.comm.reloadStoredColumnData.emit();
-                this.store.generateToast('Your selected primary key(s) has been stored.');
-              },
-              error => {
-                alert("There was an error while attempt to store the primary key.");
-              });
-        } else {
-          this.tabinfo.tempPrimKey = null;
-          if(tabdata.col != null)   // Only show this alert if a column was selected to open the dialog
-            alert("Unable to modify the selected value without a primary key. Operation canceled.");
+          if (ids.length == 0) {
+            pk.action = 'remove';
+            this.tabinfo.hasPrimKey = false;
+            this.tabinfo.primKeyID = 0;
+            // Loop through and remove all selected primary keys from the selection
+            for (let c = 0; c < this.tabinfo.availcolarr.length; c++) {
+              this.tabinfo.availcolarr[c].primarykey = false;
+            }
+            this.executePrimaryKeyStore(pk, "removed.", "remove");
+          } else if (ids.length > 0) {
+            // Store the potentially multiple IDs in a variable
+            this.tabinfo.tempPrimKey = ids;
+
+            // Account for all selected primary keys
+            if (this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0) {
+              // Need to update our local variable with the information
+              for (let c = 0; c < ids.length; c++) {
+                let selCol = this.tabinfo.availcolarr.find(x => x.columnid == ids[c]);
+                if (selCol != undefined) selCol.primarykey = true;
+              }
+
+              // All done with identifying the primary keys, so move forward with the process
+              this.tabinfo.hasPrimKey = true;
+
+              // Make sure to save the information also in the database
+              pk.action = (this.tabinfo.primKeyID > 0) ? 'update' : 'insert';
+              this.executePrimaryKeyStore(pk, "stored.", "store");
+            } else {
+              this.tabinfo.tempPrimKey = null;
+              if (tabdata.col != null)   // Only show this alert if a column was selected to open the dialog
+                alert("Unable to modify the selected value without a primary key. Operation canceled.");
+            }
+          }
         }
       });
     }
+  }
+
+  executePrimaryKeyStore(pk: any, msg: string, errmsg: string) {
+    this.data.updateUserColumnSelection(pk)
+      .subscribe(() => {
+          this.comm.reloadStoredColumnData.emit();
+          this.store.generateToast("Your selected primary key(s) has been " + msg);
+        },
+        error => {
+          alert("There was an error while attempt to " + errmsg + " the primary key.");
+        });
   }
 
   processCellClicked(obj){

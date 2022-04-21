@@ -152,7 +152,7 @@ export class DataService {
 
   adminManager(ad: Admin) {
     this.conlog.log("adminManager");
-    return this.http.get<any[]>(`${this.getWSPath()}QtAdminManager/${this.store.getPassKey()}/${ad.action}/${this.store.user.username}/${ad.purgedate}/${ad.useridstr}/${ad.userid}/${ad.username}/${ad.firstname}/${ad.lastname}/${ad.network}/${ad.version}/${ad.isadmin}`)
+    return this.http.get<any[]>(`${this.getWSPath()}QtAdminManager/${this.store.getPassKey()}/${ad.action}/${this.store.user.username}/${ad.purgedate}/${ad.useridstr}/${ad.userid}/${ad.username}/${ad.firstname}/${ad.lastname}/${ad.network}/${ad.database}/${ad.version}/${ad.isadmin}`)
       .pipe(catchError(this.errorHandler));
   }
 
