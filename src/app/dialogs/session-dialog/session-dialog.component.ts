@@ -4,7 +4,6 @@ import {FormBuilder} from '@angular/forms';
 import {StorageService} from '../../services/storage.service';
 import {DataService} from '../../services/data.service';
 import {ConlogService} from '../../modules/conlog/conlog.service';
-import {CommService} from '../../services/comm.service';
 import {SelectionModel} from '@angular/cdk/collections';
 import {Session} from '../../models/Session.model';
 
@@ -15,16 +14,14 @@ import {Session} from '../../models/Session.model';
 })
 export class SessionDialogComponent implements OnInit {
 
-  cutidArr: any = [];
   activeSessionArr: any = new Session();
+  rawSessionArr: any = new Session();
   listLoaded: boolean = false;
   selection = new SelectionModel<Session>(true, []);
   displayedColumns: string[] = ['select', 'CUTID', 'FirstName', 'Username', 'LastName', 'ActiveSessionDate'];
-  selectedUsers: any = [];
+  txtSearch: string = "";
 
-  constructor(private dialogRef: MatDialogRef<SessionDialogComponent>, private fb: FormBuilder, public store: StorageService, private data: DataService, private conlog: ConlogService,
-              private comm: CommService) {
-
+  constructor(private dialogRef: MatDialogRef<SessionDialogComponent>, private fb: FormBuilder, public store: StorageService, private data: DataService, private conlog: ConlogService) {
     dialogRef.disableClose = true;
   }
 
@@ -33,8 +30,7 @@ export class SessionDialogComponent implements OnInit {
     this.data.getResetPortalSession('get', null)
       .subscribe((results: Session[]) => {
         if(results != null)
-          this.activeSessionArr = results;
-
+          this.activeSessionArr = this.rawSessionArr = results;
         this.listLoaded = true;
       });
   }
@@ -65,12 +61,28 @@ export class SessionDialogComponent implements OnInit {
         .subscribe((results: Session[]) => {
           if(results != null)
             this.activeSessionArr = results;
-            this.store.generateToast("The selected user's MOBCOP Portal session has been reset.");
+            this.txtSearch = "";
+            this.selection = new SelectionModel<Session>(true, []);
+            this.store.generateToast("The selected user(s) Portal session has been reset.");
         });
     }
   }
 
   closeDialog() {
     this.dialogRef.close();
+  }
+
+  evalSessionSearch() {
+    // Used to filter out the search window for the active session dialog
+    if(this.txtSearch.length > 0) {
+      this.activeSessionArr = this.rawSessionArr.filter(row => (row["Username"].toLowerCase().indexOf(this.txtSearch.toLowerCase()) > -1) ||
+          (row["FirstName"].toLowerCase().indexOf(this.txtSearch.toLowerCase()) > -1) || (row["LastName"].toLowerCase().indexOf(this.txtSearch.toLowerCase()) > -1));
+    } else
+      this.resetSearch();
+  }
+
+  resetSearch(){
+    this.activeSessionArr = this.rawSessionArr;
+    this.txtSearch = "";
   }
 }

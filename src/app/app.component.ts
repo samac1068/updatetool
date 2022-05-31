@@ -65,24 +65,27 @@ export class AppComponent implements OnInit {
     this.conlog.log("Network: " + this.store.system['webservice']['network']);
 
     if(this.store.isDevMode() || this.store.system['webservice']['network'] == 'sipr') {
-      // Manually set the necessary variables
+      this.conlog.log("Executing in DevMode or on a SIPR Network, attempting to generate local token");
 
-      this.store.setUserValue("token", null);
-      this.store.setUserValue("username", 'sean.mcgill');
-      this.store.setUserValue("initalapp", 'UPDATETOOL');
-      this.store.setUserValue("tokencreatedate", null);
-      this.getUserInformation();
-
-      // If we can get this working in the future, cool otherwise use the lines above
-      // Problem is I could never get the GUID string to store in the urlToken variable.
-      /* TODO - incorporate authorization bearer tokens */
-      /*if (this.urlToken == "" || this.urlToken == "undefined") {
+      if (this.urlToken == "" || this.urlToken == undefined) {
         this.data.getLocalToken("sean.mcgill")  // Generate a token at this point and introduce it into the application.
           .subscribe(result => {
-            this.urlToken += result["token"];
-            this.store.log(this.urlToken);
+            this.urlToken = result["token"];  // This is a newly created token that contains all the information needed for me to identify the user
+
+            //In the event the urlToken was not properly save, let's note it but move on locally by manually setting the necessary variables
+            if(this.urlToken == "" || this.urlToken == undefined) {
+              this.conlog.log("Unable to properly set the urlToken variable. Setting manually.")
+              this.store.setUserValue("token", null);
+              this.store.setUserValue("username", 'sean.mcgill');
+              this.store.setUserValue("initalapp", 'UpdateTool');
+              this.store.setUserValue("tokencreatedate", null);
+              this.getUserInformation();
+            } else {
+              this.conlog.log("Successfully populated urlToken. Getting user info.");
+              this.continueInitialization();
+            }
           });
-      }*/
+      }
     } else {
       // Process the token sent to the app component
       this.continueInitialization();
@@ -99,6 +102,7 @@ export class AppComponent implements OnInit {
 
   getSystemConfig() {
     // Collect the information from the config.xml file and set the appropriate database location
+    this.conlog.log("getSystemConfig");
     const results = this.config.getSystemConfig();
     this.store.setSystemValue('webservice', results);
     this.store.setSystemValue('window', { minHeight: this.minHeightDefault, minWidth: this.minWidthDefault });
@@ -115,9 +119,6 @@ export class AppComponent implements OnInit {
         if(a.id > b.id) return 1;
         return 0;
       }));
-
-    //this.conlog.log(this.store.getSystemValue('servers'));
-    //this.conlog.log(this.store.getSystemValue('databases'));
   }
 
   getApplicationBuild() {
@@ -149,7 +150,6 @@ export class AppComponent implements OnInit {
     this.conlog.log("validateCaptureToken:");
     this.data.validateUserToken(this.urlToken)
     .subscribe(result => {
-      // Need to account for people hitting the refresh or back buttons - The entry key needs to be regenerated to access the application again.
       this.conlog.log("validateCaptureToken: (return)" + result[0]);
         if(result[0] != null) {
         this.store.setUserValue("token", this.urlToken);
@@ -160,7 +160,8 @@ export class AppComponent implements OnInit {
         //Signal that user has been validated - They should be able to use the tool at this point.
         this.getUserInformation();
       } else {
-        alert("The access entry key is now invalid. It is not recommended to use the refresh page at anytime while using this application.  You must close this tab and open from DAMPS-Orders.");
+          // Need to account for people hitting the refresh or back buttons - The entry key needs to be regenerated to access the application again.
+          alert("The access entry key is now invalid. It is not recommended to use the refresh page at anytime while using this application.  You must close this tab and open from DAMPS-Orders.");
       }
     },
       error => {
