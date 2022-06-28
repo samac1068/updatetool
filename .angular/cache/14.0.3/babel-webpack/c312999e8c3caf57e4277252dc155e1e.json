@@ -1,0 +1,1 @@
+{"ast":null,"code":"export class Tab {\n  constructor() {\n    this.tempPrimKey = null; //Storage location of a temporary primary key.  May include multiple columns\n\n    this.selectcnt = \"100\"; //Variabled for stored query use\n\n    this.isstoredquery = false;\n    this.updateRecReq = false;\n  }\n\n}","map":null,"metadata":{},"sourceType":"module"}

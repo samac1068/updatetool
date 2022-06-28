@@ -1,0 +1,1 @@
+{"ast":null,"code":"export class Join {\n  constructor() {\n    this.type = \"JOIN\";\n    this.operator = \"=\";\n    this.joinclausestr = \"\";\n  }\n\n}","map":null,"metadata":{},"sourceType":"module"}
