@@ -4,10 +4,9 @@ import {Component, HostListener, OnInit} from '@angular/core';
 import { ConfigService } from './services/config.service';
 import { StorageService } from './services/storage.service';
 import { DataService } from './services/data.service';
-
-import { MatDialog } from '@angular/material/dialog';
-import { LogConsoleDialogComponent } from './modules/conlog/log-console-dialog/log-console-dialog.component';
-import { ConlogService } from './modules/conlog/conlog.service';
+import {ConlogService} from './modules/conlog/conlog.service';
+import {MatDialog} from '@angular/material/dialog';
+import {LogConsoleDialogComponent} from './modules/conlog/log-console-dialog/log-console-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -19,12 +18,14 @@ export class AppComponent implements OnInit {
   minHeightDefault: number = 943;
   minWidthDefault: number = 1322;
   urlToken: any = "";
-  isConsoleOpen: boolean = false;
-  dialogQuery: any;
   invalidLoad: boolean = false;
 
+  isConsoleOpen: boolean = false;
+  dialogQuery: any;
+
+
   constructor(private config: ConfigService, private store: StorageService, private data: DataService, private comm: CommService, public dialog: MatDialog,
-              private conlog: ConlogService) { }
+              private conlog: ConlogService) { }  //
 
   // Adding global host listener for single global keyboard command of CTRL+\
   @HostListener('document:keypress', ['$event'])

@@ -16,6 +16,7 @@ import { TableFilterPipe } from './services/tablefilter.pipe';
 import { ListboxComponent } from './components/listbox/listbox.component';
 import { ConlogModule } from './modules/conlog/conlog.module';
 
+
 // Services
 import { StorageService } from './services/storage.service';
 import { ConfirmationDialogService } from  './services/confirm-dialog.service';
@@ -23,7 +24,6 @@ import { ConfigService } from './services/config.service';
 import { DataService } from './services/data.service';
 import { ExcelService } from './services/excel.service';
 import { CopyTextDirective } from './services/copy-text.directive';
-import { ConlogService } from './modules/conlog/conlog.service';
 
 // Angular Modules Imports
 import { MatTabsModule } from '@angular/material/tabs';
