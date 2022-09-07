@@ -1,0 +1,27 @@
+<div>
+  <span class="title">What's New - Current Version: {{ curVersion }}</span>
+  <button class="standardGreenBtn showright" (click)="processAcknowledge()">{{ buttonTitle }}</button>
+  <div class="separator"></div>
+  <div class="textbox">
+    <div class="newgrp" [style.height]="classheight" [hidden]="objectKeys(newchange).length == 0">
+        <span class="sectiontitle">New Since Last SignOn:</span>
+        <br/>
+         <div *ngFor="let k of objectKeys(newchange)">
+          <span class="subtitle">{{ k }}</span>
+            <ul>
+                <li *ngFor="let n of newchange[k]">{{ n.txt }}</li>
+              </ul>
+        </div>
+    </div>
+    <div class="historygrp" style="margin-top: 10px;" [style.height]="classheight" [hidden]="objectKeys(history).length == 0">
+        <span class="sectiontitle">Change History:</span>
+        <br/>
+        <div *ngFor="let m of objectKeys(history)">
+          <span class="subtitle">{{ m }}</span>
+          <ul>
+            <li *ngFor="let o of history[m]">{{ o.txt }}</li>
+          </ul>
+        </div>
+    </div>
+  </div>
+</div>

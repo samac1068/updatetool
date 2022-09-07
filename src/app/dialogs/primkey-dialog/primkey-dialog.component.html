@@ -1,0 +1,21 @@
+<div id="divPrimKey" class="primeKeyWindow">
+  <div id="divTitle" class="primTitle">No Assigned Primary Key</div>
+  <div id="divInfo" style="font-family:Arial, Helvetica, sans-serif; font-size: 12px; padding: 2px;">
+    The selected table <span style="color:red; font-weight:bold;">does not</span> have an assigned primary key. Please select a
+    <span style="font-weight:bold">TEMPORARY</span> unique identifier for this query from the available columns below.
+    <br/><br/>
+<!--    <span style="font-weight:bold">Use the CTRL key while clicking to select multiple columns.</span>-->
+  </div>
+  <br/>
+  <div id="divDDL" style="text-align:left;" >
+    <div id="lstPrimeKey">
+      <app-listbox *ngFor="let column of availcol" [item]="column" [selected]="isItemSelected(column.columnid)" (click)="columnClickedHandler(column)"></app-listbox>
+    </div>
+  </div>
+
+  <div style="margin-top: 10px; margin-bottom: 5px; text-align: right; margin-right: 5px;">
+    <button id="btnClear" class="standardRedBtn" (click)="clearHandler()" style="margin-right: 90px;" [disabled]="selectCols.length == 0" title="Click to clear selected primary key">Clear</button>
+    <button id="btnSubmit" class="standardGreenBtn" (click)="submitHandler()" title="Click to submit selected primary key(s)">Submit</button>
+    <button id="btnCancel" class="standardGreenBtn" (click)="cancelHandler()" title="Click to close this window without action.">Close</button>
+  </div>
+</div>

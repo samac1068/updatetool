@@ -1,0 +1,44 @@
+<data>
+  <servers>
+    <server id="DEVELOPMENT" offName="{0}" />
+  </servers>
+
+  <databases>
+    <database id="AOS" />
+    <database id="AIR_FORCE" altname="AIRFORCE" />
+    <database id="CIND" />
+    <database id="COADOS" />
+    <database id="CONUSA" />
+    <database id="CTCS" />
+    <database id="DAMPSA" />
+    <database id="DOCUMENTS" altname="MOBCOP_DOCUMENT" />
+    <database id="FINANCE_MANAGEMENT" altname="MOBCOP_FINANCE" />
+    <database id="MARRS" />
+    <database id="MOBCOP" />
+    <database id="ORDER_VIEWER" />
+    <database id="MOBCOP_INTERFACE" />
+  </databases>
+</data>
+
+<!-- These are for testing SIPR -->
+<!--<data>
+  <servers>
+    <server id="DEVELOPMENT" offName="{0}" />
+  </servers>
+
+  <databases>
+    <database id="COADOS" />
+    <database id="DOCS" />
+    <database id="LOCATIONS" />
+    <database id="MAPPING" />
+    <database id="MARRS" />
+    <database id="MOB" />
+    <database id="JSTO" altname="MOB_JSTO"/>
+    <database id="ORDERS" altname="MOB_ORDERS" />
+    <database id="PLANNING" altname="MOB_PLANNING" />
+    <database id="MOBCOP" />
+    <database id="TFT_FORWARD" altname="TFT-FORWARD" />
+    <database id="USERS" />
+    <database id="WAMS" />
+  </databases>
+</data>-->

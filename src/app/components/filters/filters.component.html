@@ -1,0 +1,80 @@
+<div class="tables">
+  <div class="selectContent">
+    <span class="fieldLabel">Where Clause and Filters:</span><br/>
+    <input type="checkbox" id="chkReturnRowCnt" [(ngModel)]="tabinfo.getcount" (click)="updateGetCount()" style="margin-top:5px;"> Return Only # of Rows<br />
+    <!-- headleyt:  20210212  added checked property to uncheck the box if the limitrows is false -->
+    <input type="checkbox" id="chkReturnTop" [checked]="tabinfo.limitRows" (click)="allowLimitSelect()" (change)="evaluateBtnStatus()" style="margin-top: 5px;"> Return Top:
+    <select id="ddlTopReturn" style="width: 247px" [disabled]="!tabinfo.limitRows" [(ngModel)]="localSelectCtn">
+      <option *ngFor="let row of rowOpt" value="{{ row.value }}">{{ row.lbl }}</option>
+    </select>
+
+    <div class="filtersGrp">
+      <!-- Header div-->
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-2 header">Del</div>
+          <div class="col-sm-2 header">Edit</div>
+          <div class="col-sm-8 header">Statement</div>
+        </div>
+      </div>
+
+      <!-- Body Div -->
+      <div class="container">
+        <div class="row" *ngFor="let row of tabinfo.wherearrcomp">
+          <div class="col-sm-2 data" style="text-align: center">
+            <a (click)="removeWhereItem(row.wid)"><fa-icon [icon]="faTrash" style="cursor:pointer"></fa-icon></a>
+          </div>
+          <div class="col-sm-2 data" style="text-align: center">
+            <a (click)="editWhereItem(row.wid)"><fa-icon [icon]="faPencil" style="cursor:pointer"></fa-icon></a>
+          </div>
+          <div class="col-sm-8 data">
+            {{ row.str }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <div class="divErrMess">
+    <span class="errMess">{{ errorMessage }}</span>
+  </div>
+  <div class="columnSelect">
+    <span class="fieldLabel">Cond:</span>
+    <span class="fieldLabel" style="margin-left: 32px;">Columns:</span>
+    <span class="fieldLabel" style="margin-left: 138px;">Operators:</span>
+
+    <div style="margin-top: 3px;">
+      <select id="ddlConditionalList" style="width: 60px" [(ngModel)]="curCondition" [disabled]="!tableSelected" (change)="onConditionChange()">
+          <option value="-9"></option>
+          <option *ngFor="let condit of conditionalOpt" value="{{ condit }}">{{ condit }}</option>
+      </select>
+      <select id="ddlColumnList" style="width: 185px; margin-left:3px;" [(ngModel)]="curColumn" [disabled]="!tableSelected" (change)="determineType()">
+        <option value="-9"></option>
+        <option *ngFor="let col of tabinfo.columns">{{ col.columnname }}</option>
+      </select>
+      <select id="ddlOperatorList" style="width: 70px; margin-left: 5px;" [(ngModel)]="curOperator" [disabled]="!tableSelected" (change)="onOperatorChange()">
+        <option *ngFor="let operator of operatorOpt" value="{{ operator }}">{{ operator }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="fieldSelect">
+    <div [hidden]="curColumnType == 'bit'" >
+      <input type="text" id="txtFilterText" [(ngModel)]="curInput" [disabled]="!colSelected || noValueNeeded" (keypress)="evaluateChar($event)" autocomplete="off">
+    </div>
+
+    <div [hidden]="curColumnType != 'bit'">
+      <select id="txtBitInput" [(ngModel)]="curInput">
+        <option value="1">True</option>
+        <option value="0">False</option>
+      </select>
+    </div>
+
+    <div style="margin-top: 10px; margin-left: -10px; width:97%;">
+      <div class="row">
+        <div class="col-sm-4"><button class="standardGreenBtn" style="width: 100px" (click)="removeAllWhereItems()" [disabled]="!hasWhere">Clear All</button></div>
+        <div class="col-sm-4"><button class="standardGreenBtn" style="width:100px;" (click)="buildWhereItem()" [disabled]="!curInput && !noValueNeeded">{{ addUpdateBtn }}</button></div>
+        <div class="col-sm-4"><button class="focusBtn" style="width:100px;" (click)="applyWhereClause()" [disabled]="(!tableSelected && !filterAdded) || tabinfo.wherearrcomp.length == 0">Apply</button></div>
+      </div>
+    </div>
+  </div>
+</div>

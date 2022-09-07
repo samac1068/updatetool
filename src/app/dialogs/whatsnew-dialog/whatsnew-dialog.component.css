@@ -1,0 +1,47 @@
+.showright {
+    float: right;
+    margin-right: 10px;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: bold;
+    color: green;
+    text-shadow: 1px 1px #000000;
+}
+
+.separator {
+    margin-top: 10px;
+    background-color: gray;
+    height: 2px;
+    width: 95%;
+    margin-left: 20px;
+}
+
+.textbox {
+    margin-top: 10px;
+    margin-left: 5px;
+    width: 650px;
+    height: 450px;
+    overflow: hidden;
+}
+
+.sectiontitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: green;
+    margin-left: 5px;
+}
+
+.subtitle {
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-left: 15px;
+}
+
+.newgrp, .historygrp {
+    border: 1px solid gray;
+    overflow-y: auto;
+}
+

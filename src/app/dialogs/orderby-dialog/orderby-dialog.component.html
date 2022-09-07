@@ -1,0 +1,29 @@
+<div class="outerbody">
+    <span class="listtitle">Available Columns for {{ data.columns[0].tablename }}</span>
+    <hr style="width: 95%" />
+
+    <div class="innerleft">
+      <div class="subcolumns">
+        <div *ngFor="let column of data.columns" class="columnlist">
+            <mat-checkbox class="column-checkbox" [(ngModel)]="column.orderby" (click)="columnSelected(column)">{{ column.columnname }}</mat-checkbox>
+        </div>
+      </div>
+  </div>
+
+  <div class="innerright">
+    <span style="font-size:11px; font-weight: bold; margin-left:15px;">Drag and drop selected columns to adjust sort order</span>
+    <div cdkDropList class="dadlist" (cdkDropListDropped)="drop($event)">
+      <div class="ddListBox" *ngFor="let row of selOrderBy" cdkDrag>{{ row.name }}
+        <button style="float:right;" (click)="updateSortSelection(row)" [(ngModel)]="row.sort" ngDefaultControl>{{ row.sort }}</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="lowerbtn">
+    <div class="btn-group">
+      <button id="btnResetColumns" class="standardGreenBtn" (click)="resetAllColumns()">Reset</button>
+      <button id="btnSaveColumns" class="standardGreenBtn" (click)="saveOrderByColumns()">Save</button>
+      <button id="btnCloseColumns" class="standardGreenBtn" (click)="closeDialog()">Close</button>
+    </div>
+  </div>
+</div>

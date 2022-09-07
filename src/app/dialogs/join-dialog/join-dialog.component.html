@@ -1,0 +1,113 @@
+<div class="outerbox">
+  <div class="upperbox">
+    <div class="row">
+      <div class="col-md-1 header">Del</div>
+      <div class="col-md-1 header">Edit</div>
+      <div class="col-md-10 header">Join Statement</div>
+    </div>
+    <div class="content">
+      <div class="row" *ngFor="let row of joinclausearr">
+          <div class="col-md-1 data" style="text-align: center"><a href="#" (click)="removeJoinItem(row.jid)"><i class="fa fa-trash" aria-hidden="true"></i></a></div>
+          <div class="col-md-1 data" style="text-align: center"><a href="#" (click)="editJoinItem(row.jid)"><i class="fa fa-pencil" aria-hidden="true"></i></a></div>
+          <div class="col-md-10 data statementtext">{{ row.joinclausestr }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottombox">
+    <div class="row justify-content-md-center">
+      <div class="col-sm-4 section">
+        <span class="sectiontitle">Left Column Info:</span>
+        <div>
+          <mat-form-field>
+            <mat-label>Left Database:</mat-label>
+            <mat-select (selectionChange)="getAvailableTables('left')" [(ngModel)]="tleftdb" [disabled]="useDefault">
+              <mat-option *ngFor="let db of tleftdbarr" [value]="db.id">{{ db.id }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field>
+            <mat-label>Left Table:</mat-label>
+            <mat-select (selectionChange)="getAvailableColumns('left')" [(ngModel)]="tlefttable" [disabled]="useDefault">
+              <mat-option *ngFor="let tbl of tlefttblarr" [value]="tbl.Name">{{ tbl.Name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div>
+          <mat-form-field>
+            <mat-label>Left Table/Col:</mat-label>
+            <mat-select [(ngModel)]="tleftcolumn">
+              <mat-option *ngFor="let col of tleftcolarr" [value]="col.columnname">{{ col.columnname }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <div class="pushcenter">
+          <mat-form-field style="width: 80px;">
+            <mat-label>Join Type:</mat-label>
+            <mat-select [(ngModel)]="tjtype">
+              <mat-option value="JOIN">INNER</mat-option>
+              <mat-option value="LEFT JOIN">LEFT</mat-option>
+              <mat-option value="RIGHT JOIN">RIGHT</mat-option>
+              <mat-option value="FULL JOIN">FULL</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="pushcenter">
+          <mat-form-field style="width: 80px;">
+            <mat-label>Join Op:</mat-label>
+            <mat-select [(ngModel)]="tjop">
+              <mat-option *ngFor="let op of operators" [value]="op">{{ op }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <button class="standardGreenBtn" style="margin-top: 30px; margin-left: -2px" (click)="addJoin()"
+                [disabled]="tleftcolumn.length  == 0 || trightcolumn.length == 0">Add</button>
+      </div>
+
+      <div class="col-sm-4 section">
+        <span class="sectiontitle">Right Column Info:</span>
+        <div>
+          <mat-form-field>
+            <mat-label>Right Database:</mat-label>
+            <mat-select (selectionChange)="getAvailableTables('right')" [(ngModel)]="trightdb">
+              <mat-option *ngFor="let db of trightdbarr" [value]="db.id">{{ db.id }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div>
+          <mat-form-field>
+            <mat-label>Right Table:</mat-label>
+            <mat-select (selectionChange)="getAvailableColumns('right')" [(ngModel)]="trighttable">
+              <mat-option *ngFor="let tbl of trighttblarr" [value]="tbl.Name">{{ tbl.Name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div>
+          <mat-form-field>
+            <mat-label>Right Table/Col:</mat-label>
+            <mat-select [(ngModel)]="trightcolumn">
+              <mat-option *ngFor="let col of trightcolarr" [value]="col.columnname">{{ col.columnname }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="buttons" class="buttonbox">
+    <div class="row pushleft">
+      <div class="col"><button class="standardGreenBtn" (click)="resetAllFields()">Reset</button></div>
+      <div class="col"><button class="focusBtn" [disabled]="joinclausearr.length == 0" (click)="saveJoinClause()">Apply</button></div>
+      <div class="col"><button class="standardGreenBtn" (click)="closeDialog()">Close</button></div>
+    </div>
+  </div>
+
+  <div class="errormsg" [hidden]="msgarr.length == 0">{{ msgarr }}</div>
+</div>

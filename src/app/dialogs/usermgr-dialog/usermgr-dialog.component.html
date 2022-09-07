@@ -1,0 +1,85 @@
+<div *ngIf="!assignedUser">
+  STAND BY LOADING USER LIST
+</div>
+
+<div class="parent" *ngIf="assignedUser">
+  <div id="title">
+    <span class="pgtitle">Query Tool User Manager</span>
+  </div>
+
+  <div class="container">
+    <div class="upper">
+      <span class="subtitle">Query Tool User List</span>
+
+      <div class="divusertable">
+        <ag-grid-angular
+          style="width: 100%; height: 100%;"
+          class="ag-theme-alpine"
+          [columnDefs]="columnDefs"
+          [defaultColDef]="defColDefine"
+          [rowData]="assignedUser"
+          [rowSelection]="'multiple'"
+          [animateRows]="true"
+          [rowHeight]="gridRowHeight"
+          [headerHeight]="gridHeaderHeight"
+          (cellClicked)="userSelected($event)"
+        ></ag-grid-angular>
+      </div>
+
+      <button class="standardRedBtn" style="width: 95%; margin-left: 5px; margin-top: 5px;" [disabled]="!selection" (click)="purgeSelectedUsers()">Delete Selected User</button>
+    </div>
+
+    <div class="upper">
+      <span class="subtitle">User Data Form</span>
+      <form [formGroup]="mgrGrp" id="umform" style="width: 95%; margin-left: 10px;">
+        <table style="width: 100%;">
+          <tr style="height: 25px">
+            <td style="width: 60%">
+              <label for="userid">User ID: </label>
+              <input class="myformscontrols" id="userid" style="width: 100px" formControlName="userid">
+            </td>
+            <td>
+              <label for="isadmin" style="margin-right: 5px" >Is Admin:</label>
+              <input type="checkbox" style="height: 20px; width: 20px;" id="isadmin" class="myformscontrols" formControlName="priv">
+            </td>
+          </tr>
+        </table>
+
+          <label for="username">Username:</label>
+          <input  class="myformscontrols" id="username" formControlName="username">
+
+          <label for="firstname">First Name:</label>
+          <input class="myformscontrols" id="firstname" formControlName="firstname">
+
+          <label for="lastname">Last Name:</label>
+          <input class="myformscontrols" id="lastname" formControlName="lastname">
+
+          <label for="database">Default Database:</label>
+          <select class="myformscontrols" id="database"  formControlName="database">
+            <option value="null" selected>Select Default Database</option>
+            <option *ngFor="let database of availDatabase" [value]="database.id">{{ cleanUpString(database.id) }}</option>
+          </select>
+
+      </form>
+    </div>
+
+    <div class="lower">
+      <span class="subtitle">Log Manager Buttons</span>
+      <div>
+        <button class="standardGreenBtn" style="width: 45%; margin-left: 5px; margin-top: 10px;" (click)="purgeTokens()" [disabled]="onSipr">Purge Tokens</button>
+        <button class="standardGreenBtn" style="width: 45%; margin-left: 5px; margin-top: 10px;" (click)="purgeLogs()" [disabled]="onSipr">Purge Logs</button>
+        <button class="standardGreenBtn" style="width: 45%; margin-left: 5px; margin-top: 10px;" (click)="purgeCUTDuplicates()" [disabled]="onSipr">Purge CUT Dup</button>
+        <button class="standardGreenBtn" style="width: 45%; margin-left: 5px; margin-top: 10px;" (click)="resetPortalSession()" [disabled]="onSipr">Reset Sessions</button>
+      </div>
+    </div>
+
+    <div class="lower">
+      <span class="subtitle">Navigation Buttons</span>
+      <div>
+        <button class="standardRedBtn" style="width: 95%; margin-left: 10px; margin-bottom: 3px;" (click)="resetForm()">Reset Form</button>
+        <button class="standardGreenBtn" style="width: 95%; margin-left: 10px; margin-bottom: 3px;" (click)="addEditSelectUser()">{{ buttonLbl }}</button>
+        <button class="standardGreenBtn" style="width: 95%; margin-left: 10px" (click)="closeDialog()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

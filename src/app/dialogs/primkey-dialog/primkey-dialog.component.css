@@ -1,0 +1,29 @@
+.primTitle {
+  font-family:Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  text-align:center;
+  font-weight: bold;
+  background-color:#169b59;
+  color:white;
+}
+
+.primeKeyWindow {
+  width: 300px;
+  height: 380px;
+  border: 1px solid black;
+  margin: 0;
+  overflow: hidden !important;
+}
+
+#lstPrimeKey {
+  width: 250px;
+  height: 175px;
+  padding: 5px;
+
+  margin-left: 25px;
+
+  border: 1px solid slategray;
+  box-shadow: black 2px 2px;
+
+  overflow: auto;
+}

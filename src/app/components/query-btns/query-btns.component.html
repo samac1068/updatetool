@@ -1,0 +1,24 @@
+<div id="divBtnGrp">
+
+  <div class="btnGroup">
+    <button class="qryButton" id="btnColumns" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="openColumnWindow()" ngbTooltip="Select Custom Columns" placement="bottom"><fa-icon [icon]="faColumns"></fa-icon> Customize Columns</button>
+    <button class="qryButton" id="btnOrder" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="openOrderByWindow()" ngbTooltip="Add/Edit Order By Statement" placement="bottom"><fa-icon [icon]="faList"></fa-icon> Order By</button>
+  </div>
+
+  <div class="btnGroup">
+    <button class="qryButton" id="btnJoins" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="openJoinWindow()" ngbTooltip="Add/Edit Join Statement" placement="bottom"><fa-icon [icon]="faCompress"></fa-icon> Joins</button>
+    <button id="btnCSV" class="qryButton" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="exportToExcelHandler('csv')" ngbTooltip="Export results to CSV" placement="bottom"><fa-icon [icon]="faFileText"></fa-icon> CSV</button>
+  </div>
+
+  <div class="btnGroup">
+    <button id="btnExcel" class="qryButton" [disabled]="tabinfo.table == undefined || tabinfo.table == null" (click)="exportToExcelHandler('excel')" ngbTooltip="Export results to XLSX" placement="bottom"><fa-icon [icon]="faFileExcel"></fa-icon> Excel</button>
+    <button class="qryButton" id="btnClipboard" [disabled]="tabinfo.table == undefined || tabinfo.table == null || 1==1" (click)="copyToClipboard()" ngbTooltip="Copy results to clipboard" placement="bottom"><fa-icon [icon]="faFileClipboard"></fa-icon> Clipboard</button>
+  </div>
+
+  <div class="btnGroup">
+    <button class="qryButton" id="btnPrimaryKey" [disabled]="(tabinfo.table == undefined || (tabinfo.hasPrimKey && tabinfo.tempPrimKey == null))" (click)="openTempPrimaryKey()"><fa-icon [icon]="faKey"></fa-icon> Sel/Chg Primary Key</button>
+    <button class="qryButton" id="btnViewer" (click)="openViewerWindow()" ngbTooltip="View existing Stored Procs, Views, and Function" placement="bottom"><fa-icon [icon]="faEye"></fa-icon> Proc/View/Func Viewer</button>
+  </div>
+
+  <hr />
+</div>

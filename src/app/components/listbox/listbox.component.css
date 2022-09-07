@@ -1,0 +1,38 @@
+.listitem-normal {
+  border: .5px solid black;
+  padding: 1px;
+  width: 99%;
+  height: 20px;
+  margin-bottom: 2px;
+  box-shadow: black 1px 1px;
+
+  font-size: 10px;
+
+  background-color: whitesmoke;
+  color: black;
+  font-weight: normal;
+
+  cursor: pointer;
+}
+
+.listitem-normal:hover {
+  background-color: yellow;
+  font-weight: bold;
+}
+
+.listitem-active {
+  border: .5px solid black;
+  padding: 1px;
+  width: 99%;
+  height: 20px;
+  margin-bottom: 2px;
+  box-shadow: black 1px 1px;
+
+  font-size: 10px;
+
+  cursor: pointer;
+
+  background-color: #169B59;
+  color: yellow;
+  font-weight: bold;
+}

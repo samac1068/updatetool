@@ -1,0 +1,39 @@
+<!-- SQL Statement display window -->
+<div class="divQuery">
+  {{ userSqlDisplay == 1 ? tabinfo.querystr : tabinfo.rawquerystr }}
+</div>
+
+<!-- Modifier Buttons -->
+<!--<div class="divModButtons" *ngIf="colHeader">
+  <span style="margin-left: 5px; font-weight: bold">Data Modifier Navigation:</span>
+  <button class="standardBtn" style="margin-left: 10px; width: 120px;"><span class="fa fa-plus-square"></span> Add Row</button>
+  <button class="standardRedBtn" style="margin-left: 30px; width:120px;"><span class="fa fa-minus-square" (click)="showHideEditColumn()"></span> Remove Row</button>
+</div>-->
+
+<!-- Row Counter and separator -->
+<div class="separator"></div>
+<div class="divCounter">
+  <span class="rowCounter">{{ rowsReturned }}</span>
+</div>
+
+<!-- Display Results Datatable -->
+<div class="divResults">    <!-- [text-copy] -->
+  <div *ngIf="!loadingQuery">
+    <ag-grid-angular
+      style="width: 100%; height: 42vh;"
+      class="ag-theme-alpine"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defColDefine"
+      [rowData]="dataSource"
+      [rowSelection]="'single'"
+      [animateRows]="true"
+      [rowHeight]="gridRowHeight"
+      [headerHeight]="gridHeaderHeight"
+      (cellClicked)="rowClickedHandler($event)"
+      (cellDoubleClicked)= "cellClickedHandler($event)"
+    ></ag-grid-angular>
+  </div>
+  <div *ngIf="loadingQuery" class="spinner">
+    <mat-spinner class="loadIcon"></mat-spinner>
+  </div>
+</div>

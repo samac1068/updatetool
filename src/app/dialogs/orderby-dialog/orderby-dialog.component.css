@@ -1,0 +1,86 @@
+.outerbody {
+    width: 100%;
+    height: 100%;
+    border: 1px solid lightgray;
+    background-color: #fdfdfd;
+    border-radius: 5px;
+}
+
+.innerleft {
+    width: 210px;
+    height: 260px;
+    margin: 0 0 0 10px;
+    float: left;
+}
+
+.subcolumns {
+    border: 1px solid lightgray;
+    height: 260px;
+    width: 200px;
+    overflow-y: auto;
+}
+
+.innerright {
+    width: 305px;
+    height: 260px;
+    float: left;
+}
+
+.dadlist {
+    width: 305px;
+    height: 240px;
+    border: solid 1px #ccc;
+    display: block;
+    background: white;
+    border-radius: 4px;
+    overflow-y: auto;
+ }
+
+.listtitle {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    margin-left: 20px;
+}
+
+.columnlist {
+    margin-left: 10px;
+}
+
+.mat-checkbox {
+  padding: 0;
+  height: 15px;
+  margin-top: 5px;
+}
+
+.column-checkbox {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    height: 25px;
+    font-size: 11px;
+  }
+
+
+.btn-group > button {
+    margin: 25px 0 40px 16px;
+    width: 120px;
+}
+
+.lowerbtn {
+    margin-left: 60px;
+}
+
+.ddListBox {
+    padding: 10px 5px;
+    border-bottom: solid 1px #ccc;
+    color: rgba(0, 0, 0, 0.87);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    cursor: move;
+    background: white;
+    font-size: 11px;
+  }

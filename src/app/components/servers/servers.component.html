@@ -1,0 +1,32 @@
+<div id="serverGrp" class="btn-group">
+  <div>
+    <label>Network - Server:
+      <input type="text" class="form-control optionGrp" [disabled]=true value="{{ network.toUpperCase() }} - {{ defaultServer}}" />
+    </label>
+  </div>
+
+  <div style="margin-left: 20px">
+    <label for="dbList">Database:
+      <select id="dbList" class="form-control optionGrp" [(ngModel)]="defaultDB" (change)="onDatabaseChange()">
+        <option [ngValue]="null">Select a Database</option>
+        <option *ngFor="let database of databases" [value]="database.id">{{ cleanUpString(database.id) }}</option>
+      </select>
+    </label>
+  </div>
+
+  <button id="btnNewTab" class="standardGreenBtn" (click)="createNewTab()">New Query Tab</button>
+</div>
+
+<div id="queryGrp" class="btn-group">
+  <label for="queryList">Your Saved Queries:
+    <select id="queryList" class="form-control optionGrp" [(ngModel)]="selectedQueryID" #querylist>
+      <option [ngValue]="-1">Select a Query</option>
+      <option *ngFor="let query of queries" [value]="query.id">{{ query.title }}</option>
+    </select>
+  </label>
+
+  <button id="btnExecuteQuery" class="standardGreenBtn" style="margin-top:17px;" (click)="executeSelectedStoredQuery()" [disabled]="selectedQueryID == -1">Open and Run Query</button>
+  <button id="btnSaveQuery" class="standardGreenBtn" style="margin-top:17px;" (click)="saveCurrentQuery()" [disabled]="!isTableSelected">Save Current Query</button>
+</div>
+
+<div class="heavyHR" style="margin-top: 5px;"></div>

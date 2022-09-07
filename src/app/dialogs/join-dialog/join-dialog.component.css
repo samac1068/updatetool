@@ -1,0 +1,76 @@
+.outerbox {
+    width: 650px;
+    height: 470px;
+    background-color: #fdfdfd;
+    overflow: hidden;
+}
+
+.upperbox {
+    border: 1px solid black;
+    width: 650px;
+    height: 175px;
+}
+
+.bottombox {
+    width: 650px;
+    height: 200px;
+    margin-top: 10px;
+}
+
+.buttonbox {
+    width: 650px;
+    height: 50px;
+    margin-top: 5px;
+}
+
+.sectiontitle {
+    font-weight: bold;
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+.header {
+    font-weight: bold;
+    font-size: 13px;
+    border: 1px solid black;
+}
+
+.content {
+    border: 1px solid black;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+button {
+    width: 140px;
+}
+
+.pushleft {
+    margin-left: 20px;
+}
+
+.pushcenter {
+    margin-left: 30px;
+}
+
+.section {
+    border: 1px solid black;
+    height: 190px;
+}
+
+.data {
+    border: 1px solid gray;
+}
+
+.statementtext {
+    font-size: 11px;
+}
+
+.errormsg {
+    font-size: 12px;
+    font-weight: bold;
+    color: red;
+    width: 650px;
+    height: 20px;
+    text-align: center;
+}

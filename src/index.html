@@ -2,12 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Updatetool</title>
-  <base href="/">
+  <title>Querytool V2.1</title>
+  <base href="./">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="assets/common.js"></script>
+  <script>
+    // Need to verify the browser being used by the user - IE will auto redirect to the denial page
+    let browserAgent = navigator.userAgent.indexOf("MSIE") > -1 || navigator.userAgent.indexOf("rv:") > -1 || navigator.userAgent.indexOf("Trident") > -1;
+    if(browserAgent) window.location.href ="./unsupportedBrowser.html";
+  </script>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
-<body>
-  <app-root></app-root>
+<body class="mat-typography">
+  <script>
+    function evalStr(str) {
+      str.replace("<", "");
+      str.replace(">", "");
+      str.replace("/", "");
+    }
+
+    let jstr = "";
+    let token = window.location.href.split("=")[1];
+
+    if (token !== undefined)
+    {
+      evalStr(token);
+      jstr = `<app-root token='${token}'></app-root>`;
+    }
+    else
+      jstr = `<app-root></app-root>`;
+
+    // Display the angular application either in prod or dev mode.
+    document.write(jstr);
+  </script>
 </body>
 </html>

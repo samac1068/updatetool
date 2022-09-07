@@ -1,0 +1,8 @@
+<div [hidden]="isStoredQuery" style="position: absolute;">
+  <app-tables [tabinfo]="tabinfo" ></app-tables>
+  <app-query-btns [tabinfo]="tabinfo"></app-query-btns>
+  <app-filters [tabinfo]="tabinfo"></app-filters>
+</div>
+<div class="hidepanel" [hidden]="!isStoredQuery">
+    <div class="hidetext">Panels hidden when executing a stored queries</div>
+</div>

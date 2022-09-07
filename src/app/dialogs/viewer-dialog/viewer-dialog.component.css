@@ -1,0 +1,51 @@
+
+.container {
+    width: 950px;
+    height: 680px;
+    overflow-y: hidden;
+}
+
+.right {
+    height: 640px;
+    /* border: 1px solid lightgray; */
+}
+
+.panelheight {
+    height: 680px;
+    overflow-y: hidden;
+}
+
+.subcontainer {
+    width: 200px;
+    height: 500px;
+    overflow-y: auto;
+    margin-left: -17px;
+    margin-top: -19px;
+}
+
+.viewerlink {
+    font-weight: bold;
+    font-size: 10px;
+    background-color: #eeeeee;
+    padding: 2px;
+    margin-bottom: 3px;
+    cursor: pointer;
+}
+
+.viewerlink:hover {
+    color: yellow;
+    background-color: green;
+}
+
+.textbox {
+    height: 100%;
+    width: 100%;
+    resize: none;
+}
+
+.dialogTitle {
+    font-weight: bold;
+    font-size: 16px;
+    margin-left: 220px;
+    text-decoration: underline;
+}

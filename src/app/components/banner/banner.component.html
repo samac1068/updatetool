@@ -1,0 +1,22 @@
+<div [ngClass]="{'nipr_bg':network == 'nipr', 'sipr_bg': network == 'sipr' }">
+  <img id="bannerImg" style="float:left;" src="assets/image/updatetooltitle.png" alt="" />
+
+  <div [ngClass]="{'classification_nipr':network == 'nipr', 'classification_sipr': network == 'sipr' }">
+    {{ network == 'sipr' ? 'SECRET' : 'UNCLASSIFIED' }}
+  </div>
+
+  <div class="copyright">
+    (c) Copyright 2022 by MKGCS, LLC. | All Rights Reserved
+  </div>
+</div>
+
+<div class="userControls">
+  Last Login: <span style="color: #ffff00; font-style: italic;" *ngIf="user">{{ user.lastlogin }}</span>
+  Logged in as: <span style="color:#ffff00;" *ngIf="user">{{ user.fname }} {{ user.lname }}</span><br/>
+  <div id="buttonGrp">
+    <button (click)="displayWhatsNew(true)" mat-button style="height:20px" title="{{ version }}"><span class="version">{{ version }}</span></button>
+    <button class="standardRedBtn" *ngIf="isAdmin" (click)="openUserManagerDialog()" title="Used to Manage QT Users">User Manager</button>
+    <button class="standardGreenBtn" (click)="openOptionsDialog()">User Options</button>&nbsp;&nbsp;
+    <button class="standardGreenBtn" (click)="returnToOrders()" [disabled]="onSipr">Return to Orders</button>
+  </div>
+</div>

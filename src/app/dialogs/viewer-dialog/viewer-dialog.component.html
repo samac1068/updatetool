@@ -1,0 +1,67 @@
+<div class="container">
+    <button class="standardGreenBtn" style="width: 195px; height: 25px;" (click)="closeDialog()">Close</button>
+    <span class="dialogTitle">Store Proc/View/Function Viewer</span>
+    <div class="row" style="margin-top: 10px;">
+      <div class="col-lg-3">
+          <div class="accordion panelheight" id="accordionExample">
+            <div class="card">
+              <div class="card-header" id="headingOne" style="padding: 0;">
+                <h5 class="mb-0">
+                  <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
+                    aria-controls="collapseOne">
+                    Stored Procs
+                  </button>
+                </h5>
+              </div>
+
+              <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body">
+                  <div class="subcontainer">
+                      <div class="viewerlink" *ngFor="let sp of procArr" (click)="openSelectedItem('proc', sp.Name)">{{ sp.Name }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header" id="headingTwo" style="padding: 0;">
+                <h5 class="mb-0">
+                  <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="false" aria-controls="collapseTwo">
+                    Views
+                  </button>
+                </h5>
+              </div>
+              <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                <div class="card-body">
+                    <div class="subcontainer">
+                        <div class="viewerlink" *ngFor="let vw of viewArr" (click)="openSelectedItem('view', vw.Name)">{{ vw.Name }}</div>
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header" id="headingThree" style="padding: 0;">
+                <h5 class="mb-0">
+                  <button class="btn btn-link collapsed " type="button" data-toggle="collapse" data-target="#collapseThree"
+                    aria-expanded="false" aria-controls="collapseThree">
+                    Functions
+                  </button>
+                </h5>
+              </div>
+              <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+                <div class="card-body">
+                    <div class="subcontainer">
+                        <div class="viewerlink" *ngFor="let fc of funcArr" (click)="openSelectedItem('func', fc.Name)">{{ fc.Name }}</div>
+                    </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="col-lg-9 right" style="overflow-y: hidden">
+          <textarea class="textbox">{{ procViewText }}</textarea>
+      </div>
+    </div>
+  </div>
