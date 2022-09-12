@@ -10,8 +10,7 @@ import { UpdaterDialogComponent } from '../../dialogs/updater-dialog/updater-dia
 import { PrimkeyDialogComponent } from '../../dialogs/primkey-dialog/primkey-dialog.component';
 import { ModifierDialogComponent } from '../../dialogs/modifier-dialog/modifier-dialog.component';
 import { ConlogService } from '../../modules/conlog/conlog.service';
-import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridApi } from 'ag-grid-community';
+import {ColDef, GridApi, RowDataChangedEvent, RowValueChangedEvent} from 'ag-grid-community';
 
 @Component({
   selector: 'app-query-result',
@@ -21,7 +20,6 @@ import { ColDef, GridApi } from 'ag-grid-community';
 export class QueryResultComponent implements OnInit {
 
   @Input() tabinfo!: Tab;
-  @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
 
   colHeader!: string[];
   columnDefs!: any[];
@@ -71,7 +69,12 @@ export class QueryResultComponent implements OnInit {
 
     this.comm.validatePrimKey.subscribe((tabdata) => {
       this.validateTempPrimKey(tabdata);  //Line 587
-    })
+    });
+  }
+
+  onGridReady(params: any) {
+    this.gridApi = params.api;
+    this.gridApi.hideOverlay();   // Hide the default overlay and use the one designed for the app.
   }
 
   newTableSelected(){
@@ -523,10 +526,6 @@ export class QueryResultComponent implements OnInit {
       this.columnDefs = colDef;
       this.dataSource = results;
 
-      // make sure the returned columns fits the width of the viewable table
-      /*TODO: Need to fix the new Ag Grid to fit the width of the screen when is a low count of columns. */
-      //this.gridApi.sizeColumnsToFit();
-
       // If this was executed by the updater, then now send a response to display the update complete
       this.conlog.log(this.tabinfo.updateRecReq);
       if (this.tabinfo.updateRecReq) {
@@ -537,6 +536,12 @@ export class QueryResultComponent implements OnInit {
 
     this.rowsReturned = "Rows Returned: " + results.length;
     this.loadingQuery = false;
+  }
+
+  onRowDataChanged(params: RowDataChangedEvent) {
+    // make sure the returned columns fits the width of the viewable table
+    /*TODO: Need to fix the new Ag Grid to fit the width of the screen when is a low count of columns. */
+    this.gridApi.sizeColumnsToFit();
   }
 
   exportAsXLSX(type: string):void {

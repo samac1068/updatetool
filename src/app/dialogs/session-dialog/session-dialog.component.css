@@ -61,3 +61,6 @@ div.lower {
   margin-top: -3px;
 }
 
+.ag-theme-alpine {
+  --ag-font-size: 10px;
+}

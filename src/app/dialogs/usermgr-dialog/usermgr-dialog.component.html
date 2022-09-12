@@ -22,7 +22,8 @@
           [animateRows]="true"
           [rowHeight]="gridRowHeight"
           [headerHeight]="gridHeaderHeight"
-          (cellClicked)="userSelected($event)"
+          (gridReady)="onGridReady($event)"
+          (cellClicked)="onSelectionChange($event)"
         ></ag-grid-angular>
       </div>
 
@@ -59,7 +60,6 @@
             <option value="null" selected>Select Default Database</option>
             <option *ngFor="let database of availDatabase" [value]="database.id">{{ cleanUpString(database.id) }}</option>
           </select>
-
       </form>
     </div>
 
@@ -76,8 +76,8 @@
     <div class="lower">
       <span class="subtitle">Navigation Buttons</span>
       <div>
-        <button class="standardRedBtn" style="width: 95%; margin-left: 10px; margin-bottom: 3px;" (click)="resetForm()">Reset Form</button>
-        <button class="standardGreenBtn" style="width: 95%; margin-left: 10px; margin-bottom: 3px;" (click)="addEditSelectUser()">{{ buttonLbl }}</button>
+        <button class="standardRedBtn" style="width: 95%; margin-left: 10px; margin-bottom: 3px;" (click)="resetForm()" [disabled]="!formPopulated()">Reset Form</button>
+        <button class="standardGreenBtn" style="width: 95%; margin-left: 10px; margin-bottom: 3px;" (click)="addEditSelectUser()" [disabled]="!validateData">{{ buttonLbl }}</button>
         <button class="standardGreenBtn" style="width: 95%; margin-left: 10px" (click)="closeDialog()">Close</button>
       </div>
     </div>

@@ -18,7 +18,11 @@
 
 <!-- Display Results Datatable -->
 <div class="divResults">    <!-- [text-copy] -->
-  <div *ngIf="!loadingQuery">
+  <div *ngIf="tabinfo.table == undefined">
+    <span class="preloader">Please select a table from the table list.</span>
+  </div>
+
+  <div *ngIf="!loadingQuery && tabinfo.table != undefined">
     <ag-grid-angular
       style="width: 100%; height: 42vh;"
       class="ag-theme-alpine"
@@ -29,11 +33,13 @@
       [animateRows]="true"
       [rowHeight]="gridRowHeight"
       [headerHeight]="gridHeaderHeight"
+      (gridReady)="onGridReady($event)"
       (cellClicked)="rowClickedHandler($event)"
       (cellDoubleClicked)= "cellClickedHandler($event)"
+      (rowDataChanged)="onRowDataChanged($event)"
     ></ag-grid-angular>
   </div>
-  <div *ngIf="loadingQuery" class="spinner">
+  <div *ngIf="loadingQuery && tabinfo.table != undefined" class="spinner">
     <mat-spinner class="loadIcon"></mat-spinner>
   </div>
 </div>

@@ -1,6 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {StorageService} from '../../services/storage.service';
 import {DataService} from '../../services/data.service';
@@ -9,8 +8,7 @@ import {SelectionModel} from '@angular/cdk/collections';
 import {User} from '../../models/User.model';
 import {ConlogService} from '../../modules/conlog/conlog.service';
 import {CommService} from '../../services/comm.service';
-import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridApi } from 'ag-grid-community'
+import {ColDef, GridApi, SelectionChangedEvent} from 'ag-grid-community'
 
 @Component({
   selector: 'app-usermgr-dialog',
@@ -19,16 +17,15 @@ import { ColDef, GridApi } from 'ag-grid-community'
 })
 export class UsermgrDialogComponent implements OnInit {
 
-  @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
-
   assignedUser: any = [];
   colHeader!: string[];
-  columnDefs: any[] = [{field: 'userid', headerName: 'UID', width: 90}, {field: 'username', headerName: 'UserName'}];
+  columnDefs: any[] = [{field: 'userid', headerName: 'UID', width: 80}, {field: 'username', headerName: 'UserName'}];
   defColDefine: ColDef = { sortable: true, filter: true, resizable: true, autoHeaderHeight: true };
   gridHeaderHeight: number = 22;
   gridRowHeight: number = 22;
   gridApi!: GridApi;
 
+  selectedData: any;
   displayedColumns: string[] = ['select', 'UserID', 'Username'];
   mgrGrp!: FormGroup;
   availDatabase: any = [];
@@ -38,7 +35,7 @@ export class UsermgrDialogComponent implements OnInit {
   buttonLbl: string = "Add";
   curUser!: User;
   onSipr: boolean = false;
-
+  validateData: boolean = false;
 
   constructor(private dialogRef: MatDialogRef<UsermgrDialogComponent>, private fb: FormBuilder, private store: StorageService, private data: DataService, private conlog: ConlogService,
               private comm: CommService) {
@@ -57,6 +54,10 @@ export class UsermgrDialogComponent implements OnInit {
     });
 
     this.mgrGrp.reset();
+  }
+
+  onGridReady(params: any) {
+    this.gridApi = params.api;
 
     // Get the Available database information
     this.availDatabase = this.store.system['databases'];
@@ -120,17 +121,26 @@ export class UsermgrDialogComponent implements OnInit {
       this.selection.clear();
       this.getQTUserList();
     });
-
   }
 
   evalUpdateButton() {
     this.buttonLbl = (this.selectUser.userid > -1) ? "Update" : "Add";
   }
 
-  userSelected(selRow: any) {
-    // Parse out the row information
-    let row = selRow;
+  onSelectionChange(event: SelectionChangedEvent) {
+    this.selectedData = this.gridApi.getSelectedRows();
 
+    if(this.selectedData.length == 1) {
+      this.userSelected(this.selectedData[0]);
+      this.validateData = true;
+    } else {
+      this.validateData = false;
+      this.mgrGrp.reset();
+      this.evalUpdateButton();
+    }
+  }
+
+  userSelected(row: any) {
     // May need to split out the network information to expose the selected (default) database
     row.database = row.network.split("#")[1];
     this.selectUser = row;
@@ -144,6 +154,15 @@ export class UsermgrDialogComponent implements OnInit {
     this.mgrGrp.controls['database'].setValue(this.selectUser.database);
 
     this.evalUpdateButton();
+  }
+
+  formPopulated() {
+    return (
+      this.mgrGrp.controls.userid.value != null ||
+      this.mgrGrp.controls.username.value != null ||
+      this.mgrGrp.controls.firstname.value != null ||
+      this.mgrGrp.controls.lastname.value != null
+    )
   }
 
   resetForm() {
@@ -176,28 +195,28 @@ export class UsermgrDialogComponent implements OnInit {
         });
   }
 
-  isAllSelected() {
+  /*isAllSelected() {
     const numSelected = (this.selection.selected != undefined) ? this.selection.selected.length : 0;
     const numRows = (this.assignedUser.filteredData != undefined) ? this.assignedUser.filteredData.length : 0;
     return numSelected === numRows;
-  }
+  }*/
 
-  masterToggle() {
+ /* masterToggle() {
     if (this.isAllSelected()) {
       this.selection.clear();
       return;
     }
 
     this.selection.select(...this.assignedUser.data);
-  }
+  }*/
 
-  checkboxLabel(row?: Admin): string {
+  /*checkboxLabel(row?: Admin): string {
     if (!row) {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
 
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.userid + 1}`;
-  }
+  }*/
 
   closeDialog() {
     this.resetForm();

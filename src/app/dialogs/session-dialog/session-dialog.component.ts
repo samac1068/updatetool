@@ -6,6 +6,13 @@ import {DataService} from '../../services/data.service';
 import {ConlogService} from '../../modules/conlog/conlog.service';
 import {SelectionModel} from '@angular/cdk/collections';
 import {Session} from '../../models/Session.model';
+import {ColDef, GridApi, SelectionChangedEvent} from 'ag-grid-community'
+
+function dateFormatter(dt: any) {
+  let dtpart = dt.split("T");
+  let timepart = dtpart[1].split(".");
+  return dtpart[0] + " " + timepart[0];
+}
 
 @Component({
   selector: 'app-session-dialog',
@@ -16,6 +23,19 @@ export class SessionDialogComponent implements OnInit {
 
   activeSessionArr: any = new Session();
   rawSessionArr: any = new Session();
+  selectedUsers: any = [];
+  columnDefs: any[] = [
+    {field: 'CUTID', headerName: 'CUTID', width: 120},
+    {field: 'username', headerName: 'UserName'},
+    {field: 'FirstName', headerName: 'First Name'},
+    {field: 'LastName', headerName: 'Last Name'},
+    {field: 'ActiveSessionDate', headerName: 'Session Date', valueFormatter: (params: any) => dateFormatter(params.data.ActiveSessionDate)}
+  ];
+  defColDefine: ColDef = { sortable: true, filter: true, resizable: true, autoHeaderHeight: true };
+  gridHeaderHeight: number = 22;
+  gridRowHeight: number = 22;
+  gridApi!: GridApi;
+
   listLoaded: boolean = false;
   selection = new SelectionModel<Session>(true, []);
   displayedColumns: string[] = ['select', 'CUTID', 'FirstName', 'Username', 'LastName', 'ActiveSessionDate'];
@@ -31,30 +51,28 @@ export class SessionDialogComponent implements OnInit {
       .subscribe((results: Session[]) => {
         if(results != null)
           this.activeSessionArr = this.rawSessionArr = results;
+
         this.listLoaded = true;
       });
   }
 
-  isAllSelected() {
-    const numSelected = (this.selection.selected != undefined) ? this.selection.selected.length : 0;
-    const numRows = (this.activeSessionArr.filteredData != undefined) ? this.activeSessionArr.filteredData.length : 0;
-    return (numSelected === numRows) && numSelected > 0;
+  onGridReady(params: any) {
+    this.gridApi = params.api;
   }
 
-  checkboxLabel(row?: Session): string {
-    if (!row) return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.CUTID + 1}`;
+  onSelectionChange(event: SelectionChangedEvent) {
+    this.selectedUsers = this.gridApi.getSelectedRows();
   }
 
   resetSelectedSession() {
     let uid: string = "";
 
-    if(this.selection.selected.length > 0) {
-      for (let i = 0; i < this.selection.selected.length; i++) {
-        uid += ((i > 0) ? "," : "") + this.selection.selected[i].CUTID;
+    if(this.selectedUsers.length > 0) {
+      for (let i = 0; i < this.selectedUsers.length; i++) {
+        uid += ((i > 0) ? "," : "") + this.selectedUsers[i].CUTID;
       }
 
-      this.conlog.log("List CUTID: " + uid);
+      this.conlog.log("List CUTID to be reset: " + uid);
 
       // Call for a reset for the selected users
       this.data.getResetPortalSession('reset', uid)
