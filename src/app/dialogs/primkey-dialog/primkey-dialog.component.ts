@@ -1,9 +1,6 @@
 import {Component, EventEmitter, Inject, OnInit} from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import {CommService} from '../../services/comm.service';
-import {DataService} from '../../services/data.service';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {StorageService} from '../../services/storage.service';
-import {ToastContentDirective} from 'ngx-toast-notifications/toast-content/toast-content.directive';
 
 @Component({
   selector: 'app-primkey-dialog',

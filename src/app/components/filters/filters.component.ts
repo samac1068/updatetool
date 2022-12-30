@@ -29,7 +29,7 @@ export class FiltersComponent implements OnInit {
   curIndex!: number;
 
   tableSelected: boolean = false;
-  isBitColumn: boolean = false;
+  //isBitColumn: boolean = false;
   filterAdded: boolean = false;
   hasWhere: boolean = false;
   colSelected: boolean = false;
@@ -116,16 +116,22 @@ export class FiltersComponent implements OnInit {
     // Add the where string
     whereItemStr += this.curColumn + " " + this.curOperator + " ";
 
-    if (this.curOperator.toUpperCase() != 'IS NULL' && this.curOperator.toUpperCase() != 'IS NOT NULL' && this.curOperator != 'IN') {
-    //Do we need to wrap in quotes for not based on the column properties
+    if (this.curOperator.toUpperCase() != 'IS NULL' && this.curOperator.toUpperCase() != 'IS NOT NULL' && this.curOperator.toUpperCase() != 'IN') {
+      //Do we need to wrap in quotes or not based on the column properties
       switch (this.curColumnType) {
         case "varchar":
         case "datetime":
         case "date":
+        case "char":
+        case "blob":
+        case "binary":
           whereItemStr += "'" + this.curInput + "'";
           break;
         case "int":
         case "bit":
+        case "float":
+        case "double":
+        case "decimal":
           whereItemStr += this.curInput;
           break;
       }

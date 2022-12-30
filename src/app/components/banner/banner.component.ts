@@ -25,7 +25,8 @@ export class BannerComponent implements OnInit {
   network!: string;
   onSipr!: boolean;
 
-  constructor(private data: DataService, private store: StorageService, private comm: CommService, public dialog: MatDialog, private conlog: ConlogService) { }
+
+  constructor(private data: DataService, public store: StorageService, private comm: CommService, public dialog: MatDialog, private conlog: ConlogService) { }
 
   ngOnInit() {
     //Listing listeners and services
@@ -39,7 +40,7 @@ export class BannerComponent implements OnInit {
     });
 
     this.comm.noToolUserInfoFound.subscribe(() => {
-      //We need to collect more information before the user will allowed to use the tool
+      //We need to collect more information before the user will be allowed to use the tool
       this.user = this.store.getUser();
       this.openOptionsDialog();
     });

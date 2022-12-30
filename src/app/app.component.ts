@@ -73,7 +73,7 @@ export class AppComponent implements OnInit {
           .subscribe(result => {
             this.urlToken = result["token"];  // This is a newly created token that contains all the information needed for me to identify the user
 
-            //In the event the urlToken was not properly save, let's note it but move on locally by manually setting the necessary variables
+            //In the event the urlToken was not properly saved, let's note it but move on locally by manually setting the necessary variables
             if(this.urlToken == "" || this.urlToken == undefined) {
               this.conlog.log("Unable to properly set the urlToken variable. Setting manually.")
               this.store.setUserValue("token", null);
