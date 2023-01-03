@@ -70,6 +70,10 @@ export class QueryResultComponent implements OnInit {
     this.comm.validatePrimKey.subscribe((tabdata) => {
       this.validateTempPrimKey(tabdata);  //Line 587
     });
+
+    this.comm.userUpdatedReloadSys.subscribe( () => {
+      this.constructSQLString();
+    });
   }
 
   onGridReady(params: any) {
@@ -160,10 +164,10 @@ export class QueryResultComponent implements OnInit {
 
         if (this.tabinfo.selectcnt == "-9") {
           strSQL += " ";
-          displayStrSQL += "all record(s) ";
+          displayStrSQL += "all records ";
         } else {
           strSQL += "TOP " + this.tabinfo.selectcnt + " ";
-          displayStrSQL += "the first " + this.tabinfo.selectcnt + " record(s) ";
+          displayStrSQL += "the first " + this.tabinfo.selectcnt + " " + ((parseInt(this.tabinfo.selectcnt) > 1) ? "records " : "record ");
         }
       } else if (this.tabinfo.wherearrcomp.length > 0 && this.tabinfo.distinctcol == "") {
         displayStrSQL += "all records ";
@@ -190,7 +194,7 @@ export class QueryResultComponent implements OnInit {
 
       //Include the FROM
       strSQL += "FROM ";
-      displayStrSQL += "from "
+      displayStrSQL += "from the "
 
       //Add the database and table info
       strSQL += "[" + this.tabinfo.database + "]..[" + this.tabinfo.table.name + "] ";
@@ -399,9 +403,7 @@ export class QueryResultComponent implements OnInit {
     let oStr: string = "ORDER BY ";
 
     for (let i = 0; i < this.tabinfo.orderarr.length; i++){
-      if(i > 0)
-        oStr += ", ";
-
+      if(i > 0) oStr += ", ";
       oStr += this.tabinfo.orderarr[i].name + " " + this.tabinfo.orderarr[i].sort
     }
 

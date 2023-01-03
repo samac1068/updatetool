@@ -15,7 +15,7 @@ export class StorageService {
   private _appKey = 'MMA';
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.22.1229 (Doc: 1.10)';
+  private _appVersion = '2.23.0103 (Doc: 1.10)';
   private _inDev: boolean = false;
 
   // Public

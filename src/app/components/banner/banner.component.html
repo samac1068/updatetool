@@ -1,12 +1,12 @@
 <div [ngClass]="{'nipr_bg':network == 'nipr', 'sipr_bg': network == 'sipr' }">
-  <img id="bannerImg" style="float:left;" src="assets/image/updatetooltitle.png" alt="" />
+  <img id="bannerImg" style="float:left;" src="assets/image/updatetooltitle.png" alt="" title="SQL Query Tool by MKGCS" />
 
   <div [ngClass]="{'classification_nipr':network == 'nipr', 'classification_sipr': network == 'sipr' }">
     {{ network == 'sipr' ? 'SECRET' : 'UNCLASSIFIED' }}
   </div>
 
   <div class="copyright">
-    (c) Copyright 2022 by MKGCS, LLC. | All Rights Reserved
+    (c) Copyright 2023 by MKGCS, LLC. | All Rights Reserved
   </div>
 </div>
 
