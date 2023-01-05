@@ -9,7 +9,7 @@
          <div *ngFor="let k of objectKeys(newchange)">
           <span class="subtitle">{{ k }}</span>
             <ul>
-                <li *ngFor="let n of newchange[k]">{{ n.txt }}</li>
+                <li *ngFor="let n of newchange[k][0].txt">{{ n }}</li>
               </ul>
         </div>
     </div>
@@ -19,7 +19,7 @@
         <div *ngFor="let m of objectKeys(history)">
           <span class="subtitle">{{ m }}</span>
           <ul>
-            <li *ngFor="let o of history[m]">{{ o.txt }}</li>
+            <li *ngFor="let o of history[m][0].txt">{{ o }}</li>
           </ul>
         </div>
     </div>

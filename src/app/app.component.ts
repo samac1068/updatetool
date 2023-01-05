@@ -124,7 +124,9 @@ export class AppComponent implements OnInit {
 
   getApplicationBuild() {
     this.data.getAppUpdates().subscribe((results) => {
-      this.store.setSystemValue('build', results);
+      // Organize as single dim array instead of the multi dim array from JSON and Sort in descending order based on BuildDate column and finally sort in System Variable
+      this.store.setSystemValue('build', this.store.sortArr(results["whatsnew"], "BuildDate"));
+      this.conlog.log("Retrieved all update items listed in locally stored JSON file.");
     },
       error => {
         alert("getApplicationBuild: " + error.message);
@@ -136,14 +138,15 @@ export class AppComponent implements OnInit {
     {
       case 'DEVELOPMENT':
         this.store.system['webservice']['locale'] = 'development';
-        //this.conlog.log("development webservice - devmode is " + this.store.isDevMode());
         break;
       case 'PRODUCTION':
         this.store.system['webservice']['locale'] = 'production';
         this.store.shutOffDev();
-        //this.conlog.log('production webservice - devmode is ' + this.store.isDevMode());
         break;
     }
+
+    //local identification
+    this.conlog.log(this.store.system['webservice']['locale'] + ' webservice - devmode is ' + this.store.isDevMode());
   }
 
   //Validate the token

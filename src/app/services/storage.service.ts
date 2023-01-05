@@ -15,7 +15,7 @@ export class StorageService {
   private _appKey = 'MMA';
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.23.0103 (Doc: 1.10)';
+  private _appVersion = '2.23.0105 (Doc: 1.10)';
   private _inDev: boolean = false;
 
   // Public
@@ -217,5 +217,24 @@ export class StorageService {
 
   removeUnderscore(str: string) {
     return str.replace("_", " ");
+  }
+
+  sortArr(arr: any, col: string, desc: boolean = true){
+    let wn: any;
+
+    if (desc){
+      wn =  arr.sort(
+        (objA: any, objB: any) => {
+          return <any>new Date(objB[col]) - <any>new Date(objA[col]);
+        });
+    } else {
+      wn =  arr.sort(
+        (objA: any, objB: any) => {
+          return <any>new Date(objA[col]) - <any>new Date(objB[col]);
+        }
+      );
+    }
+
+    return wn;
   }
 }

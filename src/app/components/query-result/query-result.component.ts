@@ -2,7 +2,7 @@ import { ExcelService } from '../../services/excel.service';
 import { DataService } from '../../services/data.service';
 import { StorageService } from '../../services/storage.service';
 import { CommService } from '../../services/comm.service';
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Tab } from 'src/app/models/Tab.model';
 import { MatDialog } from '@angular/material/dialog';
 import { QueryDialogComponent } from 'src/app/dialogs/query-dialog/query-dialog.component';
@@ -10,7 +10,7 @@ import { UpdaterDialogComponent } from '../../dialogs/updater-dialog/updater-dia
 import { PrimkeyDialogComponent } from '../../dialogs/primkey-dialog/primkey-dialog.component';
 import { ModifierDialogComponent } from '../../dialogs/modifier-dialog/modifier-dialog.component';
 import { ConlogService } from '../../modules/conlog/conlog.service';
-import {ColDef, GridApi, RowDataChangedEvent, RowValueChangedEvent} from 'ag-grid-community';
+import { ColDef, GridApi, RowDataChangedEvent } from 'ag-grid-community';
 
 @Component({
   selector: 'app-query-result',
@@ -543,11 +543,17 @@ export class QueryResultComponent implements OnInit {
   onRowDataChanged(params: RowDataChangedEvent) {
     // make sure the returned columns fits the width of the viewable table
     /*TODO: Need to fix the new Ag Grid to fit the width of the screen when is a low count of columns. */
+    let junk = params;
+    this.conlog.log(junk);
     this.gridApi.sizeColumnsToFit();
   }
 
   exportAsXLSX(type: string):void {
-    this.excel.exportAsExcelFile(this.dataSource.data, 'queryResults', type);
+    let jsondata = (this.dataSource.data != undefined) ? this.dataSource.data : this.dataSource;
+    if(jsondata == null)
+      this.store.generateToast("There is no visible data to export or the system failed to transfer the result to the export system. Export Failed");
+    else
+      this.excel.exportAsExcelFile(jsondata, 'queryResults', type);
   }
 
   saveCurrentQuery() {

@@ -71,8 +71,8 @@ export class DataService {
   }
 
   getAppUpdates(): Observable<any> {
-    this.conlog.log('getAppUpdates');
-    return this.http.get<any[]>(`${this.getWSPath()}GetAppUpdates/${this.store.getPassKey()}`)
+    this.conlog.log('getAppUpdates - From local JSON file');
+    return this.http.get<[]>('assets/whatsnew.json')     // Pulling the update information from the local JSON file and not the database.
       .pipe(catchError(this.errorHandler));
   }
 

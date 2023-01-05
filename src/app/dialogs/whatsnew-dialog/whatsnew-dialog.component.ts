@@ -26,7 +26,19 @@ export class WhatsnewDialogComponent implements OnInit {
   ngOnInit() {
     try {
       //Parse and organize the change history
-      let changes: any = this.store.getSystemValue('build');
+      let prechanges: any = this.store.getSystemValue('build');
+      let changes: any = [];
+
+      for(let p:number = 0; p < prechanges.length; p++)
+      {
+        let values = prechanges[p];
+        let index = this.store.findIndexByValue(changes, "BuildVersion", values.BuildVersion)
+        if( index == -1) // Does Build Version appear in the changes
+          changes.push(values);
+        else
+          changes[index].BuildChanges = changes[index].BuildChanges + " - " + values.BuildChanges.replace("-","").trim();
+      }
+
 
       this.latestBuild = changes[0].BuildVersion;
       this.curVersion = this.store.getVersion();
@@ -35,10 +47,10 @@ export class WhatsnewDialogComponent implements OnInit {
         if (changes[i].BuildVersion <= this.curVersion) {
           if (changes[i].BuildVersion > this.user.lastversion) {
             if (this.newchange[changes[i].BuildVersion] == undefined) this.newchange[changes[i].BuildVersion] = [];
-            this.newchange[changes[i].BuildVersion].push({ver: changes[i].BuildVersion, txt: changes[i].BuildChanges});
+            this.newchange[changes[i].BuildVersion].push({ver: changes[i].BuildVersion, txt: this.formatBuildChanges(changes[i].BuildChanges)});
           } else {
             if (this.history[changes[i].BuildVersion] == undefined) this.history[changes[i].BuildVersion] = [];
-            this.history[changes[i].BuildVersion].push({ver: changes[i].BuildVersion, txt: changes[i].BuildChanges});
+            this.history[changes[i].BuildVersion].push({ver: changes[i].BuildVersion, txt: this.formatBuildChanges(changes[i].BuildChanges)});
           }
         }
       }
@@ -57,9 +69,22 @@ export class WhatsnewDialogComponent implements OnInit {
     }
   }
 
+  // Format the build changes info, so it falls within the expected display format
+  formatBuildChanges(subsection: string) {
+    let sublist = subsection.split("-");
+    let newlist:any = [];
+
+    sublist.forEach((value) => {
+      if(value.length > 0)
+        newlist.push(value.replace("-","").trim());
+    });
+
+    return newlist;
+  }
+
   processAcknowledge() {
     if(this.buttonTitle == "Acknowledge"){
-      this.data.updateUserVersion(this.latestBuild).subscribe((rtn) => {
+      this.data.updateUserVersion(this.latestBuild).subscribe(() => {
         this.user.lastversion = this.latestBuild;
         this.closeDialog();
       });

@@ -190,7 +190,7 @@ export class FiltersComponent implements OnInit {
 
   removeWhereItem(wid: number){
     this.dialogBox.confirm('Confirm Deletion', 'Are you sure you want to delete this item?')
-    .then((confirmed) => {
+    .then(() => {
       this.tabinfo.wherearrcomp.splice(this.findIndexByWID(wid),1);
     });
     //.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
@@ -227,29 +227,34 @@ export class FiltersComponent implements OnInit {
     this.hasValue = this.curInput.length > 0;
 
     //Apply button
-    this.filterAdded = this.tabinfo.wherearrcomp.length > 0 || this.tabinfo.getcount || this.tabinfo.limitRows;
+    this.filterAdded = this.tabinfo.wherearrcomp.length > 0 || this.optionChanged || this.tabinfo.getcount || this.tabinfo.limitRows;
 
     // Clear all button
     this.hasWhere = (this.tabinfo.wherearrcomp.length > 0);
   }
 
   applyWhereClause(){
-    if(this.tabinfo.wherearrcomp.length > 0 || this.tabinfo.getcount || this.tabinfo.limitRows || this.optionChanged){
-      this.addUpdateBtn = "Add";
+    if(this.tableSelected) {
+      if (this.tabinfo.wherearrcomp.length > 0 || this.tabinfo.getcount || this.tabinfo.limitRows || this.optionChanged) {
+        this.addUpdateBtn = "Add";
 
-      // Apply the request limitation
-      if(this.tabinfo.limitRows)
-        this.tabinfo.selectcnt = this.localSelectCtn;
-      else {
-        this.tabinfo.selectcnt = "10";
-        this.localSelectCtn = "100";
+        // Apply the request limitation
+        if (this.tabinfo.limitRows)
+          this.tabinfo.selectcnt = this.localSelectCtn;
+        else {
+          this.tabinfo.selectcnt = "10";
+          this.localSelectCtn = "100";
+        }
       }
-    }
 
-    this.signalExecuteQuery();
+      this.optionChanged = false;
+      this.signalExecuteQuery();
+    } else
+      this.store.generateToast("You must select a table before applying a filter.");
   }
 
   signalExecuteQuery() {
+    this.evaluateBtnStatus();
     this.comm.runQueryChange.emit();
   }
 
