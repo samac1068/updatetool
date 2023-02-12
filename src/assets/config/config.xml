@@ -1,7 +1,4 @@
 <systems>
-  <system type="development" path="http://localhost:64813/UserW/" active="true" network="nipr" />
-  <system type="development" path="http://localhost:64813/UserW/" active="false" network="sipr" />
-  <system type="development" path="https://mobdev.mkgcs.com/querytool/api/UserW/" active="false" network="nipr" />
-  <system type="development" path="https://mobdemo.mkgcs.com/querytool/api/UserW/" active="false" network="nipr" />
-  <system type="development" path="https://mobhigh.mkgcs.com/MOBANG/updatetool/api/UserW/" active="false" network="sipr"/>
+  <system type="development" active="true" network="nipr" />
+  <system type="development" active="false" network="sipr" />
 </systems>
