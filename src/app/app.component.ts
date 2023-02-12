@@ -19,7 +19,6 @@ export class AppComponent implements OnInit {
   minWidthDefault: number = 1322;
   urlToken: any = "";
   invalidLoad: boolean = false;
-
   isConsoleOpen: boolean = false;
   dialogQuery: any;
 
@@ -69,35 +68,22 @@ export class AppComponent implements OnInit {
       this.conlog.log("Executing in DevMode or on a SIPR Network, attempting to generate local token");
 
       if (this.urlToken == "" || this.urlToken == undefined) {
-        this.data.getLocalToken("sean.mcgill")  // Generate a token at this point and introduce it into the application.
+        this.data.getLocalToken("sean.mcgill")  // Generate a token at this point and introduce it into the application.  - This is used for development only
           .subscribe(result => {
-            this.urlToken = result["token"];  // This is a newly created token that contains all the information needed for me to identify the user
-
-            //In the event the urlToken was not properly saved, let's note it but move on locally by manually setting the necessary variables
-            if(this.urlToken == "" || this.urlToken == undefined) {
-              this.conlog.log("Unable to properly set the urlToken variable. Setting manually.")
-              this.store.setUserValue("token", null);
-              this.store.setUserValue("username", 'sean.mcgill');
-              this.store.setUserValue("initalapp", 'UpdateTool');
-              this.store.setUserValue("tokencreatedate", null);
-              this.getUserInformation();
-            } else {
-              this.conlog.log("Successfully populated urlToken. Getting user info.");
-              this.continueInitialization();
-            }
+            this.urlToken = result["token"];  // This is a newly created token that contains all the information needed for me to identify the user - Having a token is mandatory
+            this.continueInitialization();
           });
       }
-    } else {
-      // Process the token sent to the app component
-      this.continueInitialization();
-    }
+    } else
+      this.continueInitialization();  // Process the urlToken sent to the app component - User does not have access without it.
   }
 
   continueInitialization(){
+    this.conlog.log("continueInitialization");
     if(this.urlToken != undefined){
       this.validateCapturedToken();
     } else {
-      alert("Your access cannot be validated.  Returning to previous application.");
+      alert("No Application Token Found - Your access cannot be validated, therefore, you are not permitted to use this application. Application Aborted. Returning to previous application.");
     }
   }
 
@@ -123,7 +109,8 @@ export class AppComponent implements OnInit {
   }
 
   getApplicationBuild() {
-    this.data.getAppUpdates().subscribe((results) => {
+    this.data.getAppUpdates()
+      .subscribe((results) => {
       // Organize as single dim array instead of the multi dim array from JSON and Sort in descending order based on BuildDate column and finally sort in System Variable
       this.store.setSystemValue('build', this.store.sortArr(results["whatsnew"], "BuildDate"));
       this.conlog.log("Retrieved all update items listed in locally stored JSON file.");
@@ -151,15 +138,16 @@ export class AppComponent implements OnInit {
 
   //Validate the token
   validateCapturedToken() {
-    this.conlog.log("validateCaptureToken:");
+    this.conlog.log("validateCaptureToken");
     this.data.validateUserToken(this.urlToken)
     .subscribe(result => {
-      this.conlog.log("validateCaptureToken: (return)" + result[0]);
-        if(result[0] != null) {
+      if(result[0] != null) {
+        this.conlog.log("assigned returned userinfo");
         this.store.setUserValue("token", this.urlToken);
         this.store.setUserValue("username", result[0]["Username"]);
         this.store.setUserValue("initalapp", result[0]["InitalApp"]);
         this.store.setUserValue("tokencreatedate", result[0]["CreateDate"]);
+        this.store.setUserValue("skey", result[0]["sKey"]);
 
         //Signal that user has been validated - They should be able to use the tool at this point.
         this.getUserInformation();

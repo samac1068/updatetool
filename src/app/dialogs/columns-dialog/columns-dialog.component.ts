@@ -33,12 +33,15 @@ export class ColumnsDialogComponent implements OnInit {
     }
 
     //Make sure to initialize this variable EACH time we come to this window
-    for(let i = 0; i < this.data.columns.length; i++){
-      if(this.data.columns[i].selected || (this.columnListArr[0].ColumnNames.indexOf(this.data.columns[i].columnname) > -1)) {
-        this.data.columns[i].selected = true;
-        this.columnArr.push(this.data.columns[i].tablename.toUpperCase() + "." + this.data.columns[i].columnname.toUpperCase());
+    console.log(storedColumns, this.data.columns);
+    if(this.data.columns.length > 0) {
+      for (let i = 0; i < this.data.columns.length; i++) {
+        if (this.data.columns[i].selected || (this.columnListArr[0].ColumnNames.indexOf(this.data.columns[i].columnname) > -1)) {
+          this.data.columns[i].selected = true;
+          this.columnArr.push(this.data.columns[i].tablename.toUpperCase() + "." + this.data.columns[i].columnname.toUpperCase());
+        }
       }
-    }
+    } else this.store.generateToast("Application Error: No columns available.", false);
 
     // Initialize the distinct column operator
     this.distinctCol = this.data.distinctcol;
@@ -158,19 +161,21 @@ export class ColumnsDialogComponent implements OnInit {
     // Call the database service
     this.api.updateUserColumnSelection(colSto)
       .subscribe(results => {
-        this.comm.reloadStoredColumnData.emit();
+        if(results) {
+          this.comm.reloadStoredColumnData.emit();
 
-        this.store.getUserValue('storedcolumns').forEach((row: any, index: number) => {
-          if(row.TableName.toUpperCase() == this.data.table.name.toUpperCase() && row.Rtype == "C") {
-            this.store.getUserValue('storedcolumns').splice(index, 1);
-            return;
-          }
-        });
+          this.store.getUserValue('storedcolumns').forEach((row: any, index: number) => {
+            if (row.TableName.toUpperCase() == this.data.table.name.toUpperCase() && row.Rtype == "C") {
+              this.store.getUserValue('storedcolumns').splice(index, 1);
+              return;
+            }
+          });
 
-        this.store.generateToast('Your selection(s) have been stored.');
+          this.store.generateToast('Your selection(s) have been stored.');
+        }
       },
         error => {
-          alert("There was an error while attempt to store your column selection.");
+          alert("There was an error while attempt to store your column selection. [" + error + "]");
       });
 
   }

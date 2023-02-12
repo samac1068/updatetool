@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {StorageService} from '../../services/storage.service';
@@ -8,7 +8,7 @@ import {SelectionModel} from '@angular/cdk/collections';
 import {User} from '../../models/User.model';
 import {ConlogService} from '../../modules/conlog/conlog.service';
 import {CommService} from '../../services/comm.service';
-import {ColDef, GridApi, SelectionChangedEvent} from 'ag-grid-community'
+import {ColDef, GridApi} from 'ag-grid-community'
 
 @Component({
   selector: 'app-usermgr-dialog',
@@ -24,7 +24,6 @@ export class UsermgrDialogComponent implements OnInit {
   gridHeaderHeight: number = 22;
   gridRowHeight: number = 22;
   gridApi!: GridApi;
-
   selectedData: any;
   displayedColumns: string[] = ['select', 'UserID', 'Username'];
   mgrGrp!: FormGroup;
@@ -63,9 +62,7 @@ export class UsermgrDialogComponent implements OnInit {
     this.availDatabase = this.store.system['databases'];
     this.adminItem.adminuser = this.store.user.username;
     this.curUser = this.store.getUser();
-
     this.onSipr = this.store.getSystemValue('webservice').network == "sipr";
-
     this.getQTUserList();
   }
 
@@ -127,7 +124,7 @@ export class UsermgrDialogComponent implements OnInit {
     this.buttonLbl = (this.selectUser.userid > -1) ? "Update" : "Add";
   }
 
-  onSelectionChange(event: SelectionChangedEvent) {
+  onSelectionChange() {
     this.selectedData = this.gridApi.getSelectedRows();
 
     if(this.selectedData.length == 1) {

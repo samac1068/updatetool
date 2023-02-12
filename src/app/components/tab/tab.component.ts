@@ -3,7 +3,7 @@ import { CommService } from '../../services/comm.service';
 import { DataService } from '../../services/data.service';
 import { StorageService } from '../../services/storage.service';
 import { Tab } from '../../models/Tab.model';
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Column } from '../../models/Column.model';
 
@@ -25,39 +25,41 @@ export class TabComponent implements OnInit {
 
   ngOnInit() {
     //Table was selected
-    this.comm.tableSelected.subscribe((data) => {
-      //Need to pull all of the columns for the selected table
-      //  headleyt:  20210120  Added a condition so this action will only take place on the active tab
-      if (this.tabinfo === this.store.selectedTab){
-        this.data.getTableProperties(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table.name)
-          .subscribe((results) => {
-            this.tabinfo.columns = [];
-            this.tabinfo.availcolarr = [];
+    this.comm.tableSelected
+      .subscribe((data) => {
+        //Need to pull all the columns for the selected table
+        //  headleyt:  20210120  Added a condition so this action will only take place on the active tab
+        if (data) {
+          if (this.tabinfo === this.store.selectedTab) {
+            this.data.getTableProperties(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table.name)
+              .subscribe((results) => {
+                this.tabinfo.columns = [];
+                this.tabinfo.availcolarr = [];
 
-            for(let row of results)
-            {
-              var r: Column = new Column();
-              r.tablename = row.TableName;
-              r.columnid = row.ColumnID;
-              r.columnname = row.ColumnName;
-              r.vartype = row.VarType;
-              r.maxlength = row.MaxLength;
-              r.primarykey = row.PrimaryKey;
-              r.precise = row.Precise;
-              r.scale = row.Scale;
-              r.charfulllength = row.CharFullLength;
-              r.selected = this.tabinfo.colfilterarr.indexOf(r.columnname) > -1;
-              r.colSelected = false;
+                for (let row of results) {
+                  var r: Column = new Column();
+                  r.tablename = row.TableName;
+                  r.columnid = row.ColumnID;
+                  r.columnname = row.ColumnName;
+                  r.vartype = row.VarType;
+                  r.maxlength = row.MaxLength;
+                  r.primarykey = row.PrimaryKey;
+                  r.precise = row.Precise;
+                  r.scale = row.Scale;
+                  r.charfulllength = row.CharFullLength;
+                  r.selected = this.tabinfo.colfilterarr.indexOf(r.columnname) > -1;
+                  r.colSelected = false;
 
-              this.tabinfo.columns.push(r);
-              this.tabinfo.availcolarr.push(r);
-              if(r.primarykey) this.tabinfo.hasPrimKey = true;
-            }
+                  this.tabinfo.columns.push(r);
+                  this.tabinfo.availcolarr.push(r);
+                  if (r.primarykey) this.tabinfo.hasPrimKey = true;
+                }
 
-            this.comm.columnsUpdated.emit(this.tabinfo);
-          });
-       }
-    });
+                this.comm.columnsUpdated.emit(this.tabinfo);
+              });
+          }
+        }
+      });
 
     //Custom Column button selected
     this.comm.columnBtnClicked.subscribe(() => {
@@ -96,7 +98,7 @@ export class TabComponent implements OnInit {
     this.comm.viewerBtnClicked.subscribe(() => {
       if(this.tabinfo === this.store.selectedTab) {
         //Open a dialog window
-        const dialogRef = this.dialog.open(ViewerDialogComponent, {width: '1000px', height: '730px', autoFocus: true, data: this.tabinfo });
+        this.dialog.open(ViewerDialogComponent, {width: '1000px', height: '730px', autoFocus: true, data: this.tabinfo });
       }
     });
 

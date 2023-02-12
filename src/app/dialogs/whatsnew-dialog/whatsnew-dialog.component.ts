@@ -45,7 +45,7 @@ export class WhatsnewDialogComponent implements OnInit {
 
       for (let i = 0; i < changes.length; i++) {
         if (changes[i].BuildVersion <= this.curVersion) {
-          if (changes[i].BuildVersion > this.user.lastversion) {
+          if (changes[i].BuildVersion > this.user.lastversion || this.user.lastversion == null) {
             if (this.newchange[changes[i].BuildVersion] == undefined) this.newchange[changes[i].BuildVersion] = [];
             this.newchange[changes[i].BuildVersion].push({ver: changes[i].BuildVersion, txt: this.formatBuildChanges(changes[i].BuildChanges)});
           } else {
@@ -84,6 +84,7 @@ export class WhatsnewDialogComponent implements OnInit {
 
   processAcknowledge() {
     if(this.buttonTitle == "Acknowledge"){
+      this.conlog.log("WhatsNew - processAcknowledge: latest build date is " + this.latestBuild)
       this.data.updateUserVersion(this.latestBuild).subscribe(() => {
         this.user.lastversion = this.latestBuild;
         this.closeDialog();

@@ -1,16 +1,16 @@
-import { ExcelService } from '../../services/excel.service';
-import { DataService } from '../../services/data.service';
-import { StorageService } from '../../services/storage.service';
-import { CommService } from '../../services/comm.service';
-import { Component, OnInit, Input } from '@angular/core';
-import { Tab } from 'src/app/models/Tab.model';
-import { MatDialog } from '@angular/material/dialog';
-import { QueryDialogComponent } from 'src/app/dialogs/query-dialog/query-dialog.component';
-import { UpdaterDialogComponent } from '../../dialogs/updater-dialog/updater-dialog.component';
-import { PrimkeyDialogComponent } from '../../dialogs/primkey-dialog/primkey-dialog.component';
-import { ModifierDialogComponent } from '../../dialogs/modifier-dialog/modifier-dialog.component';
-import { ConlogService } from '../../modules/conlog/conlog.service';
-import { ColDef, GridApi, RowDataChangedEvent } from 'ag-grid-community';
+import {ExcelService} from '../../services/excel.service';
+import {DataService} from '../../services/data.service';
+import {StorageService} from '../../services/storage.service';
+import {CommService} from '../../services/comm.service';
+import {Component, Input, OnInit} from '@angular/core';
+import {Tab} from 'src/app/models/Tab.model';
+import {MatDialog} from '@angular/material/dialog';
+import {QueryDialogComponent} from 'src/app/dialogs/query-dialog/query-dialog.component';
+import {UpdaterDialogComponent} from '../../dialogs/updater-dialog/updater-dialog.component';
+import {PrimkeyDialogComponent} from '../../dialogs/primkey-dialog/primkey-dialog.component';
+import {ModifierDialogComponent} from '../../dialogs/modifier-dialog/modifier-dialog.component';
+import {ConlogService} from '../../modules/conlog/conlog.service';
+import {ColDef, GridApi, RowDataChangedEvent} from 'ag-grid-community';
 
 @Component({
   selector: 'app-query-result',
@@ -489,15 +489,17 @@ export class QueryResultComponent implements OnInit {
 
   executeSQL(){
     //Run out and get what we need
-    let col: string = (this.tabinfo.colfilterarr[0] == "*") ? "" : this.tabinfo.colfilterarr.join();                  //Separated by comma
-    let where: string = (this.tabinfo.wherearrcomp.length > 0) ? this.constructWhereClause(false) : "";     // Separated by a space
-    let join: string = (this.tabinfo.joinarr.length > 0) ? this.constructJoin() : "";                                 //Separated by a space
-    let order: string = (this.tabinfo.orderarr.length > 0) ? this.constructOrderBy() : "";                            //Separated by a comma
-    let distinct: string = (this.tabinfo.distinctcol != "") ? "true" : "false";                                       // boolean converted to string
+    let col: string = (this.tabinfo.colfilterarr[0] == "*") ? "0" : this.tabinfo.colfilterarr.join();                  //Separated by comma
+    let where: string = (this.tabinfo.wherearrcomp.length > 0) ? this.constructWhereClause(false) : "0";     // Separated by a space
+    let join: string = (this.tabinfo.joinarr.length > 0) ? this.constructJoin() : "0";                                 //Separated by a space
+    let order: string = (this.tabinfo.orderarr.length > 0) ? this.constructOrderBy() : "0";                            //Separated by a comma
+    let count: number = (this.tabinfo.getcount)? 1 : 0;
+    let lmtRow: number = (this.tabinfo.limitRows)? 1 : 0;
+    let distinct: number = (this.tabinfo.distinctcol != "") ? 1 : 0;                                       // boolean converted to string
 
     this.data.getQueryData(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table.name,
-    (col.length == 0) ? '0' : col, (where.length == 0) ? '0' : where, (join.length == 0) ? '0' : join, (order.length == 0) ? '0' : order,
-      this.tabinfo.getcount, this.tabinfo.limitRows, this.tabinfo.selectcnt, this.store.user.username, distinct).subscribe((results) => {
+    col, where, join, order, count, lmtRow, this.tabinfo.selectcnt, this.store.user.username, distinct)
+      .subscribe((results) => {
         this.processReturnedData(results);
       });
   }
@@ -543,8 +545,7 @@ export class QueryResultComponent implements OnInit {
   onRowDataChanged(params: RowDataChangedEvent) {
     // make sure the returned columns fits the width of the viewable table
     /*TODO: Need to fix the new Ag Grid to fit the width of the screen when is a low count of columns. */
-    let junk = params;
-    this.conlog.log(junk);
+    this.conlog.log(params);
     this.gridApi.sizeColumnsToFit();
   }
 

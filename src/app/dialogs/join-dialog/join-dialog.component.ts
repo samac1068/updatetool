@@ -22,8 +22,7 @@ export class JoinDialogComponent implements OnInit {
   //Local Global Variables
   operators: string[] = [];
   msgarr: string = "";
-
-  joinclausearr: Join[] = [];    //Maintains all of the various joins for this tab
+  joinclausearr: Join[] = [];    //Maintains the various joins for this tab
 
   // List of temporary holding variables
   tleftdbarr: any[] = [];
@@ -32,14 +31,12 @@ export class JoinDialogComponent implements OnInit {
   tleftcolumn: string = "";
   tlefttblarr: any[] = [];
   tleftcolarr: Column[] = [];
-
   trightdbarr: any[] = [];
   trightdb: string = "";
   trighttable: string = "";
   trightcolumn: string = "";
   trighttblarr: any[] = [];
   trightcolarr: Column[] = [];
-
   tjtype: string = "LEFT JOIN";
   tjop: string = "=";
   tjoinid: number = -1;
@@ -47,12 +44,12 @@ export class JoinDialogComponent implements OnInit {
   useDefault: boolean = false;
 
   constructor(public dialogRef: MatDialogRef<JoinDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: Tab, private store: StorageService,
-  private ws: DataService, private dialogBox: ConfirmationDialogService, private comm: CommService, private conlog: ConlogService) { }
+              private ws: DataService, private dialogBox: ConfirmationDialogService, private comm: CommService, private conlog: ConlogService) { }
 
   ngOnInit() {
       // Get the stored information from the tab
       this.server = this.store.system['webservice']['locale'];
-      this.serverfull = this.store.returnColByStringKey(this.store.system['servers'], 'id', this.server, 'offName');
+      this.serverfull = this.store.getSystemValue("server");
       this.tleftdbarr = this.trightdbarr = this.store.getSystemValue('databases')
       this.operators = this.store.operators;
       this.joinclausearr = this.data.joinarr;
@@ -71,62 +68,13 @@ export class JoinDialogComponent implements OnInit {
     return -1;
   }
 
-  identifyLimitSide(side: string){
-    let tbl = (side === "left") ? this.tlefttable : this.trighttable;
-    let i: number;
-    let found: boolean = false;
-
-    if(this.joinclausearr.length > 0) {
-      // Search for the table
-      for(i = 0; i < this.joinclausearr.length; i++) {
-        if(this.joinclausearr[i].tableleft == tbl || this.joinclausearr[i].tableright == tbl) {
-          found = true;
-          break;
-        }
-      }
-
-      if(!found) {
-        //We need to limit the database and tables on the remaining side - Only display those items currently available in the join
-        let dbarr = [];
-        let tblarr = [];
-
-        for(i = 0; i < this.joinclausearr.length; i++) {
-
-          // Add the databases to the temp arr
-          if(this.store.findIndexByValue(dbarr, 'id', this.joinclausearr[i].dbleft) == -1)
-            dbarr.push({id: this.joinclausearr[i].dbleft});
-
-          if(this.store.findIndexByValue(dbarr, 'id', this.joinclausearr[i].dbright) == -1)
-            dbarr.push({id: this.joinclausearr[i].dbright});
-
-          // Add the table to the temp arr
-          //console.log('tblarr length - before:  ' + tblarr.length);
-          if(this.store.findIndexByValue(tblarr, 'id', this.joinclausearr[i].tableleft) == -1)
-            tblarr.push({Name: this.joinclausearr[i].tableleft});
-
-          //console.log("tblarr length - after:  " + tblarr.length);
-          if(this.store.findIndexByValue(tblarr, 'id', this.joinclausearr[i].tableright) == -1)
-            tblarr.push({Name: this.joinclausearr[i].tableright});
-        }
-
-        // With the list created, now assign them to the appropriate dropdown
-        if(side == 'left') {
-          this.tleftdbarr = dbarr;
-          this.tlefttblarr = tblarr;
-        } else {
-          this.trightdbarr = dbarr;
-          this.trighttblarr = tblarr;
-        }
-      }
-    }
-  }
-
   checkForDefaults(){
     if(this.joinclausearr.length == 0) {
       this.useDefault = true;
       this.tleftdb = this.data.database;
       this.tlefttable = this.data.table.name;
-      this.getAvailableTables('left');
+
+      this.getAvailableTables("left");
       this.getAvailableColumns('left');
     }
   }
@@ -135,10 +83,10 @@ export class JoinDialogComponent implements OnInit {
   getAvailableTables(side: string){
     this.msgarr = "";
 
-    this.ws.getTableDBList(
-      this.serverfull.replace('{0}',
-        (side == "left") ? this.store.getSelectedDBName(this.tleftdb) : this.store.getSelectedDBName(this.trightdb)),
-      (side == "left") ? this.store.getSelectedDBName(this.tleftdb) : this.store.getSelectedDBName(this.trightdb))
+    const serverinfo = (side == "left") ? this.store.getSelectedDBName(this.tleftdb) : this.store.getSelectedDBName(this.trightdb);
+    const dbinfo = (side == "left") ? this.store.getSelectedDBName(this.tleftdb) : this.store.getSelectedDBName(this.trightdb);
+
+    this.ws.getTableDBList( this.serverfull.replace('{0}', serverinfo), dbinfo)
     .subscribe((results) => {
 //  headleyt:  20210218  Added a check on the size of the joinclausearr to see if there are 5 rows already.  If there are 5 rows already, no more can be added
       if (this.joinclausearr.length >= 5){
@@ -174,10 +122,9 @@ export class JoinDialogComponent implements OnInit {
       });
     }
     else {
-
- //  headleyt:  20210218  Based on what side is being populated, clearing out the table array before to it to prevent the previous
- //     table selection columns from being available in the column list
-      if (side === "left") this.tleftcolarr = []; else this.trightcolarr = [];
+      /* headleyt:  20210218  Based on what side is being populated, clearing out the table array before to prevent the previous table selection
+      columns from being available in the column list */
+      (side == "left") ? this.tleftcolarr = [] : this.trightcolarr = [];
 
       this.ws.getTableProperties(this.serverfull.replace('{0}',
         (side == "left") ? this.store.getSelectedDBName(this.tleftdb) : this.store.getSelectedDBName(this.trightdb)),
@@ -198,21 +145,10 @@ export class JoinDialogComponent implements OnInit {
             r.charfulllength = row.CharFullLength;
 
             //Shove into the appropriate columns side
-            if(side == "left")
-              this.tleftcolarr.push(r);
-            else
-              this.trightcolarr.push(r);
+            (side == "left") ? this.tleftcolarr.push(r) : this.trightcolarr.push(r);
           }
         });
     }
-  }
-
-  doesDatabaseExistInArr(db: string) {
-    return (this.store.findObjByValue(this.data.databasearr, 'name', db) > -1);
-  }
-
-  doesTableExistInArr(tbl: string) {
-    return (this.store.findObjByValue(this.data.tablearr,'Name', tbl) > -1);
   }
 
   resetAllFields() {
@@ -315,7 +251,7 @@ export class JoinDialogComponent implements OnInit {
   }
 
   editJoinItem(itemid: number = -1) {
-    //Populate this items which will update the select fields
+    //Populate these items which will update the select fields
     let temp: Join = this.joinclausearr[this.findIndexByID(itemid)];
 
     this.tleftdb = temp.dbleft;

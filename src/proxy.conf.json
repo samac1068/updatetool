@@ -1,0 +1,7 @@
+{
+  "/UserW/*": {
+    "target": "http://localhost:64813",
+    "secure": false,
+    "logLevel": "debug"
+  }
+}

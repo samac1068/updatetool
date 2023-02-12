@@ -95,7 +95,7 @@ export class BannerComponent implements OnInit {
   }
 
   confirmDisplayWhatsNew() {
-    if((this.store.getVersion() > this.user.lastversion))
+    if((this.store.getVersion() > this.user.lastversion) || this.user.lastversion == null)
       this.displayWhatsNew();
   }
 
@@ -103,8 +103,7 @@ export class BannerComponent implements OnInit {
     // Only display if the stored build version is greater than the user version
     let builds: any = this.store.getSystemValue('build');
     if(builds != undefined) { // Ignore this entire process if the build information is not retrieved.
-      if (builds[0].BuildVersion > this.user.lastversion || requested) {
-
+      if ((builds[0].BuildVersion > this.user.lastversion || this.user.lastversion == null) || requested) {
         //Display the What's new page if there is something new since the last time it was checked.
         const dialogBannerRef = this.dialog.open(WhatsnewDialogComponent, {
           width: '700px', height: '550px', autoFocus: true, data: this.user

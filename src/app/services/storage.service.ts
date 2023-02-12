@@ -12,10 +12,10 @@ import {ConlogService} from '../modules/conlog/conlog.service';
 export class StorageService {
 
   // Variables to store all the global data
-  private _appKey = 'MMA';
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
+  private _devKey = "4c7a4455fdab4fb8228748fd7702d245";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.23.0105 (Doc: 1.10)';
+  private _appVersion = '2.23.0212 (Doc: 1.6)';
   private _inDev: boolean = false;
 
   // Public
@@ -68,12 +68,12 @@ export class StorageService {
     return this.user;
   }
 
-  getAppKey() {
-    return this._appKey;
-  }
-
   getPassKey() {
     return this._passKey;
+  }
+
+  getDevKey() {
+    return this._devKey;
   }
 
   getConnectID() {
@@ -122,13 +122,14 @@ export class StorageService {
     return null;
   }
 
-  returnColByStringKey(arr: any, key: any, value: any, rtncol: string){
+  returnColByStringKey(arr: any, key: any, value: any, rtncol: string, def: string = "null"){
     for (let i = 0; i < arr.length; i++) {
       if (arr[i][key].toLowerCase() === value.toLowerCase()) {
           return arr[i][rtncol];
       }
     }
-    return null;
+
+    return (def != "null") ? def : null;
   }
 
   searchArr(arr: any, value: any): number {
@@ -171,17 +172,11 @@ export class StorageService {
     return (this.dbNumericals.find(x => x == vartype) == undefined) ? "'" + value + "'" : value;
   }
 
-  //  headleyt:  20210107 added this function to return the altername db name if it has one.
+  //  headleyt:  20210107 added this function to return the altername db name if it has one. | sam 20230212: Updated code to perform same task with less lines.
   getSelectedDBName(dbname: string)
   {
-    for (let x = 0; x < this.system.databases.length; x++){
-        let obj = this.system.databases[x];
-        if (obj.id == dbname) {
-          if (obj.altname != null)
-          dbname = obj.altname;
-        }
-    }
-    return dbname;
+    const obj = this.system.databases.find(x => x.id == dbname && x.altname != null);
+    return (obj == undefined) ? dbname : obj.altname;
   }
 
   getParamValueQueryString( paramName: string ) {

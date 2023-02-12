@@ -68,7 +68,7 @@ export class ServersComponent implements OnInit {
   }
 
   onServerChanges() {
-    this.store.setSystemValue("server", this.store.returnColByStringKey(this.servers, 'id', this.defaultServer, 'offName'));  //returnColByStringKey
+    this.store.setSystemValue("server", this.store.returnColByStringKey(this.servers, 'id', this.defaultServer, 'offName', "{0}"));  //returnColByStringKey
     this.store.setSystemValue("servername", this.defaultServer);
     const results = this.config.getServerConfig();
     this.store.setSystemValue('databases', results.databases);
