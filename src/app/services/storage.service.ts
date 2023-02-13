@@ -15,7 +15,7 @@ export class StorageService {
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _devKey = "4c7a4455fdab4fb8228748fd7702d245";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.23.0212 (Doc: 1.6)';
+  private _appVersion = '2.23.0213 (Doc: 1.6)';
   private _inDev: boolean = false;
 
   // Public
@@ -231,5 +231,17 @@ export class StorageService {
     }
 
     return wn;
+  }
+
+  checkStringForNullOrEmpty(str: any): boolean {
+    if(str === null) return false;
+    return str.trim().length == 0 || typeof str !== "string";
+  }
+
+  checkForNull(str:string): string {
+    if(str !== null)
+      return str.length == 0 ? "" : str;
+
+    return "";
   }
 }

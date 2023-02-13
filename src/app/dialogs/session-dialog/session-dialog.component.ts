@@ -6,7 +6,7 @@ import {DataService} from '../../services/data.service';
 import {ConlogService} from '../../modules/conlog/conlog.service';
 import {SelectionModel} from '@angular/cdk/collections';
 import {Session} from '../../models/Session.model';
-import {ColDef, GridApi, SelectionChangedEvent} from 'ag-grid-community'
+import {ColDef, GridApi } from 'ag-grid-community'
 
 function dateFormatter(dt: any) {
   let dtpart = dt.split("T");
@@ -26,7 +26,7 @@ export class SessionDialogComponent implements OnInit {
   selectedUsers: any = [];
   columnDefs: any[] = [
     {field: 'CUTID', headerName: 'CUTID', width: 120},
-    {field: 'username', headerName: 'UserName'},
+    {field: 'Username', headerName: 'UserName'},
     {field: 'FirstName', headerName: 'First Name'},
     {field: 'LastName', headerName: 'Last Name'},
     {field: 'ActiveSessionDate', headerName: 'Session Date', valueFormatter: (params: any) => dateFormatter(params.data.ActiveSessionDate)}
@@ -60,7 +60,7 @@ export class SessionDialogComponent implements OnInit {
     this.gridApi = params.api;
   }
 
-  onSelectionChange(event: SelectionChangedEvent) {
+  onSelectionChange() {  //event: SelectionChangedEvent
     this.selectedUsers = this.gridApi.getSelectedRows();
   }
 

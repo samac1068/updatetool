@@ -37,7 +37,7 @@
           <tr style="height: 25px">
             <td style="width: 60%">
               <label for="userid">User ID: </label>
-              <input class="myformscontrols" id="userid" style="width: 100px" formControlName="userid">
+              <input class="myformscontrols" id="userid" style="width: 100px" formControlName="userid" readonly="readonly">
             </td>
             <td>
               <label for="isadmin" style="margin-right: 5px" >Is Admin:</label>
@@ -77,7 +77,7 @@
       <span class="subtitle">Navigation Buttons</span>
       <div>
         <button class="standardRedBtn" style="width: 95%; margin-left: 10px; margin-bottom: 3px;" (click)="resetForm()" [disabled]="!formPopulated()">Reset Form</button>
-        <button class="standardGreenBtn" style="width: 95%; margin-left: 10px; margin-bottom: 3px;" (click)="addEditSelectUser()" [disabled]="!validateData">{{ buttonLbl }}</button>
+        <button class="standardGreenBtn" style="width: 95%; margin-left: 10px; margin-bottom: 3px;" (click)="addEditSelectUser()" >{{ buttonLbl }}</button>  <!--[disabled]="!validateData" -->
         <button class="standardGreenBtn" style="width: 95%; margin-left: 10px" (click)="closeDialog()">Close</button>
       </div>
     </div>

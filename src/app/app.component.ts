@@ -65,7 +65,11 @@ export class AppComponent implements OnInit {
     this.conlog.log("Network: " + this.store.system['webservice']['network']);
 
     if(this.store.isDevMode() || this.store.system['webservice']['network'] == 'sipr') {
-      this.conlog.log("Executing in DevMode or on a SIPR Network, attempting to generate local token");
+      // Adding clarify log comments, so we know the difference during testing.
+      if(this.store.isDevMode())
+        this.conlog.log("Executing in DevMode, attempting to generate local token");
+      else
+        this.conlog.log("Executing on a simulated SIPR Network, attempting to generate local token");
 
       if (this.urlToken == "" || this.urlToken == undefined) {
         this.data.getLocalToken("sean.mcgill")  // Generate a token at this point and introduce it into the application.  - This is used for development only
@@ -167,28 +171,30 @@ export class AppComponent implements OnInit {
       if(results[0] != undefined) {
         let row: any = results[0];
         if(results[0].UserID != -9) {
-          this.store.setUserValue("fname", row["FirstName"]);
-          this.store.setUserValue("lname", row["LastName"]);
-          this.store.setUserValue("appdata", row["AppData"]);
-          this.store.setUserValue("lastversion", row["UpdateVersion"]);
-          this.store.setUserValue("lastversiondt", row["UpdateDate"]);
-          this.store.setUserValue("lastlogin", row["LastLogIn"]);
-          this.store.setUserValue("curlogin", row["CurrentLogIn"]);
-          this.store.setUserValue("userid", row["UserID"]);
-          this.store.setUserValue("priv", row["Priv"]);
+          this.store.setUserValue("fname", this.store.checkForNull(row["FirstName"]));
+          this.store.setUserValue("lname", this.store.checkForNull(row["LastName"]));
+          this.store.setUserValue("appdata", this.store.checkForNull(row["AppData"]));
+          this.store.setUserValue("lastversion", this.store.checkForNull(row["UpdateVersion"]));
+          this.store.setUserValue("lastversiondt", this.store.checkForNull(row["UpdateDate"]));
+          this.store.setUserValue("lastlogin", this.store.checkForNull(row["LastLogIn"]));
+          this.store.setUserValue("curlogin", this.store.checkForNull(row["CurrentLogIn"]));
+          this.store.setUserValue("userid", this.store.checkForNull(row["UserID"]));
+          this.store.setUserValue("priv", this.store.checkForNull(row["Priv"]));
 
           this.store.setUserValue("servername", this.store.system['webservice']['type'].toUpperCase());
           this.store.setUserValue("server", '{0}');
 
           // In many cases, the network information will be the old version, but instead of modifying it, we are now just ignoring everything but the preferred database
-          if(row["Network"].indexOf("|") > -1 && row["Network"].indexOf("#") > -1) {
-            let n: any = row["Network"].split("|");
-            if (n[1] == undefined) n[1] = n[0];
-            let p: any = n[1].split("#");
-            this.store.setUserValue("database", p[1]);
-          } else {
-            // Use the new network system information
-            this.store.setUserValue("database", row["Network"]);
+          if(this.store.checkForNull(row["Network"]).length > 0) {
+            if (row["Network"].indexOf("|") > -1 && row["Network"].indexOf("#") > -1) {
+              let n: any = row["Network"].split("|");
+              if (n[1] == undefined) n[1] = n[0];
+              let p: any = n[1].split("#");
+              this.store.setUserValue("database", p[1]);
+            } else {
+              // Use the new network system information
+              this.store.setUserValue("database", row["Network"]);
+            }
           }
 
           //Signal that user data has been loaded

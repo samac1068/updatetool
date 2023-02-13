@@ -13,12 +13,6 @@
     if(browserAgent) window.location.href ="./unsupportedBrowser.html";
   </script>
 
-  <!--  Not sure why these were added but, don't want any external links - If the information can be downloaded and embedded into the app, then it will be used.
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  -->
-
 </head>
 <body class="mat-typography">
   <script>
@@ -28,12 +22,13 @@
       str.replace("/", "");
     }
 
-    let jstr = "";
+    let jstr;
     let token = window.location.href.split("=")[1];
 
     if (token !== undefined)
     {
       evalStr(token);
+      // noinspection HtmlUnknownAttribute
       jstr = `<app-root token='${token}'></app-root>`;
     }
     else

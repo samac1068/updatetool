@@ -58,6 +58,7 @@ export class OptionsDialogComponent implements OnInit {
     this.user.database = this.userDB;
     this.store.setUserValue("appdata", this.userFormat + this.store.getUserValue("appdata").substring(1));
     this.user.appdata = this.store.getUserValue("appdata");
+    this.user.network = this.user.servername + "|{0}#" + this.user.database;
     this.closeDialog();
     this.conlog.log("saveUpdatedOptions");
   }

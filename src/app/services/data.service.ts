@@ -242,6 +242,7 @@ export class DataService {
       lastname: user.lname,
       server: user.servername,
       database: user.database,
+      network: user.network,
       appdata: user.appdata,
       userid: user.userid
     };
@@ -298,7 +299,7 @@ export class DataService {
       network: ad.network,
       database: ad.database,
       version: ad.version,
-      isadmin: ad.isadmin
+      isadmin: (ad.isadmin) ? 1 : 0
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/QtAdminManager`, reqbody)
       .pipe(catchError(this.errorHandler), tap(this.customErrHandler));

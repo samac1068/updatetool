@@ -18,14 +18,15 @@ import {ColDef, GridApi} from 'ag-grid-community'
 export class UsermgrDialogComponent implements OnInit {
 
   assignedUser: any = [];
-  colHeader!: string[];
+  //colHeader!: string[];
   columnDefs: any[] = [{field: 'userid', headerName: 'UID', width: 80}, {field: 'username', headerName: 'UserName'}];
   defColDefine: ColDef = { sortable: true, filter: true, resizable: true, autoHeaderHeight: true };
   gridHeaderHeight: number = 22;
   gridRowHeight: number = 22;
   gridApi!: GridApi;
+  isManEntry: boolean = true;
   selectedData: any;
-  displayedColumns: string[] = ['select', 'UserID', 'Username'];
+  //displayedColumns: string[] = ['select', 'UserID', 'Username'];
   mgrGrp!: FormGroup;
   availDatabase: any = [];
   adminItem: Admin = new Admin();
@@ -86,9 +87,12 @@ export class UsermgrDialogComponent implements OnInit {
   }
 
   purgeLogs():void {
-    let obj = new Admin()
+    let obj = new Admin();
+    let d = new Date();
+    d.setDate(d.getDate() - 365);
     obj.action = 'purgelogs';
-    this.data.adminManager(obj).subscribe(() => { this.conlog.log("purge logs complete"); this.store.generateToast("QT Logs have been purged");});
+    obj.purgedate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear();
+    this.data.adminManager(obj).subscribe(() => { this.conlog.log("purge logs complete from date '" + obj.purgedate + "'"); this.store.generateToast("QT Logs have been purged up to '" + obj.purgedate + "'");});
   }
 
   purgeCUTDuplicates():void {
@@ -103,28 +107,29 @@ export class UsermgrDialogComponent implements OnInit {
   }
 
   purgeSelectedUsers() {
-    let useridstr: any = [];
+    let useridarr:any = [];
 
-    // Get the id's of the selected
-    this.selection.selected.forEach((item: any) => {
-      useridstr.push(item.UserID);
+    this.selectedData.forEach( (r:any) => {
+      useridarr.push(r.userid);
     });
 
     let obj = new Admin()
     obj.action = 'removeusers';
-    obj.useridstr = useridstr.join();
+    obj.useridstr = useridarr.join();
     this.data.adminManager(obj).subscribe(() => {
       this.store.generateToast("Selected user's access has been removed.");
       this.selection.clear();
+      this.resetForm();
       this.getQTUserList();
     });
   }
 
   evalUpdateButton() {
-    this.buttonLbl = (this.selectUser.userid > -1) ? "Update" : "Add";
+    this.buttonLbl = (this.selectUser != undefined) ? "Update" : "Add";
   }
 
   onSelectionChange() {
+    this.isManEntry = false;
     this.selectedData = this.gridApi.getSelectedRows();
 
     if(this.selectedData.length == 1) {
@@ -165,6 +170,8 @@ export class UsermgrDialogComponent implements OnInit {
   resetForm() {
     this.selectUser = null;
     this.mgrGrp.reset();
+    this.isManEntry = true;
+    this.evalUpdateButton();
   }
 
   addEditSelectUser() {
@@ -174,22 +181,28 @@ export class UsermgrDialogComponent implements OnInit {
     this.selectUser.username = this.mgrGrp.controls.username.value;
     this.selectUser.firstname = this.mgrGrp.controls.firstname.value;
     this.selectUser.lastname = this.mgrGrp.controls.lastname.value;
-    this.selectUser.version = this.store.getVersion().substr(0, this.store.getVersion().indexOf(" ") - 1);
+    this.selectUser.version = "2.0"; //this.store.getVersion().substr(0, this.store.getVersion().indexOf(" ") - 1);
     this.selectUser.network = this.curUser.servername + "|" + this.curUser.server;
     this.selectUser.database = this.mgrGrp.controls.database.value;
     this.selectUser.action = (this.selectUser.userid == 0) ? 'adduser' : 'edituser';
     this.conlog.log(this.selectUser);
 
-    //Send the information to the database
-    this.data.adminManager(this.selectUser)
-      .subscribe(() => {
-          this.store.generateToast((this.selectUser.userid == 0) ? "The new user has been added to the system." : "The user's information has been updated.");
-          this.resetForm();
-          this.getQTUserList();
-      },
-        err => {
-          alert("There was an error while attempt to update this information. Error:" + err);
-        });
+    // Make sure we have the data needed to add a new user, at the least
+    if(!this.store.checkStringForNullOrEmpty(this.selectUser.username) &&
+        !this.store.checkStringForNullOrEmpty(this.selectUser.firstname) &&
+        !this.store.checkStringForNullOrEmpty(this.selectUser.lastname) &&
+        !this.store.checkStringForNullOrEmpty(this.selectUser.database)) {
+      //Send the information to the database
+      this.data.adminManager(this.selectUser)
+        .subscribe(() => {
+            this.store.generateToast((this.selectUser.userid == 0) ? "The new user has been added to the system." : "The user's information has been updated.");
+            this.resetForm();
+            this.getQTUserList();
+          },
+          err => {
+            alert("There was an error while attempt to update this information. Error:" + err);
+          });
+    } else alert("You did not provide enough data to complete this request. Please review the form and try again.");
   }
 
   /*isAllSelected() {

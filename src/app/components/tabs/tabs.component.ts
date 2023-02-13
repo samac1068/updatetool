@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Tab } from '../../models/Tab.model';
 import { StorageService } from '../../services/storage.service';
 import { CommService } from '../../services/comm.service';
@@ -71,9 +71,9 @@ export class TabsComponent implements OnInit {
       tabCont.database = this.store.getSelectedDBName(this.store.getSystemValue("database"));
     }
 
+    tabCont.tabtitle = tabCont.database.toUpperCase() + ((queryid != undefined) ? " - [SVD QRY]" : "");
     tabCont.databasearr = [];
     tabCont.databasearr.push({id: tabCont.databasearr.length + 1, name: tabCont.database });
-    tabCont.tabtitle = tabCont.database.toUpperCase();
     tabCont.tablearr = [];
     tabCont.availcolarr = [];
     tabCont.active = false;
