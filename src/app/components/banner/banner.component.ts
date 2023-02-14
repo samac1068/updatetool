@@ -95,7 +95,8 @@ export class BannerComponent implements OnInit {
   }
 
   confirmDisplayWhatsNew() {
-    if((this.store.getVersion() > this.user.lastversion) || this.user.lastversion == null)
+    let sysversion = this.store.getVersion().split(" ")[0];
+    if((sysversion > this.user.lastversion) || this.user.lastversion == null)
       this.displayWhatsNew();
   }
 

@@ -105,6 +105,17 @@ export class QueryResultComponent implements OnInit {
     this.colHeader = [];
   }
 
+  checkForTableInJoinsArr(tblNm: string): boolean {
+    let isFound: boolean = false;
+
+    this.tabinfo.joinarr.forEach((join: any) => {
+      if(join.dbleft == tblNm || join.dbright == tblNm) {
+        isFound = true;
+      }
+    });
+
+    return isFound;
+  }
   preloadUserSelectedColumns() {
     // This is used to return any previously selected column list for the selected table
     let storedColumns: any = this.store.getUserValue('storedcolumns');
@@ -112,6 +123,21 @@ export class QueryResultComponent implements OnInit {
     // Identify all preselected preferred columns for this table
     if(storedColumns != null) {
       let columnListArr: any = storedColumns.filter((row: any) => row.TableName.toUpperCase() == this.tabinfo.table.name.toUpperCase() && row.RType == 'C');
+
+      // Before finalizing the list, make sure associated TABLES are support eithin JOIN statement or PRIMARY table.
+      console.log(this.tabinfo.joinarr);
+      let newArr: any = [];
+      let columnArr = columnListArr[0].ColumnNames.split(",");
+      if(columnArr.length > 0){
+        for(let i = 0; i < columnArr.length; i++) {
+          const tbl = columnArr[i].split(".")[0];
+          if(this.tabinfo.table.name == tbl || this.checkForTableInJoinsArr(tbl))
+            newArr.push(columnArr[i]);
+        }
+
+        // Updating what is now available for the ColumnNames list
+        columnListArr[0].ColumnNames = newArr.join();
+      }
 
       // If there is a return, then populate the associated variable, otherwise, leave as is
       if (columnListArr.length == 1) {
@@ -501,8 +527,8 @@ export class QueryResultComponent implements OnInit {
       .subscribe((results) => {
         if(results[0]["ErrType"] != undefined){
           // We received an error from the sql statement and could not execute.  Popup the error and stop the processing
-          alert("Received an error from the SQL Execution:\n" + results[0]["Message"]);
           this.loadingQuery = false;
+          alert("Received an error from the SQL Execution:\n" + results[0]["Message"]);
         } else
           this.processReturnedData(results);
       });
