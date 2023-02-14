@@ -35,10 +35,8 @@ export class SessionDialogComponent implements OnInit {
   gridHeaderHeight: number = 22;
   gridRowHeight: number = 22;
   gridApi!: GridApi;
-
   listLoaded: boolean = false;
   selection = new SelectionModel<Session>(true, []);
-  displayedColumns: string[] = ['select', 'CUTID', 'FirstName', 'Username', 'LastName', 'ActiveSessionDate'];
   txtSearch: string = "";
 
   constructor(private dialogRef: MatDialogRef<SessionDialogComponent>, private fb: FormBuilder, public store: StorageService, private data: DataService, private conlog: ConlogService) {

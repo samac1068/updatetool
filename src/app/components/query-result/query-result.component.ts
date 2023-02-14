@@ -210,7 +210,6 @@ export class QueryResultComponent implements OnInit {
       if (this.tabinfo.wherearrcomp.length > 0) {
         strSQL += this.constructWhereClause(true);
         displayStrSQL += this.constructWhereClauseSentence();
-        //console.log("after where clause, after join:  " + strSQL);
       }
 
       // Order By
@@ -260,7 +259,7 @@ export class QueryResultComponent implements OnInit {
   //headley:  20210115  Integrating Sean's fixes for suspicious code; added parameter
   constructWhereClause(forDisplay: boolean){
     //Manually join the where clause adding in the appropriate conditioning statements
-    let wStr: string = "WHERE ";
+    let wStr: string = " WHERE ";
     for(let i = 0; i < this.tabinfo.wherearrcomp.length; i++){
       let row: any = this.tabinfo.wherearrcomp[i];
 
@@ -314,7 +313,7 @@ export class QueryResultComponent implements OnInit {
 
   constructWhereClauseSentence(){
     //Manually join the where clause adding in the appropriate conditioning statements
-    let wStr: string = "where ";
+    let wStr: string = " where ";
     for(let i = 0; i < this.tabinfo.wherearrcomp.length; i++){
       let row: any = this.tabinfo.wherearrcomp[i];
 
@@ -400,7 +399,7 @@ export class QueryResultComponent implements OnInit {
   }
 
   constructOrderBy() {
-    let oStr: string = "ORDER BY ";
+    let oStr: string = " ORDER BY ";
 
     for (let i = 0; i < this.tabinfo.orderarr.length; i++){
       if(i > 0) oStr += ", ";
@@ -500,7 +499,12 @@ export class QueryResultComponent implements OnInit {
     this.data.getQueryData(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table.name,
     col, where, join, order, count, lmtRow, this.tabinfo.selectcnt, this.store.user.username, distinct)
       .subscribe((results) => {
-        this.processReturnedData(results);
+        if(results[0]["ErrType"] != undefined){
+          // We received an error from the sql statement and could not execute.  Popup the error and stop the processing
+          alert("Received an error from the SQL Execution:\n" + results[0]["Message"]);
+          this.loadingQuery = false;
+        } else
+          this.processReturnedData(results);
       });
   }
 

@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, throwError} from 'rxjs';
-
 import {StorageService} from './storage.service';
-import {catchError, tap} from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import {Admin} from '../models/Admin.model';
 import {ConlogService} from '../modules/conlog/conlog.service';
 import {User} from '../models/User.model';
@@ -15,40 +14,37 @@ export class DataService {
   constructor(private http: HttpClient, private store: StorageService, private conlog: ConlogService) {
   }
 
-  private getWSPath(): string {
+  private getWSPath(): string { // This updates the relative path depending on running locally or on a server.
     return (this.store.system['webservice']['locale'] == 'production') ? "/querytool/api" : "";
   }
 
   private errorHandler(error: any) {
     let errorMessage: string = "";
-    let errorDetails: string = (error.error instanceof ErrorEvent) ? `(Client Error: ${error.error.message})` : `(Server Error: ${error.status}\nMessage: ${error.message})`;
 
-    switch(error.status){
-      case 504:  //Gateway Timeout Error
-        errorMessage = `${error.status}: Gateway Timeout Error.\n${errorDetails}`;
-        break;
-      case 500:   // Internal Server Error
-        errorMessage = `The access entry key is now invalid. It is not recommended to use the refresh page at anytime while using this application.  You must close this tab and open from DAMPS-Orders.\n${errorDetails}`;
-        break;
-      case 401:   // Unauthorized Error
-      case 403:   // Forbidden Error
-        errorMessage = `Your access cannot be validated, therefore, you are not permitted to use this application.\n${errorDetails}`;
-        break;
-      case 404:   // Page not Found Error
-        errorMessage = `Somehow the yellow brick road has disappeared.  Please return to the hosting application and try again. We apologize for the inconvenience.\n${errorDetails}`;
-        break;
+    if(error["errmess"] != null) {
+      errorMessage = error["errmess"];
+    } else {
+      let errorDetails: string = (error.error instanceof ErrorEvent) ? `(Client Error: ${error.error.message})` : `(Server Error: ${error.status}\nMessage: ${error.message})`;
+
+      switch (error.status) {
+        case 504:  //Gateway Timeout Error
+          errorMessage = `${error.status}: Gateway Timeout Error.\n${errorDetails}`;
+          break;
+        case 500:   // Internal Server Error
+          errorMessage = `The access entry key is now invalid. It is not recommended to use the refresh page at anytime while using this application.  You must close this tab and open from DAMPS-Orders.\n${errorDetails}`;
+          break;
+        case 401:   // Unauthorized Error
+        case 403:   // Forbidden Error
+          errorMessage = `Your access cannot be validated, therefore, you are not permitted to use this application.\n${errorDetails}`;
+          break;
+        case 404:   // Page not Found Error
+          errorMessage = `Somehow the yellow brick road has disappeared.  Please return to the hosting application and try again. We apologize for the inconvenience.\n${errorDetails}`;
+          break;
+      }
     }
-
-    alert(errorMessage);
-    this.conlog.log(errorMessage);
-    return throwError(errorMessage);
-  }
-
-  private customErrHandler(item: any){
-    if(item["errmess"] != null) {
-      alert(item["errmess"]);
-      this.conlog.log(item["errmess"]);
-    }
+      alert(errorMessage);
+      this.conlog.log(errorMessage);
+      return throwError(errorMessage);
   }
 
   /** Get the user information from the server **/
@@ -59,7 +55,7 @@ export class DataService {
       username: username
     };
     return this.http.post<string>(`${this.getWSPath()}/UserW/RequestLocalToken`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
  /* closeTokenSession(): Observable<any> {
@@ -79,7 +75,7 @@ export class DataService {
       tokensid: token
     };
     return this.http.post(`${this.getWSPath()}/UserW/ValidateUserToken`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   //Second service called to pull in the user's specific information which is required for set up of the individual pages
@@ -91,7 +87,7 @@ export class DataService {
       Username: this.store.getUserValue("username")
     };
     return this.http.post(`${this.getWSPath()}/UserW/GetUserInfo`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getUserSavedQueries(): Observable<any> {
@@ -102,13 +98,13 @@ export class DataService {
       userid: this.store.getUserValue("userid")
     };
     return this.http.post(`${this.getWSPath()}/UserW/GetUserSavedQueries`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getAppUpdates(): Observable<any> {
     this.conlog.log('getAppUpdates - From local JSON file');
     return this.http.get<[]>('assets/whatsnew.json')     // Pulling the update information from the local JSON file and not the database.
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   updateUserVersion(version: string): Observable<any> {
@@ -120,7 +116,7 @@ export class DataService {
       version: version
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/UpdateUserDate`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getTableDBList(server: string, db: string) {
@@ -132,7 +128,7 @@ export class DataService {
       database: db
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetDbTableList`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getQueryData(server: string, db: string, tbl: string, col: string, where: string, join: string, order: string, cnt: number, lmtrow: number, speccnt: string, username: string, usedistinct: number) {
@@ -154,7 +150,7 @@ export class DataService {
       usedistinct: usedistinct
     };
     return this.http.post(`${this.getWSPath()}/UserW/GetQueryData`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getTableProperties(server: string, db: string, tbl: string): Observable<any[]> {
@@ -167,7 +163,7 @@ export class DataService {
       tablename: tbl
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetTableProperties`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getStoreProcList(server: string, db: string) {
@@ -179,7 +175,7 @@ export class DataService {
       database: db
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetStoreProcList`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getStoredViewList(server: string, db: string) {
@@ -191,7 +187,7 @@ export class DataService {
       database: db
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetStoredViewList`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getStoredFunctionsList(server: string, db: string) {
@@ -203,7 +199,7 @@ export class DataService {
       database: db
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetStoredFunctionsList`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getStoredValues(server: string, db: string, itemname: string) {
@@ -216,7 +212,7 @@ export class DataService {
       procname: itemname
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/ReturnStr_StoredValues`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   executeQStr(queryid: number) {
@@ -227,7 +223,7 @@ export class DataService {
       queryid: queryid
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/CaptureQStr`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   addEditUpdateUserInfo(user: User) {
@@ -247,7 +243,7 @@ export class DataService {
       userid: user.userid
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/AddEditUpdateUserInfo`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   //  headleyt:  20210106  added a new parameter, qtype, to be added when the query is created
@@ -265,7 +261,7 @@ export class DataService {
       display: display
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/StoreUserQuery`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   updateRowInfo(server: string, db: string, table: string, updatekey: string, extwhere: string) {
@@ -280,7 +276,7 @@ export class DataService {
       extwhere: extwhere
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/UpdateRowInfo`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   adminManager(ad: Admin) {
@@ -302,7 +298,7 @@ export class DataService {
       isadmin: (ad.isadmin) ? 1 : 0
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/QtAdminManager`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getUserColumnSelection(userid: number) {
@@ -313,7 +309,7 @@ export class DataService {
       userid: userid
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetUserColumnSelections`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   updateUserColumnSelection(colObj: any) {
@@ -329,7 +325,7 @@ export class DataService {
       id: colObj.id
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/UpdateUserColumnSelection`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   clearUserDefinedPK(tablename: string) {
@@ -341,7 +337,7 @@ export class DataService {
       tablename: tablename
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/ClearUserDefinedPk`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 
   getResetPortalSession(action: string, cutidlist: string) {
@@ -353,7 +349,7 @@ export class DataService {
       cutidlist: cutidlist
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetResetActivePortalSessions`, reqbody)
-      .pipe(catchError(this.errorHandler), tap(this.customErrHandler));
+      .pipe(catchError(this.errorHandler));
   }
 }
 
