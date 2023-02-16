@@ -21,7 +21,7 @@
 
  */
 
-import {NgModule} from '@angular/core';
+import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 
 //Components
 import { AppComponent } from './app.component';
@@ -103,6 +103,9 @@ import { BoldSpanPipe } from './services/bold-span.pipe';
 
 // @ts-ignore
 @NgModule({
+  schemas: [
+    CUSTOM_ELEMENTS_SCHEMA
+  ],
   declarations: [
     AppComponent,
     BannerComponent,
