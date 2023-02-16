@@ -1,0 +1,43 @@
+.container {
+  overflow: hidden;
+  height: 100%;
+}
+
+.titlebar {
+  text-align: center;
+}
+
+.titletext {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.dragdrop {
+  width: 320px;
+  height: 320px;
+  outline: 1px solid black;
+}
+
+.col-box {
+  padding: 5px 35px;
+  border-bottom: solid 1px #ccc;
+  color: rgba(0, 0, 0, 0.87);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  cursor: move;
+  background: white;
+}
+
+.col-box:hover {
+  background: yellow;
+  font-weight: bold;
+}
+
+.buttongrp {
+  margin-top: 10px;
+  width: 320px;
+  height: 65px;
+}

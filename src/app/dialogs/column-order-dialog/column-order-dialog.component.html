@@ -1,0 +1,17 @@
+<div class="container">
+  <div class="titlebar">
+    <span class="titletext">Reorder Selected Columns</span>
+    <hr/>
+  </div>
+
+  <div class="dragdrop">
+    <div cdkDropList class="col-list" (cdkDropListDropped)="drop($event)">
+      <div class="col-box" style="font-size: 11px;" *ngFor="let col of selectColumnList" cdkDrag>{{ col }}</div>  <!-- <span [innerHTML]="col | boldSpan:regexStr"></span> -->
+    </div>
+  </div>
+
+  <div class="buttongrp">
+    <button id="btnAccept" class="standardGreenBtn" style="width: 80%; margin-left: 35px; margin-top:5px" title="Click to accept the order above." (click)="acceptChanges()">Accept Changes</button>
+    <button id="btnCancel" class="standardGreenBtn" style="width: 80%; margin-left: 35px; margin-top:3px" title="Click to use previous column order." (click)="closeDialog()">Cancel</button>
+  </div>
+</div>
