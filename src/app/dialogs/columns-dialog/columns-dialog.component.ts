@@ -1,11 +1,12 @@
 import { Column } from '../../models/Column.model';
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
 import { Tab } from 'src/app/models/Tab.model';
 import {ConfirmationDialogService} from '../../services/confirm-dialog.service';
 import {StorageService} from '../../services/storage.service';
 import {DataService} from '../../services/data.service';
 import {CommService} from '../../services/comm.service';
+import {ColumnOrderDialogComponent} from "../column-order-dialog/column-order-dialog.component";
 
 @Component({
   selector: 'app-columns-dialog',
@@ -18,9 +19,19 @@ export class ColumnsDialogComponent implements OnInit {
   distinctCol: string = "";
   chgMade: boolean = false;
   columnListArr: any;
+  _searchTerm!: string;
+  filteredColumns!: any[];
 
-  constructor(public dialogRef: MatDialogRef<ColumnsDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: Tab, private dialogBox: ConfirmationDialogService,
-              private store: StorageService, private api: DataService, private comm: CommService) {
+  get searchTerm(){
+    return this._searchTerm;
+  }
+
+  set searchTerm(value: string) {
+    this._searchTerm = value;
+    this.filteredColumns = this.filterColumns(value);
+  }
+
+  constructor(public dialogRef: MatDialogRef<ColumnsDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: Tab, private dialogBox: ConfirmationDialogService, private store: StorageService, private api: DataService, private comm: CommService, public dialog: MatDialog) {
     dialogRef.disableClose = true;
   }
 
@@ -33,15 +44,21 @@ export class ColumnsDialogComponent implements OnInit {
     }
 
     //Make sure to initialize this variable EACH time we come to this window
-    console.log(storedColumns, this.data.columns);
     if(this.data.columns.length > 0) {
       for (let i = 0; i < this.data.columns.length; i++) {
-        if (this.data.columns[i].selected || (this.columnListArr[0].ColumnNames.indexOf(this.data.columns[i].columnname) > -1)) {
+        let isDefCol: boolean = false;
+        if(this.columnListArr.length > 0)
+          isDefCol = this.columnListArr[0].ColumnNames.indexOf(this.data.columns[i].columnname) > -1;
+
+        if (this.data.columns[i].selected || isDefCol) {
           this.data.columns[i].selected = true;
           this.columnArr.push(this.data.columns[i].tablename.toUpperCase() + "." + this.data.columns[i].columnname.toUpperCase());
         }
       }
     } else this.store.generateToast("Application Error: No columns available.", false);
+
+    // Load the filtered array with the available data.column information
+    this.filteredColumns = this.data.columns;
 
     // Initialize the distinct column operator
     this.distinctCol = this.data.distinctcol;
@@ -73,6 +90,10 @@ export class ColumnsDialogComponent implements OnInit {
       this.chgMade = true;*/
   }
 
+  /*resetStoredColFilterArr() {
+    this.recordSelectedValues('remove');
+  }*/
+
   recordDistinctCol() {
     this.data.distinctcol = this.distinctCol;
   }
@@ -93,13 +114,22 @@ export class ColumnsDialogComponent implements OnInit {
     this.data.distinctcol = "";
   }
 
-  /*resetStoredColFilterArr() {
-    this.recordSelectedValues('remove');
-  }*/
+  filterColumns(filterTerm: string): any {
+    if(this.data.columns.length == 0 || this.searchTerm === '')
+      return this.data.columns;
+    else {
+      return this.data.columns.filter((col) => {
+        return col.columnname.toLowerCase().indexOf(filterTerm.toLowerCase()) > -1;
+      });
+    }
+  }
+  resetSearchTerm() {
+    this.searchTerm = "";
+  }
 
   closeDialog() {
-    // Make sure they want to close if they haven't apply the selection
-    if(this.chgMade) {
+    // Make sure they want to close if they haven't applied the selection
+    if(this.chgMade && this.columnArr.length > 0) {
       this.dialogBox.confirm('Cancel Confirmation', 'Do you want to save the selected column selections?','Yes','No')
         .then((confirmed) => {
           if(confirmed)
@@ -151,32 +181,53 @@ export class ColumnsDialogComponent implements OnInit {
     // Need to update or insert the values into the appropriate database
     let colSto:any = {};
 
-    colSto.action = action;
-    colSto.tablename = this.data.table.name;
-    colSto.columnnames = (action == 'remove') ? 'null' : this.columnArr.join();
-    colSto.distinctcol = (action == 'remove') ? 'null' : this.distinctCol;
-    colSto.id = (action == 'update' || action == 'remove') ? this.columnListArr[0].ID : null;
-    colSto.rtype = "C";
+    if((action == 'update' || action == 'remove') && this.columnListArr.length > 0) {
+      colSto.action = action;
+      colSto.tablename = this.data.table.name;
+      colSto.columnnames = (action == 'remove') ? 'null' : this.columnArr.join();
+      colSto.distinctcol = (action == 'remove') ? 'null' : this.distinctCol;
+      colSto.id = (action == 'update' || action == 'remove') ? this.columnListArr[0].ID : null;
+      colSto.rtype = "C";
 
-    // Call the database service
-    this.api.updateUserColumnSelection(colSto)
-      .subscribe(results => {
-        if(results) {
-          this.comm.reloadStoredColumnData.emit();
+      // Call the database service
+      this.api.updateUserColumnSelection(colSto)
+        .subscribe(results => {
+            if (results) {
+              this.comm.reloadStoredColumnData.emit();
 
-          this.store.getUserValue('storedcolumns').forEach((row: any, index: number) => {
-            if (row.TableName.toUpperCase() == this.data.table.name.toUpperCase() && row.Rtype == "C") {
-              this.store.getUserValue('storedcolumns').splice(index, 1);
-              return;
+              this.store.getUserValue('storedcolumns').forEach((row: any, index: number) => {
+                if (row.TableName.toUpperCase() == this.data.table.name.toUpperCase() && row.Rtype == "C") {
+                  this.store.getUserValue('storedcolumns').splice(index, 1);
+                  return;
+                }
+              });
+
+              this.store.generateToast('Your selection(s) have been stored.');
             }
+          },
+          error => {
+            alert("There was an error while attempt to store your column selection. [" + error + "]");
           });
+    }
+  }
 
-          this.store.generateToast('Your selection(s) have been stored.');
-        }
-      },
-        error => {
-          alert("There was an error while attempt to store your column selection. [" + error + "]");
+  orderColumns() {
+    // Used to allow users to reorder the display columns of only the selected customized columns - Open a new dialog
+    if(this.columnArr.length > 1) {
+      const dialogColOrder = this.dialog.open(ColumnOrderDialogComponent, {
+        width: '410px',
+        height: '500px',
+        autoFocus: true,
+        data: this.columnArr
       });
 
+      dialogColOrder.afterClosed()
+        .subscribe((newColOrder) => {   // We received a new column list
+          if(newColOrder != null) {
+            this.columnArr = newColOrder;
+          }
+
+      });
+    }
   }
 }

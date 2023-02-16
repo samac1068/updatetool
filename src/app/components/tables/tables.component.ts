@@ -1,10 +1,9 @@
 import { CommService } from '../../services/comm.service';
 import { DataService } from 'src/app/services/data.service';
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { Tab } from 'src/app/models/Tab.model';
 import { Table } from 'src/app/models/Table.model';
-import { StorageService } from '../../services/storage.service';
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -13,14 +12,13 @@ import { faRefresh } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./tables.component.css']
 })
 export class TablesComponent implements OnInit {
+
+  @Input() tabinfo!: Tab;
+
   faRefresh = faRefresh;
+   searchTerm!: string;
 
- @Input() tabinfo!: Tab;
-
- searchTerm!: string;
-
-
-  constructor(private data: DataService, private comm: CommService, private store:StorageService) { }
+  constructor(private data: DataService, private comm: CommService) { }
 
   ngOnInit() {
     //Listeners

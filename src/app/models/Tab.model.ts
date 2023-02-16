@@ -20,6 +20,7 @@ export class Tab {
   active!: boolean;
 
   tabtitle!: string;
+  tabAltText!: string;
   seltbllist!: Table[];  //list of table for the primary database
 
   querystr!: string;

@@ -119,30 +119,31 @@ export class QueryResultComponent implements OnInit {
   preloadUserSelectedColumns() {
     // This is used to return any previously selected column list for the selected table
     let storedColumns: any = this.store.getUserValue('storedcolumns');
+    let newArr: any = []; // Container for the allowed column names.
 
     // Identify all preselected preferred columns for this table
     if(storedColumns != null) {
       let columnListArr: any = storedColumns.filter((row: any) => row.TableName.toUpperCase() == this.tabinfo.table.name.toUpperCase() && row.RType == 'C');
 
       // Before finalizing the list, make sure associated TABLES are support eithin JOIN statement or PRIMARY table.
-      console.log(this.tabinfo.joinarr);
-      let newArr: any = [];
-      let columnArr = columnListArr[0].ColumnNames.split(",");
-      if(columnArr.length > 0){
-        for(let i = 0; i < columnArr.length; i++) {
-          const tbl = columnArr[i].split(".")[0];
-          if(this.tabinfo.table.name == tbl || this.checkForTableInJoinsArr(tbl))
-            newArr.push(columnArr[i]);
+      if(columnListArr.length > 0) {  // Only perform this step if the user previous saved a list of column favorites.
+        let columnArr = columnListArr[0].ColumnNames.split(",");
+        if (columnArr.length > 0) {
+          for (let i = 0; i < columnArr.length; i++) {
+            const tbl = columnArr[i].split(".")[0];
+            if (this.tabinfo.table.name == tbl || this.checkForTableInJoinsArr(tbl))
+              newArr.push(columnArr[i]);
+          }
+
+          // Updating what is now available for the ColumnNames list
+          columnListArr[0].ColumnNames = newArr.join();
         }
 
-        // Updating what is now available for the ColumnNames list
-        columnListArr[0].ColumnNames = newArr.join();
-      }
-
-      // If there is a return, then populate the associated variable, otherwise, leave as is
-      if (columnListArr.length == 1) {
-        this.tabinfo.colfilterarr = columnListArr[0].ColumnNames.split();
-        if (columnListArr[0].DistinctCol != null) this.tabinfo.distinctcol = columnListArr[0].DistinctCol;
+        // If there is a return, then populate the associated variable, otherwise, leave as is
+        if (columnListArr.length == 1) {
+          this.tabinfo.colfilterarr = columnListArr[0].ColumnNames.split();
+          if (columnListArr[0].DistinctCol != null) this.tabinfo.distinctcol = columnListArr[0].DistinctCol;
+        }
       }
     }
 

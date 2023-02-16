@@ -1,7 +1,7 @@
 
 <mat-tab-group animationDuration="0ms" [selectedIndex]="selectedTab" (selectedTabChange)="updateActiveTabID($event)">
   <mat-tab *ngFor="let tab of tabs; let i = index">
-    <ng-template mat-tab-label><fa-icon [icon]="faWindowClose" class="closebtn" (click)="removeTab(i)"></fa-icon><span class="tabtext">{{ tab.tabtitle }}</span></ng-template>
+    <ng-template mat-tab-label><fa-icon [icon]="faWindowClose" class="closebtn" (click)="removeTab(i)"></fa-icon><span class="tabtext" [title]="tab.tabAltText">{{ tab.tabtitle }}</span></ng-template>
     <app-tab [tabinfo]="tab"></app-tab>
   </mat-tab>
 </mat-tab-group>

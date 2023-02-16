@@ -65,7 +65,7 @@ export class TabComponent implements OnInit {
     this.comm.columnBtnClicked.subscribe(() => {
       if(this.tabinfo === this.store.selectedTab) {
         //Now open the dialog with the information
-        const dialogRef = this.dialog.open(ColumnsDialogComponent, { width: '600px', height: '330px', autoFocus: true, data: this.tabinfo });
+        const dialogRef = this.dialog.open(ColumnsDialogComponent, { width: '600px', height: '355px', autoFocus: true, data: this.tabinfo });
         dialogRef.afterClosed().subscribe(() => {
           this.comm.runQueryChange.emit();
         });

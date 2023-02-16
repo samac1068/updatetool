@@ -72,6 +72,7 @@ export class TabsComponent implements OnInit {
     }
 
     tabCont.tabtitle = tabCont.database.toUpperCase() + ((queryid != undefined) ? " - [SVD QRY]" : "");
+    tabCont.tabAltText = tabCont.servername + " - " + tabCont.database;
     tabCont.databasearr = [];
     tabCont.databasearr.push({id: tabCont.databasearr.length + 1, name: tabCont.database });
     tabCont.tablearr = [];

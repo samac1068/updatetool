@@ -166,39 +166,31 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  getStoreProcList(server: string, db: string) {
-    this.conlog.log('getStoreProcList');
-    const reqbody = {
-      apikey: this.store.getPassKey(),
-      skey: this.store.getUserValue("skey"),
-      server: server,
-      database: db
-    };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetStoreProcList`, reqbody)
-      .pipe(catchError(this.errorHandler));
-  }
+  //Used to get all the stored materials like stored procedures, views, and functions.
+  getStoredObjectList(server: string, db: string, type: string) {
+    this.conlog.log('getStoredObjectList for ' + type);
+    let webservice: string = "";
 
-  getStoredViewList(server: string, db: string) {
-    this.conlog.log('getStoredViewList');
     const reqbody = {
       apikey: this.store.getPassKey(),
       skey: this.store.getUserValue("skey"),
       server: server,
       database: db
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetStoredViewList`, reqbody)
-      .pipe(catchError(this.errorHandler));
-  }
 
-  getStoredFunctionsList(server: string, db: string) {
-    this.conlog.log('getStoredFunctionList');
-    const reqbody = {
-      apikey: this.store.getPassKey(),
-      skey: this.store.getUserValue("skey"),
-      server: server,
-      database: db
-    };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetStoredFunctionsList`, reqbody)
+    switch(type) {
+      case "proc":
+        webservice = `${this.getWSPath()}/UserW/GetStoreProcList`;
+        break;
+      case "view":
+        webservice = `${this.getWSPath()}/UserW/GetStoredViewList`;
+        break;
+      case "func":
+        webservice = `${this.getWSPath()}/UserW/GetStoredFunctionsList`;
+        break
+    }
+
+    return this.http.post<any[]>(webservice, reqbody)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -322,7 +314,8 @@ export class DataService {
       tablename: colObj.tablename,
       columnnames: colObj.columnnames,
       distinctcol: colObj.distinctcol,
-      id: colObj.id
+      userid: this.store.user["userid"],
+      id: (colObj.id == null) ? "-9" : colObj.id
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/UpdateUserColumnSelection`, reqbody)
       .pipe(catchError(this.errorHandler));

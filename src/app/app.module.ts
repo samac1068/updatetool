@@ -68,6 +68,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridModule } from "ag-grid-angular";
+import {CdkAccordionModule} from '@angular/cdk/accordion';
 
 // Dialog Imports
 import { ColumnsDialogComponent } from './dialogs/columns-dialog/columns-dialog.component';
@@ -86,12 +87,19 @@ import { ModifierDialogComponent } from './dialogs/modifier-dialog/modifier-dial
 import { UsermgrDialogComponent } from './dialogs/usermgr-dialog/usermgr-dialog.component';
 import { ToastNotificationsModule } from 'ngx-toast-notifications';
 import { SessionDialogComponent } from './dialogs/session-dialog/session-dialog.component';
+import { ColumnOrderDialogComponent } from './dialogs/column-order-dialog/column-order-dialog.component';
 
 // Font Awesome
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
+
+// Custom Pipes
+import { ColumnFilterPipe } from './services/column-filter.pipe';
+import { BoldSpanPipe } from './services/bold-span.pipe';
+
+
 
 // @ts-ignore
 @NgModule({
@@ -123,7 +131,10 @@ import { far } from '@fortawesome/free-regular-svg-icons';
     ModifierDialogComponent,
     UsermgrDialogComponent,
     ListboxComponent,
-    SessionDialogComponent
+    SessionDialogComponent,
+    ColumnFilterPipe,
+    ColumnOrderDialogComponent,
+    BoldSpanPipe
   ],
   imports: [
     BrowserModule,
@@ -149,7 +160,8 @@ import { far } from '@fortawesome/free-regular-svg-icons';
     ConlogModule,
     MatProgressSpinnerModule,
     AgGridModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    CdkAccordionModule
   ],
   providers: [
     DataService,

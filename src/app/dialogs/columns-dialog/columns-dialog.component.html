@@ -5,24 +5,29 @@
   </div>
 
   <div class="divcontainer">
-
     <div class="innerleft">
       <div class="subcolumns">
-          <div *ngFor="let column of data.columns" class="columnlist">
+          <div *ngFor="let column of filteredColumns" class="columnlist">
             <mat-checkbox class="column-checkbox" [(ngModel)]="column.selected" (click)="columnSelected(column)">{{ column.tablename }}.{{ column.columnname }}</mat-checkbox>
           </div>
       </div>
+      <div class="subsearch">
+        <span class="lblclass">Search:</span>
+        <input type="text" id="txtSearch" style="width: 240px; margin-top: 5px; margin-left: 5px;" [(ngModel)]="searchTerm" autocomplete="off" />
+        <button class="standardGreenBtn" style="padding: 0 5px;" (click)="resetSearchTerm()"> X </button>
+      </div>
       <div class="subdistict" >
         <span class="lblclass">Distinct Column: </span>
-        <select id="distinctCol" [(ngModel)]="distinctCol" [disabled]="columnArr.length == 0" style="width:220px; margin-top: 2px;" (change)="recordDistinctCol()"  >
+        <select id="distinctCol" [(ngModel)]="distinctCol" [disabled]="columnArr.length == 0" style="width:220px; margin-top: 2px;" (change)="recordDistinctCol()">
           <option value="">None</option>
-          <option *ngFor="let selcol of columnArr" [value]="selcol">{{ selcol }}</option>
+          <option *ngFor="let selcol of columnArr" [value]="selcol" style="font-size: 11px">{{ selcol }}</option>
         </select>
       </div>
     </div>
 
     <div class="innerright">
       <div class="btn-group-vertical">
+        <button id="btnOrderColumns" class="standardGreenBtn" (click)="orderColumns()" [disabled]="columnArr.length <= 1">ReOrder Column</button>
         <button id="btnResetColumns" class="standardRedBtn" (click)="resetAllColumns()" [disabled]="columnArr.length == 0">Reset</button>
         <button id="btnSaveColumns" class="standardGreenBtn" (click)="saveSelectColumns()" [disabled]="columnArr.length == 0">Apply</button>
         <button id="btnCloseColumns" class="standardGreenBtn" (click)="closeDialog()">Close</button>

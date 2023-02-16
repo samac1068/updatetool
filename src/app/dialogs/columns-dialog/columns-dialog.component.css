@@ -32,7 +32,7 @@
 }
 
 .btn-group-vertical > button {
-  margin: 15px 0 20px 22px;
+  margin: 15px 0 10px 22px;
   width: 145px;
 }
 
@@ -41,7 +41,7 @@
   font-size: 13px;
   font-weight: bold;
   text-align: center;
-  margin-left: 10px;
+  margin-left: 80px;
   margin-top: 10px;
 }
 
@@ -50,6 +50,7 @@
   align-content: center;
   align-items: center;
   height: 60px;
+  font-size: 11px;
 }
 
 .subcolumns {
