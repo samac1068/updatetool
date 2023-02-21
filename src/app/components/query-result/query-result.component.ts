@@ -125,7 +125,7 @@ export class QueryResultComponent implements OnInit {
     if(storedColumns != null) {
       let columnListArr: any = storedColumns.filter((row: any) => row.TableName.toUpperCase() == this.tabinfo.table.name.toUpperCase() && row.RType == 'C');
 
-      // Before finalizing the list, make sure associated TABLES are support eithin JOIN statement or PRIMARY table.
+      // Before finalizing the list, make sure associated TABLES are support within JOIN statement or PRIMARY table.
       if(columnListArr.length > 0) {  // Only perform this step if the user previous saved a list of column favorites.
         let columnArr = columnListArr[0].ColumnNames.split(",");
         if (columnArr.length > 0) {
@@ -151,7 +151,8 @@ export class QueryResultComponent implements OnInit {
     if(storedColumns != null) {
       let primaryKeyList: any = storedColumns.filter((row: any) => row.TableName.toUpperCase() == this.tabinfo.table.name.toUpperCase() && row.RType == 'P');
       if(primaryKeyList.length == 1) {
-        this.tabinfo.tempPrimKey = primaryKeyList[0].ColumnNames.split();
+        // This will account for the original storage location.  Will be ignored after the first time the column is updated.
+        this.tabinfo.tempPrimKey = (primaryKeyList[0].DistinctCol != null) ? primaryKeyList[0].DistinctCol.split() : primaryKeyList[0].ColumnNames.split();
         this.tabinfo.primKeyID = primaryKeyList[0].ID;
 
         // Account for all the primary keys
@@ -663,31 +664,35 @@ export class QueryResultComponent implements OnInit {
     if(!dialogPrimeKey) {
       dialogPrimeKey = this.dialog.open(PrimkeyDialogComponent, {width: '350px', height: '430px', autoFocus: true, data: tabdata});
 
-      // Actions if the clear button is selected
+      // Actions if the clear button is selected - Regardless if previously saved, we need to ignore the information and make them do it again.
       dialogPrimeKey.componentInstance.onClear.subscribe(() => {
         this.data.clearUserDefinedPK(this.tabinfo.table.name).subscribe(() => {
               this.comm.reloadStoredColumnData.emit();
-              this.store.generateToast("All primary keys have been cleared.");
+              this.tabinfo.tempPrimKey = [];
+              this.tabinfo.hasPrimKey = false;
+              this.store.generateToast("All selected primary keys have been cleared.");
             },
             () => {
-              alert("There was an error while attempt to remove the stored primary key.");
+              alert("There was an error while attempt to remove the previously stored primary key.");
             });
       });
 
-      // Actions when the dialog is closed
-      dialogPrimeKey.afterClosed().subscribe((ids) => {
-        if (ids == undefined) {
+      // Actions when the dialog is closed - this should exclude the clear button.
+      dialogPrimeKey.afterClosed().subscribe((coldata: any ) => {
+        //console.log("primkey dialog was closed with: ", coldata.colids, coldata.colnames);
+
+        if (coldata == undefined) {
           // Nothing was selected, so just close this bloody window
-          this.store.generateToast('No primary key was altered or stored. Canceled by User.');
+          this.store.generateToast('No primary key was altered or stored. Action Aborted.');
         } else {
           let pk: any = {}
           pk.tablename = this.tabinfo.table.name;
-          pk.columnnames = ids.join();
-          pk.distinctcol = 'null';
+          pk.columnnames = coldata.colnames.join();
+          pk.distinctcol = coldata.colids.join();
           pk.id = (this.tabinfo.primKeyID > 0) ? this.tabinfo.primKeyID : null;
           pk.rtype = "P";
 
-          if (ids.length == 0) {
+          if (coldata.colids.length == 0) {
             pk.action = 'remove';
             this.tabinfo.hasPrimKey = false;
             this.tabinfo.primKeyID = 0;
@@ -696,15 +701,15 @@ export class QueryResultComponent implements OnInit {
               this.tabinfo.availcolarr[c].primarykey = false;
             }
             this.executePrimaryKeyStore(pk, "removed.", "remove");
-          } else if (ids.length > 0) {
+          } else if (coldata.colids.length > 0) {
             // Store the potentially multiple IDs in a variable
-            this.tabinfo.tempPrimKey = ids;
+            this.tabinfo.tempPrimKey = coldata.colids;
 
             // Account for all selected primary keys
             if (this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0) {
               // Need to update our local variable with the information
-              for (let c = 0; c < ids.length; c++) {
-                let selCol = this.tabinfo.availcolarr.find(x => x.columnid == ids[c]);
+              for (let c = 0; c < coldata.colids.length; c++) {
+                let selCol = this.tabinfo.availcolarr.find(x => x.columnid == coldata.colids[c]);
                 if (selCol != undefined) selCol.primarykey = true;
               }
 

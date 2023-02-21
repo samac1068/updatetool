@@ -315,7 +315,7 @@ export class DataService {
       columnnames: colObj.columnnames,
       distinctcol: colObj.distinctcol,
       userid: this.store.user["userid"],
-      id: (colObj.id == null) ? "-9" : colObj.id
+      id: colObj.id
     };
     return this.http.post<any[]>(`${this.getWSPath()}/UserW/UpdateUserColumnSelection`, reqbody)
       .pipe(catchError(this.errorHandler));

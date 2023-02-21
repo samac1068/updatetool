@@ -3,13 +3,17 @@
   <div id="divInfo" style="font-family:Arial, Helvetica, sans-serif; font-size: 12px; padding: 2px;">
     The selected table <span style="color:red; font-weight:bold;">does not</span> have an assigned primary key. Please select a
     <span style="font-weight:bold">TEMPORARY</span> unique identifier for this query from the available columns below.
-    <br/><br/>
-<!--    <span style="font-weight:bold">Use the CTRL key while clicking to select multiple columns.</span>-->
   </div>
-  <br/>
+
+  <div id="colSearch" class="colSearch">
+    <span class="lblclass">Search:</span><br/>
+    <input type="text" id="txtSearch" style="width: 230px; margin-top: 5px; margin-left: 5px;" [(ngModel)]="searchTerm" autocomplete="off" />
+    <button class="standardGreenBtn" style="padding: 0 5px;" (click)="resetSearchTerm()"> X </button>
+  </div>
+
   <div id="divDDL" style="text-align:left;" >
     <div id="lstPrimeKey">
-      <app-listbox *ngFor="let column of availcol" [item]="column" [selected]="isItemSelected(column.columnid)" (click)="columnClickedHandler(column)"></app-listbox>
+      <app-listbox *ngFor="let column of filPrimColumns" [item]="column" [selected]="isItemSelected(column.columnid)" (click)="columnClickedHandler(column)"></app-listbox>
     </div>
   </div>
 

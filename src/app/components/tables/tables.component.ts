@@ -73,6 +73,7 @@ export class TablesComponent implements OnInit {
       //Update tabinfo before sending
       this.tabinfo.table = table;
       this.tabinfo.tempPrimKey = null;
+      this.tabinfo.hasPrimKey = false;
 
       //report the table selection
       this.comm.tableSelected.emit(this.tabinfo);
