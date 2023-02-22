@@ -1,13 +1,12 @@
 import { User } from '../../models/User.model';
 import { CommService } from '../../services/comm.service';
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { Database } from '../../models/Database.model';
 import { Server } from '../../models/Server.model';
 import { StorageService } from '../../services/storage.service';
 import { Query } from 'src/app/models/Query.model';
 import { DataService } from 'src/app/services/data.service';
-import { ConfigService} from 'src/app/services/config.service';
 import { Tab } from 'src/app/models/Tab.model';
 
 @Component({
@@ -21,23 +20,21 @@ export class ServersComponent implements OnInit {
   queries!: Query[];
   user!: User;
   tabinfo!: Tab;
-
   defaultServer: string = "";
   defaultDB: string = "";
-
   selectedQueryID: number = -1;
   isTableSelected:  boolean = false;
-
   network!: string;
+  isLocalhost: string = "";
 
-  constructor(private store: StorageService, private comm: CommService, private data: DataService, private config: ConfigService) { }
+  constructor(private store: StorageService, private comm: CommService, private data: DataService) { }
 
   ngOnInit() {
     this.network = this.store.system['webservice']['network'];
 
     //Listeners
       this.comm.setQueryButton.subscribe(() => { this.setQueryButton() });  //  enable/disable the Save Current Query when table is selected
-      this.comm.populateQueryList.subscribe(() => { this.populateStoredQueryList() });  //  Repopulate the Your Saved Queries dropdown after query is saved
+      this.comm.populateQueryList.subscribe(() => { this.populateStoredQueryList() });  //  Repopulate 'Your Saved Queries' dropdown after query is saved
       this.comm.selectTab.subscribe(() => { this.setSettingsByTab() });  //  enable/disable the Save Current Query button when tabs are changed
 
       this.comm.userInfoLoaded.subscribe(() => {
@@ -59,21 +56,12 @@ export class ServersComponent implements OnInit {
         this.store.setUserValue('storedqueries', this.queries);
         this.servers = this.store.getSystemValue('servers');
         this.databases = this.store.getSystemValue('databases');
-        this.resetDatabaseList(this.defaultServer);
+        this.isLocalhost = (this.store.system['webservice']['type'] == 'development' && this.store.system['webservice']['path'] == undefined) ? "[LOCALHOST]" : "";
     });
 
     this.comm.reloadStoredColumnData.subscribe(() => {
       this.getUserStoredColumnSelection();
     });
-  }
-
-  onServerChanges() {
-    this.store.setSystemValue("server", this.store.returnColByStringKey(this.servers, 'id', this.defaultServer, 'offName', "{0}"));  //returnColByStringKey
-    this.store.setSystemValue("servername", this.defaultServer);
-    const results = this.config.getServerConfig();
-    this.store.setSystemValue('databases', results.databases);
-    this.databases = this.store.system['databases'];
-    this.resetDatabaseList(this.store.getSystemValue("servername"));
   }
 
   onDatabaseChange() {
@@ -92,24 +80,6 @@ export class ServersComponent implements OnInit {
 
   saveCurrentQuery() {
     this.comm.saveNewQuery.emit();
-  }
-
-  resetDatabaseList(servername: string)  {
-    let found: number;
-    let numdatabases: number;
-    let dbsystem: string;
-
-    numdatabases = this.databases.length;
-    servername = servername.toLowerCase();
-    //for (let x = numdatabases - 1; x >= 0; x--){
-        //let obj = this.databases[x];
-        //dbsystem = obj.system.toLowerCase();
-        /*found = dbsystem.indexOf(servername);
-         if (found < 0){
-          this.databases.splice(x,1);
-        }*/
-    //}
-    return;
   }
 
   setQueryButton(){
@@ -139,7 +109,7 @@ export class ServersComponent implements OnInit {
     this.data.getUserSavedQueries()
       .subscribe((results) => {
         for(let i=0; i < results.length; i++) {
-          var q:Query = new Query();
+          let q:Query = new Query();
           q.id = results[i].ID;
           q.title = this.store.customURLDecoder(results[i].QueryTitle).toUpperCase();
           q.database = results[i].DatabaseName;

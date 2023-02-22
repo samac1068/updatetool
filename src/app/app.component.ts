@@ -7,6 +7,7 @@ import { DataService } from './services/data.service';
 import {ConlogService} from './modules/conlog/conlog.service';
 import {MatDialog} from '@angular/material/dialog';
 import {LogConsoleDialogComponent} from './modules/conlog/log-console-dialog/log-console-dialog.component';
+import {ApiDialogComponent} from "./dialogs/api-dialog/api-dialog.component";
 
 @Component({
   selector: 'app-root',
@@ -20,7 +21,9 @@ export class AppComponent implements OnInit {
   urlToken: any = "";
   invalidLoad: boolean = false;
   isConsoleOpen: boolean = false;
+  isApiOpen: boolean = false;
   dialogQuery: any;
+  dialogApi: any;
 
 
   constructor(private config: ConfigService, private store: StorageService, private data: DataService, private comm: CommService, public dialog: MatDialog,
@@ -29,7 +32,7 @@ export class AppComponent implements OnInit {
   // Adding global host listener for single global keyboard command of CTRL+\
   @HostListener('document:keypress', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    if(event.ctrlKey && event.code == "KeyY") {
+    if(event.ctrlKey && event.code == "KeyY") {  // Display Associated Application Console
       // A request to open the logging console has been executed
       if(!this.isConsoleOpen) {
         this.isConsoleOpen = true;
@@ -40,12 +43,33 @@ export class AppComponent implements OnInit {
           position: { right: '20px', top: '10px'}
         });
 
-        this.dialogQuery.afterClosed().subscribe(() => {
-          this.isConsoleOpen = false;
+        this.dialogQuery.afterClosed()
+          .subscribe(() => {
+            this.isConsoleOpen = false;
         });
       } else {
         // close the window, but keep the information.
+        this.isConsoleOpen = false;
         this.dialogQuery.close();
+      }
+    } else if (event.ctrlKey && event.code =="KeyI") {  // Perform API Test
+      if(!this.isApiOpen) {
+        this.isApiOpen = true;
+        this.dialogApi = this.dialog.open(ApiDialogComponent, {
+          width: '350px',
+          height: '120px',
+          autoFocus: false,
+          position: {left: '20px', top: '200px'}
+        });
+
+        this.dialogApi.afterClose()
+          .subscribe(() => {
+            this.isApiOpen = false;
+          });
+      } else
+      {
+        this.isApiOpen = false;
+        this.dialogApi.close();
       }
     }
   }
@@ -53,16 +77,15 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     // Get the query string parameter for key
     this.urlToken = this.store.getParamValueQueryString('key');
-
     this.getSystemConfig();
     this.getServerConfig();
-    this.identifyLocale();
     this.getApplicationBuild();
 
     // Get and manage the user access token
     this.conlog.log("urlToken: " + this.urlToken);
     this.conlog.log("Development Mode: " + this.store.isDevMode());
     this.conlog.log("Network: " + this.store.system['webservice']['network']);
+    this.conlog.log(this.store.system['webservice']['type'] + ' webservice - devmode is ' + this.store.isDevMode());
 
     if(this.store.isDevMode() || this.store.system['webservice']['network'] == 'sipr') {
       // Adding clarify log comments, so we know the difference during testing.
@@ -80,15 +103,6 @@ export class AppComponent implements OnInit {
       }
     } else
       this.continueInitialization();  // Process the urlToken sent to the app component - User does not have access without it.
-  }
-
-  continueInitialization(){
-    this.conlog.log("continueInitialization");
-    if(this.urlToken != undefined){
-      this.validateCapturedToken();
-    } else {
-      alert("No Application Token Found - Your access cannot be validated, therefore, you are not permitted to use this application. Application Aborted. Returning to previous application.");
-    }
   }
 
   getSystemConfig() {
@@ -124,20 +138,13 @@ export class AppComponent implements OnInit {
       });
   }
 
-  identifyLocale(){
-    switch(this.store.system['webservice']['type'].toUpperCase())
-    {
-      case 'DEVELOPMENT':
-        this.store.system['webservice']['locale'] = 'development';
-        break;
-      case 'PRODUCTION':
-        this.store.system['webservice']['locale'] = 'production';
-        this.store.shutOffDev();
-        break;
+  continueInitialization(){
+    this.conlog.log("continueInitialization");
+    if(this.urlToken != undefined){
+      this.validateCapturedToken();
+    } else {
+      alert("No Application Token Found - Your access cannot be validated, therefore, you are not permitted to use this application. Application Aborted. Returning to previous application.");
     }
-
-    //local identification
-    this.conlog.log(this.store.system['webservice']['locale'] + ' webservice - devmode is ' + this.store.isDevMode());
   }
 
   //Validate the token

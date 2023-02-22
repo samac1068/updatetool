@@ -53,7 +53,11 @@ export class ConfigService {
     const sys = xmlData!.getElementsByTagName('system');
     for (let i = 0; i < sys.length; i++) {
       if (sys[i].getAttribute('active') === 'true') {
-        return {type: sys[i].getAttribute('type'), path: sys[i].getAttribute('path'), network: sys[i].getAttribute('network') };
+        // Adding for development only, the ability to redirect to an API outside of localhost.  This can be used to test the published API.
+        if(sys[i].getAttribute('type') == 'development' && sys[i].getAttribute('path') != undefined)
+          return {type: sys[i].getAttribute('type'), network: sys[i].getAttribute('network'), path: sys[i].getAttribute('path') };
+        else
+          return {type: sys[i].getAttribute('type'), network: sys[i].getAttribute('network') };
       }
     }
 

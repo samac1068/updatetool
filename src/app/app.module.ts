@@ -98,6 +98,7 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 // Custom Pipes
 import { ColumnFilterPipe } from './services/column-filter.pipe';
 import { BoldSpanPipe } from './services/bold-span.pipe';
+import { ApiDialogComponent } from './dialogs/api-dialog/api-dialog.component';
 
 
 
@@ -137,7 +138,8 @@ import { BoldSpanPipe } from './services/bold-span.pipe';
     SessionDialogComponent,
     ColumnFilterPipe,
     ColumnOrderDialogComponent,
-    BoldSpanPipe
+    BoldSpanPipe,
+    ApiDialogComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,12 @@
+.title {
+  font-size: 14px;
+  margin-left: 45px;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.content {
+  font-size: 11px;
+  margin-top: 5px;
+  overflow: hidden;
+}

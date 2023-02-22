@@ -48,7 +48,7 @@ export class JoinDialogComponent implements OnInit {
 
   ngOnInit() {
       // Get the stored information from the tab
-      this.server = this.store.system['webservice']['locale'];
+      this.server = this.store.system['webservice']['type'];
       this.serverfull = this.store.getSystemValue("server");
       this.tleftdbarr = this.trightdbarr = this.store.getSystemValue('databases')
       this.operators = this.store.operators;
@@ -223,6 +223,7 @@ export class JoinDialogComponent implements OnInit {
     if ((this.checkJoinClauseLength() + temp.joinclausestr.length) > 260)
       this.msgarr = "The join string cannot be more than 260 characters. This join will not be added.";
     else {
+      this.conlog.log("add join:" + temp);
       this.joinclausearr.push(temp);
       this.data.columns = this.data.columns.concat(this.trightcolarr); // Need to add the joined table's column to the list of available columns, so they can be limited using the column limiter.
     }
@@ -242,7 +243,7 @@ export class JoinDialogComponent implements OnInit {
 
   removeJoinItem(itemid: number) {
     this.dialogBox.confirm('Confirm Deletion', 'Are you sure you want to delete this item?')
-    .then((confirmed) => {
+    .then(() => {
       // Remove the join columns from the available column array
       this.data.columns = this.data.columns.filter(item => item.tablename != this.joinclausearr[this.findIndexByID(itemid)].tableright);
       this.joinclausearr.splice(this.findIndexByID(itemid),1);

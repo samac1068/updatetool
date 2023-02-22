@@ -11,15 +11,27 @@ import {User} from '../models/User.model';
   providedIn: 'root'
 })
 export class DataService {
+
+  errorInfo: any;
+
   constructor(private http: HttpClient, private store: StorageService, private conlog: ConlogService) {
   }
 
   private getWSPath(): string { // This updates the relative path depending on running locally or on a server.
-    return (this.store.system['webservice']['locale'] == 'production') ? "/querytool/api" : "";
+    // Allowing for development only, the redirection to an API on server instead of localhost.
+    let bcPath: string;
+
+    if(this.store.system['webservice']['type'] == 'development' && this.store.system['webservice']['path'] != undefined) {
+      bcPath = this.store.system['webservice']['path'] + "/querytool/api";
+      this.conlog.log("WS path: " + bcPath);
+    } else
+      bcPath = (this.store.system['webservice']['type'] == 'production') ? "/querytool/api" : "";
+
+    return bcPath;
   }
 
   private errorHandler(error: any) {
-    let errorMessage: string = "";
+    let errorMessage: string;
 
     if(error["errmess"] != null) {
       errorMessage = error["errmess"];
@@ -39,6 +51,12 @@ export class DataService {
           break;
         case 404:   // Page not Found Error
           errorMessage = `Somehow the yellow brick road has disappeared.  Please return to the hosting application and try again. We apologize for the inconvenience.\n${errorDetails}`;
+          break;
+        case 0:     // Unknown Error
+          errorMessage = `Error Status: ${this.errorInfo.status}: ${this.errorInfo.message}. Recommend executing API comms check.`;
+          break;
+        default:
+          errorMessage = `Error Status: ${this.errorInfo.status}: ${this.errorInfo.message}`;
           break;
       }
     }
@@ -67,6 +85,19 @@ export class DataService {
     this.conlog.log('GetUserSessionInfo');
     return this.http.get(`${this.getWSPath()}GetUserSessionInfo`);
   }*/
+
+  apiGetCommsCheck() {  // This is used to confirm that the API is accessible
+    this.conlog.log("Performing Get Comms Check");
+    return this.http.get(`${this.getWSPath()}/UserW/CheckWbComms`);
+  }
+
+  apiPostCommsCheck() {  // This is used to confirm that the API is accessible
+    this.conlog.log("Responding to initial API failure. Performing Comms Check");
+    const reqbody = {
+      action: 'of performing automatic communications check with designated QT API.'
+    };
+    return this.http.post(`${this.getWSPath()}/UserW/CheckPostCommsParam`, reqbody);
+  }
 
   validateUserToken(token: string) { //First service called when the application is first executed, unless executed locally
     this.conlog.log('validateUserToken');
