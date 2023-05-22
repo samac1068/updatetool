@@ -31,9 +31,8 @@ export class QueryResultComponent implements OnInit {
 
   rowsReturned!: string;
   loadingQuery: boolean = false;
-  queryid: number = -1;
+  //queryid: number = -1;
   userSqlDisplay: number = 1;
-
   constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog, private conlog: ConlogService) { }
 
   ngOnInit() {
@@ -526,8 +525,8 @@ export class QueryResultComponent implements OnInit {
 
     this.data.getQueryData(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table.name,
     col, where, join, order, count, lmtRow, this.tabinfo.selectcnt, this.store.user.username, distinct)
-      .subscribe((results) => {
-        if(results[0]["ErrType"] != undefined){
+      .subscribe((results: any) => {
+        if(results.length > 0 && results[0]["ErrType"] != undefined){
           // We received an error from the sql statement and could not execute.  Popup the error and stop the processing
           this.loadingQuery = false;
           alert("Received an error from the SQL Execution:\n" + results[0]["Message"]);
@@ -550,14 +549,17 @@ export class QueryResultComponent implements OnInit {
 
   processReturnedData(results: any){
     // Get all column headers for the returned information
+    this.dataSource = null;
+    this.columnDefs = [];
+    this.colHeader = [];
+    let colDef:any = [];
+
     if(results.length > 0) {
       // Only display results less than 1001 rows
       results = results.splice(0, this.store.maximumRowReturnCnt);
 
       // Populated the Data Grid
-      this.columnDefs = [];
       this.colHeader = Object.keys(results[0]);
-      let colDef:any = [];
       this.colHeader.forEach(key => colDef.push({field: key, headerName: this.store.removeUnderscore(key)}));
       this.columnDefs = colDef;
       this.dataSource = results;
@@ -567,6 +569,12 @@ export class QueryResultComponent implements OnInit {
       if (this.tabinfo.updateRecReq) {
         this.tabinfo.updateRecReq = false;
         this.store.generateToast("Record Successfully Updated");
+      }
+    } else {
+      for(let i=0; i < this.tabinfo.columns.length; i++) {
+        let col: any = this.tabinfo.columns[this.store.getIndexByID(this.tabinfo.columns, "columnid", (i+1))];
+        this.columnDefs.push({field: col.columnname, headerName: col.columnname });
+        this.colHeader.push(col.columnname);
       }
     }
 

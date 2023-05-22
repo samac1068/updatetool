@@ -9,7 +9,6 @@ import { CommService } from 'src/app/services/comm.service';
 })
 export class SelectPnlComponent implements OnInit {
   @Input() tabinfo!: Tab;
-
   isStoredQuery: boolean = false;
 
   constructor() { }

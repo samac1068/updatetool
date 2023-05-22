@@ -35,33 +35,38 @@ export class FiltersComponent implements OnInit {
   colSelected: boolean = false;
   noValueNeeded: boolean = false;
   hasValue: boolean = false;
+  whereClauseAdded: boolean = false;
 
   addUpdateBtn: string = "Add";
 
   errorMessage: string = "";
   localSelectCtn: string = "100";
   optionChanged: boolean = false;
-
+  storedQueryUsed: boolean = false;
 
   constructor(private store: StorageService, private comm: CommService, private dialogBox: ConfirmationDialogService) { }
 
   ngOnInit() {
-    this.rowOpt = this.store.rowOptions;
-    this.conditionalOpt = this.store.conditionals;
-    this.operatorOpt = this.store.operators;
-    this.tabinfo.wherearrcomp = [];
+    this.storedQueryUsed = this.tabinfo.isstoredquery;
 
-    //Listener
-    this.comm.columnsUpdated.subscribe((data) => {
-      //Columns are updated so load them here.
-      this.tabinfo = data;
-      this.tableSelected = true;
-    });
+    if(!this.storedQueryUsed) {
+      this.rowOpt = this.store.rowOptions;
+      this.conditionalOpt = this.store.conditionals;
+      this.operatorOpt = this.store.operators;
+      this.tabinfo.wherearrcomp = [];
 
-    this.comm.selectTab.subscribe(() => {
-      // The selected tab has changed so display the appropriate filter for that tab
-      this.tabinfo = this.store.selectedTab;
-    });
+      //Listener
+      this.comm.columnsUpdated.subscribe((data) => {
+        //Columns are updated so load them here.
+        this.tabinfo = data;
+        this.tableSelected = true;
+      });
+
+      this.comm.selectTab.subscribe(() => {
+        // The selected tab has changed so display the appropriate filter for that tab
+        this.tabinfo = this.store.selectedTab;
+      });
+    }
   }
 
   //  headleyt:  20210128  Added function to enable the apply and add the column if the operator is null or is not null
@@ -81,7 +86,6 @@ export class FiltersComponent implements OnInit {
     this.optionChanged = true;
     this.evaluateBtnStatus();
   }
-
 
   allowLimitSelect(){
     this.tabinfo.limitRows = !this.tabinfo.limitRows;
@@ -107,6 +111,8 @@ export class FiltersComponent implements OnInit {
 
   buildWhereItem(){
     let whereItemStr = "";
+
+    this.whereClauseAdded = this.tabinfo.wherearrcomp.length > 0;
 
     // set the conditional
     if(this.tabinfo.wherearrcomp.length >= 1)

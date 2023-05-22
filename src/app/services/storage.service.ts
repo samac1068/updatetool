@@ -15,7 +15,7 @@ export class StorageService {
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _devKey = "4c7a4455fdab4fb8228748fd7702d245";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.23.0221 (Doc: 1.6)';
+  private _appVersion = '2.23.0516 (Doc: 1.6)';
   private _inDev: boolean = false;
 
   // Public
@@ -107,6 +107,15 @@ export class StorageService {
   findIndexByValue(arr: any, key: string, value: any){
     for (let i = 0; i < arr.length; i++) {
       if (arr[i][key].toLowerCase() === value.toLowerCase()) {
+          return i;
+      }
+    }
+    return -1;
+  }
+
+  getIndexByID(arr: any, key: string, value: any){
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i][key] === value) {
           return i;
       }
     }

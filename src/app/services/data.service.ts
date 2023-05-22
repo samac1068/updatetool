@@ -105,6 +105,10 @@ export class DataService {
       apikey: this.store.getPassKey(),
       tokensid: token
     };
+
+    this.conlog.log('apikey and tokensid');
+    this.conlog.log(reqbody.apikey + ' - ' + reqbody.tokensid);
+
     return this.http.post(`${this.getWSPath()}/UserW/ValidateUserToken`, reqbody)
       .pipe(catchError(this.errorHandler));
   }

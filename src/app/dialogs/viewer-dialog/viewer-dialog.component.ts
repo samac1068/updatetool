@@ -54,8 +54,15 @@ export class ViewerDialogComponent implements OnInit {
     .subscribe((results) => {
       this.procViewText = "";
 
-      for(let i=0; i < results.length; i++) {
-        this.procViewText += results[i].Definition + "\r";
+      // There are two possible return types of a stored procedure.  One will have multiple rows with a column of Text, the second will be a single row under DefText
+      if(results.length > 1) {  //sp_helptext
+        for(let i=0; i < results.length; i++) {
+          this.procViewText += results[i].Text;
+          this.procViewText = this.procViewText.replace(this.newLine, "\n");
+          //this.procViewText = this.procViewText.replace(this.newLine, "\r");
+        }
+      } else {
+        this.procViewText = results[0].DefText + "\r";
         this.procViewText = this.procViewText.replace(this.newLine, "");
       }
     });

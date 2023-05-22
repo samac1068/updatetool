@@ -152,8 +152,9 @@ export class AppComponent implements OnInit {
     this.conlog.log("validateCaptureToken");
     this.data.validateUserToken(this.urlToken)
     .subscribe(result => {
+      this.conlog.log("value returned from token validation is " + (result[0] != null));
       if(result[0] != null) {
-        this.conlog.log("assigned returned userinfo");
+        this.conlog.log("assigned returned userinfo: " + result[0]["Username"] + " / " + result[0]["sKey"]);
         this.store.setUserValue("token", this.urlToken);
         this.store.setUserValue("username", result[0]["Username"]);
         this.store.setUserValue("initalapp", result[0]["InitalApp"]);
@@ -176,6 +177,7 @@ export class AppComponent implements OnInit {
     this.data.getUserInfo()
       .subscribe((results) => {
       if(results[0] != undefined) {
+        this.conlog.log("userinfo was successfully retrieved. [UID: " + results[0].UserID + "]");
         let row: any = results[0];
         if(results[0].UserID != -9) {
           this.store.setUserValue("fname", this.store.checkForNull(row["FirstName"]));

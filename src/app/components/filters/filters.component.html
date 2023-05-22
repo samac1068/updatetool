@@ -1,4 +1,4 @@
-<div class="tables">
+<div class="tables" *ngIf="!storedQueryUsed">
   <div class="selectContent">
     <span class="fieldLabel">Where Clause and Filters:</span><br/>
     <input type="checkbox" id="chkReturnRowCnt" [(ngModel)]="tabinfo.getcount" (click)="updateGetCount()" style="margin-top:5px;"> Return Only # of Rows<br />
@@ -75,7 +75,7 @@
       <div class="row">
         <div class="col-sm-4"><button class="standardGreenBtn" style="width: 100px" (click)="removeAllWhereItems()" [disabled]="!hasWhere">Clear All</button></div>
         <div class="col-sm-4"><button class="standardGreenBtn" style="width:100px;" (click)="buildWhereItem()" [disabled]="!curInput && !noValueNeeded">{{ addUpdateBtn }}</button></div>
-        <div class="col-sm-4"><button class="focusBtn" style="width:100px;" (click)="applyWhereClause()" [disabled]="!tableSelected || (!filterAdded && tabinfo.wherearrcomp.length == 0)">Apply</button></div>
+        <div class="col-sm-4"><button class="focusBtn" style="width:100px;" (click)="applyWhereClause()" [disabled]="!tableSelected || (!filterAdded && !whereClauseAdded)">Apply</button></div>
       </div>
     </div>
   </div>
