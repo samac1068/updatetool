@@ -21,12 +21,12 @@ export class DataService {
     // Allowing for development only, the redirection to an API on server instead of localhost.
     let bcPath: string;
 
-    if(this.store.system['webservice']['type'] == 'development' && this.store.system['webservice']['path'] != undefined) {
+    if(this.store.system['webservice']['type'] == 'development' && this.store.system['webservice']['path'] != undefined) 
       bcPath = this.store.system['webservice']['path'] + "/querytool/api";
-      this.conlog.log("WS path: " + bcPath);
-    } else
+    else
       bcPath = (this.store.system['webservice']['type'] == 'production') ? "/querytool/api" : "";
 
+    this.conlog.log("WS path: " + bcPath);
     return bcPath;
   }
 
