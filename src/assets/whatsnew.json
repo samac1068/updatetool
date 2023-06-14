@@ -42,6 +42,7 @@
     {"BuildDate": "2/14/2023", "BuildVersion": "2.23.0214", "BuildChanges": "Updated error message handling when a sql script fails to execute.  The error message is returned to the client side to be displayed."},
     {"BuildDate": "2/16/2023", "BuildVersion": "2.23.0216", "BuildChanges": "Provided the ability to search for the column in the custom column list.\n- Provided the ability to place columns in a specific order.\n- Fixed bug in API that would allow the saving or updating of custom column information.- Corrected the bug to display the various stored procedures, views, and functions. Refactors entire function and eliminated several lines of code."},
     {"BuildDate": "2/21/2023", "BuildVersion": "2.23.0221", "BuildChanges": "Corrected functionality of the temporary primary key.  Now will store that temporary primary key for the selected table until deleted. Added a dialog to test the API, both the GET and POST requests."},
-    {"BuildDate": "5/16/2023", "BuildVersion": "2.23.0516", "BuildChanges": "Corrected bug in zero results from table, to include displaying header even if no records are found. Corrected bug in filter causing error when a stored query is called."}
+    {"BuildDate": "5/16/2023", "BuildVersion": "2.23.0516", "BuildChanges": "Corrected bug in zero results from table, to include displaying header even if no records are found. Corrected bug in filter causing error when a stored query is called."},
+    {"BuildDate": "6/14/2023", "BuildVersion": "2.23.0614", "BuildChanges": "Corrected bug in the primary key selection dialog. Now able to select multiple primary keys which will remain until the user removes them."}
   ]
 }

@@ -81,6 +81,8 @@ export class AppComponent implements OnInit {
     this.getServerConfig();
     this.getApplicationBuild();
 
+    this.conlog.log("API path: " + this.data.getWSPath());
+
     // Get and manage the user access token
     this.conlog.log("urlToken: " + this.urlToken);
     this.conlog.log("Development Mode: " + this.store.isDevMode());

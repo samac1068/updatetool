@@ -17,16 +17,13 @@ export class DataService {
   constructor(private http: HttpClient, private store: StorageService, private conlog: ConlogService) {
   }
 
-  private getWSPath(): string { // This updates the relative path depending on running locally or on a server.
-    // Allowing for development only, the redirection to an API on server instead of localhost.
+  getWSPath(): string { // This updates the relative path depending on running locally or on a server.
     let bcPath: string;
 
-    if(this.store.system['webservice']['type'] == 'development' && this.store.system['webservice']['path'] != undefined) 
+    if(this.store.system['webservice']['type'] == 'development' && this.store.system['webservice']['path'] != undefined)
       bcPath = this.store.system['webservice']['path'] + "/querytool/api";
     else
       bcPath = (this.store.system['webservice']['type'] == 'production') ? "/querytool/api" : "";
-
-    this.conlog.log("WS path: " + bcPath);
     return bcPath;
   }
 

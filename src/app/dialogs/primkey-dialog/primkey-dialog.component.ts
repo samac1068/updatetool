@@ -33,7 +33,7 @@ export class PrimkeyDialogComponent implements OnInit {
   ngOnInit() {
     // Getting the information in for this pop means we should populate the dropdown with all the columns except
     this.tabs = this.data.tabinfo.availcolarr;
-    this.selectCols = this.data.tabinfo.tempPrimKey == null ? [] : this.data.tabinfo.tempPrimKey;
+    this.selectCols = (this.data.tabinfo.tempPrimKey == null || this.data.tabinfo.tempPrimKey[0] == undefined) ? [] : this.data.tabinfo.tempPrimKey;
     this.selectedcol = this.data.col;
 
     // Only need to be concerned if a column to be altered has been selected to modify its data.  If null, then make available all columns.
