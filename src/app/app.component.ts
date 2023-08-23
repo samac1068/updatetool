@@ -8,6 +8,8 @@ import {ConlogService} from './modules/conlog/conlog.service';
 import {MatDialog} from '@angular/material/dialog';
 import {LogConsoleDialogComponent} from './modules/conlog/log-console-dialog/log-console-dialog.component';
 import {ApiDialogComponent} from "./dialogs/api-dialog/api-dialog.component";
+import {System} from "./models/System.model";
+import {Token} from "./models/Token.model";
 
 @Component({
   selector: 'app-root',
@@ -18,13 +20,13 @@ export class AppComponent implements OnInit {
   title = 'app';
   minHeightDefault: number = 943;
   minWidthDefault: number = 1322;
-  urlToken: any = "";
+  urlToken: string | null  = null;
   invalidLoad: boolean = false;
   isConsoleOpen: boolean = false;
   isApiOpen: boolean = false;
   dialogQuery: any;
   dialogApi: any;
-
+  appInit: any = {id: null, system: false, server: false, build: false};
 
   constructor(private config: ConfigService, private store: StorageService, private data: DataService, private comm: CommService, public dialog: MatDialog,
               private conlog: ConlogService) { }  //
@@ -81,6 +83,34 @@ export class AppComponent implements OnInit {
     this.getServerConfig();
     this.getApplicationBuild();
 
+    // Only continue when the three areas above have finished processing
+    // @ts-ignore
+    this.appInit["id"] = setInterval(() => {
+      if(this.appInit["server"] && this.appInit["system"] && this.appInit["build"])
+        clearInterval(this.appInit["id"]);
+        this.getToken();
+    }, 300);
+  }
+
+  getToken() {
+    this.data.getBearerToken(this.store.user.username)
+      .subscribe((bearer:any) => {
+        this.store.setBearerToken(bearer.data);
+
+        // If we don't have authorization to even user the API, there is no sense going forward.
+        if(this.store.getBearerToken() == "") {
+          this.conlog.log("No Authorization Token Received. User is not Authorized Access.");
+          window.alert("No Authorization Token Received. User is not Authorized Access.");
+        } else {
+          //Make sure the API is available before we start attempting to load anything
+          this.conlog.log("authorizationTokenValid");
+          this.initializeApp();
+        }
+      });
+  }
+
+  initializeApp(){
+    this.conlog.log("initializeApp");
     this.conlog.log("API path: " + this.data.getWSPath());
 
     // Get and manage the user access token
@@ -89,6 +119,16 @@ export class AppComponent implements OnInit {
     this.conlog.log("Network: " + this.store.system['webservice']['network']);
     this.conlog.log(this.store.system['webservice']['type'] + ' webservice - devmode is ' + this.store.isDevMode());
 
+    // Need to get the JWT before we continue
+    this.userAuthenticate();
+  }
+
+  userAuthenticate() {    // Used to create and store a JWT for communications during the established session
+
+    this.finalizeAppInit();
+  }
+
+  finalizeAppInit(){
     if(this.store.isDevMode() || this.store.system['webservice']['network'] == 'sipr') {
       // Adding clarify log comments, so we know the difference during testing.
       if(this.store.isDevMode())
@@ -97,9 +137,10 @@ export class AppComponent implements OnInit {
         this.conlog.log("Executing on a simulated SIPR Network, attempting to generate local token");
 
       if (this.urlToken == "" || this.urlToken == undefined) {
+        this.urlToken = "";
         this.data.getLocalToken("sean.mcgill")  // Generate a token at this point and introduce it into the application.  - This is used for development only
-          .subscribe(result => {
-            this.urlToken = result["token"];  // This is a newly created token that contains all the information needed for me to identify the user - Having a token is mandatory
+          .subscribe((result:any) => {
+            this.urlToken = result['tokensid'];  // This is a newly created token that contains all the information needed for me to identify the user - Having a token is mandatory
             this.continueInitialization();
           });
       }
@@ -110,10 +151,12 @@ export class AppComponent implements OnInit {
   getSystemConfig() {
     // Collect the information from the config.xml file and set the appropriate database location
     this.conlog.log("getSystemConfig");
-    const results = this.config.getSystemConfig();
+    // @ts-ignore
+    const results: System = this.config.getSystemConfig();
     this.store.setSystemValue('webservice', results);
     this.store.setSystemValue('window', { minHeight: this.minHeightDefault, minWidth: this.minWidthDefault });
     this.store.setDevMode(results!.type == "development");
+    this.appInit['system'] = true;
   }
 
   getServerConfig() {
@@ -126,6 +169,7 @@ export class AppComponent implements OnInit {
         if(a.id > b.id) return 1;
         return 0;
       }));
+    this.appInit['server'] = true;
   }
 
   getApplicationBuild() {
@@ -134,6 +178,7 @@ export class AppComponent implements OnInit {
       // Organize as single dim array instead of the multi dim array from JSON and Sort in descending order based on BuildDate column and finally sort in System Variable
       this.store.setSystemValue('build', this.store.sortArr(results["whatsnew"], "BuildDate"));
       this.conlog.log("Retrieved all update items listed in locally stored JSON file.");
+      this.appInit['build'] = true;
     },
       error => {
         alert("getApplicationBuild: " + error.message);

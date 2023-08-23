@@ -17,6 +17,7 @@ export class StorageService {
   private _connectid = 'MobCopConnectionString';
   private _appVersion = '2.23.0614 (Doc: 1.6)';
   private _inDev: boolean = false;
+  private _bearerToken: string = "";
 
   // Public
   tabsArr = [];
@@ -90,6 +91,14 @@ export class StorageService {
 
   shutOffDev() {
     this._inDev = false;
+  }
+
+  getBearerToken(): string {
+    return this._bearerToken;
+  }
+
+  setBearerToken(token: string): void {
+    this._bearerToken = token;
   }
 
   /// Global Services - Let's see if this will work
@@ -188,14 +197,15 @@ export class StorageService {
     return (obj == undefined) ? dbname : obj.altname;
   }
 
-  getParamValueQueryString( paramName: string ) {
-    const url = window.location.href;
+  getParamValueQueryString( paramName: string ): string | null {
+    const url: string = window.location.href;
     let paramValue;
     if (url.includes('?')) {
-      const httpParams = new HttpParams({ fromString: url.split('?')[1] });
+      const httpParams: HttpParams | null = new HttpParams({ fromString: url.split('?')[1] });
       paramValue = httpParams.get(paramName);
+      return paramValue;
     }
-    return paramValue;
+     return null;
   }
 
   generateToast(text: string,issuccess: boolean = true): void {

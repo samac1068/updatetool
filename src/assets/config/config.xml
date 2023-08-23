@@ -1,4 +1,4 @@
 <systems>
-  <system type="development" active="true" network="nipr" />         <!-- path='https://mobdev.mkgcs.com' -->
-  <system type="development" active="false" network="sipr" />
+  <system type="development" active="true" network="nipr" api="UTool" />  <!-- path='https://mobdev.mkgcs.com' -->
+  <system type="development" active="false" network="sipr" api="UserW" />
 </systems>

@@ -1,11 +1,17 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Observable, throwError} from 'rxjs';
 import {StorageService} from './storage.service';
 import { catchError } from 'rxjs/operators';
 import {Admin} from '../models/Admin.model';
 import {ConlogService} from '../modules/conlog/conlog.service';
 import {User} from '../models/User.model';
+
+const httpHeaders = {
+  headers: new HttpHeaders({
+    'Content-Type': 'application/json'
+  })
+};
 
 @Injectable({
   providedIn: 'root'
@@ -20,10 +26,15 @@ export class DataService {
   getWSPath(): string { // This updates the relative path depending on running locally or on a server.
     let bcPath: string;
 
-    if(this.store.system['webservice']['type'] == 'development' && this.store.system['webservice']['path'] != undefined)
-      bcPath = this.store.system['webservice']['path'] + "/querytool/api";
+    if(this.store.system['webservice']['path'] != undefined)
+      bcPath = this.store.system['webservice']['path'] + "/querytool/api";  // Include the path to the API web server.
     else
-      bcPath = (this.store.system['webservice']['type'] == 'production') ? "/querytool/api" : "";
+      // No path is being provided
+      bcPath = (this.store.system['webservice']['type'] != 'development') ? "/querytool/api" : "";
+
+    // Add on the specific API Controller ID
+    bcPath += "/" + this.store.system['webservice']['api'];
+
     return bcPath;
   }
 
@@ -69,7 +80,7 @@ export class DataService {
       devkey: this.store.getDevKey(),
       username: username
     };
-    return this.http.post<string>(`${this.getWSPath()}/UserW/RequestLocalToken`, reqbody)
+    return this.http.post<string>(`${this.getWSPath()}/RequestLocalToken`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -83,9 +94,15 @@ export class DataService {
     return this.http.get(`${this.getWSPath()}GetUserSessionInfo`);
   }*/
 
+  getBearerToken(username: string) :Observable<any> {
+    const params: any = new HttpParams().set('devKey', this.store.getDevKey()).set('username', username);
+    return (this.http.get<any>(`${this.getWSPath()}/GetToken`, {params})
+      .pipe(catchError(this.errorHandler)));
+  }
+
   apiGetCommsCheck() {  // This is used to confirm that the API is accessible
     this.conlog.log("Performing Get Comms Check");
-    return this.http.get(`${this.getWSPath()}/UserW/CheckWbComms`);
+    return this.http.get(`${this.getWSPath()}/CheckWbComms`);
   }
 
   apiPostCommsCheck() {  // This is used to confirm that the API is accessible
@@ -93,10 +110,10 @@ export class DataService {
     const reqbody = {
       action: 'of performing automatic communications check with designated QT API.'
     };
-    return this.http.post(`${this.getWSPath()}/UserW/CheckPostCommsParam`, reqbody);
+    return this.http.post<any[]>(`${this.getWSPath()}/CheckPostCommsParam`, reqbody, httpHeaders);
   }
 
-  validateUserToken(token: string) { //First service called when the application is first executed, unless executed locally
+  validateUserToken(token: string | null) { //First service called when the application is first executed, unless executed locally
     this.conlog.log('validateUserToken');
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -106,7 +123,7 @@ export class DataService {
     this.conlog.log('apikey and tokensid');
     this.conlog.log(reqbody.apikey + ' - ' + reqbody.tokensid);
 
-    return this.http.post(`${this.getWSPath()}/UserW/ValidateUserToken`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/ValidateUserToken`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -118,7 +135,7 @@ export class DataService {
       skey: this.store.getUserValue("skey"),
       Username: this.store.getUserValue("username")
     };
-    return this.http.post(`${this.getWSPath()}/UserW/GetUserInfo`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/GetUserInfo`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -129,7 +146,7 @@ export class DataService {
       skey: this.store.getUserValue("skey"),
       userid: this.store.getUserValue("userid")
     };
-    return this.http.post(`${this.getWSPath()}/UserW/GetUserSavedQueries`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/GetUserSavedQueries`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -147,7 +164,7 @@ export class DataService {
       userid: this.store.getUserValue("userid"),
       version: version
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/UpdateUserDate`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/UpdateUserDate`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -159,7 +176,7 @@ export class DataService {
       server: server,
       database: db
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetDbTableList`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/GetDbTableList`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -181,7 +198,7 @@ export class DataService {
       username: username,
       usedistinct: usedistinct
     };
-    return this.http.post(`${this.getWSPath()}/UserW/GetQueryData`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/GetQueryData`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -194,7 +211,7 @@ export class DataService {
       database: db,
       tablename: tbl
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetTableProperties`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/GetTableProperties`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -212,13 +229,13 @@ export class DataService {
 
     switch(type) {
       case "proc":
-        webservice = `${this.getWSPath()}/UserW/GetStoreProcList`;
+        webservice = `${this.getWSPath()}/GetStoreProcList`;
         break;
       case "view":
-        webservice = `${this.getWSPath()}/UserW/GetStoredViewList`;
+        webservice = `${this.getWSPath()}/GetStoredViewList`;
         break;
       case "func":
-        webservice = `${this.getWSPath()}/UserW/GetStoredFunctionsList`;
+        webservice = `${this.getWSPath()}/GetStoredFunctionsList`;
         break
     }
 
@@ -235,7 +252,7 @@ export class DataService {
       database: db,
       procname: itemname
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/ReturnStr_StoredValues`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/ReturnStr_StoredValues`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -246,7 +263,7 @@ export class DataService {
       skey: this.store.getUserValue("skey"),
       queryid: queryid
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/CaptureQStr`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/CaptureQStr`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -266,7 +283,7 @@ export class DataService {
       appdata: user.appdata,
       userid: user.userid
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/AddEditUpdateUserInfo`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/AddEditUpdateUserInfo`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -284,7 +301,7 @@ export class DataService {
       qtype: qtype,
       display: display
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/StoreUserQuery`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/StoreUserQuery`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -299,7 +316,7 @@ export class DataService {
       updatekey: updatekey,
       extwhere: extwhere
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/UpdateRowInfo`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/UpdateRowInfo`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -321,7 +338,7 @@ export class DataService {
       version: ad.version,
       isadmin: (ad.isadmin) ? 1 : 0
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/QtAdminManager`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/QtAdminManager`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -332,7 +349,7 @@ export class DataService {
       skey: this.store.getUserValue("skey"),
       userid: userid
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetUserColumnSelections`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/GetUserColumnSelections`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -349,7 +366,7 @@ export class DataService {
       userid: this.store.user["userid"],
       id: colObj.id
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/UpdateUserColumnSelection`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/UpdateUserColumnSelection`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -361,7 +378,7 @@ export class DataService {
       userid: this.store.getUserValue("userid"),
       tablename: tablename
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/ClearUserDefinedPk`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/ClearUserDefinedPk`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 
@@ -373,7 +390,7 @@ export class DataService {
       action: action,
       cutidlist: cutidlist
     };
-    return this.http.post<any[]>(`${this.getWSPath()}/UserW/GetResetActivePortalSessions`, reqbody)
+    return this.http.post<any[]>(`${this.getWSPath()}/GetResetActivePortalSessions`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 }

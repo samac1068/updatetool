@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { Server } from '../models/Server.model';
 import { Database } from '../models/Database.model';
+import {System} from "../models/System.model";
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +45,7 @@ export class ConfigService {
 
 
   //Returns a single server name and path currently being used
-  getSystemConfig() {
+  getSystemConfig()  {
     const xml = new XMLHttpRequest();
     xml.open('GET', this.systemUrl, false);
     xml.send();
@@ -55,9 +56,23 @@ export class ConfigService {
       if (sys[i].getAttribute('active') === 'true') {
         // Adding for development only, the ability to redirect to an API outside of localhost.  This can be used to test the published API.
         if(sys[i].getAttribute('type') == 'development' && sys[i].getAttribute('path') != undefined)
-          return {type: sys[i].getAttribute('type'), network: sys[i].getAttribute('network'), path: sys[i].getAttribute('path') };
+          return {
+            type: sys[i].getAttribute('type'),
+            network: sys[i].getAttribute('network'),
+            path: sys[i].getAttribute('path'),
+            api: (sys[i].getAttribute('api') != undefined) ? sys[i].getAttribute('api') : "UserW",
+            servers: null,
+            databases: null
+          };
         else
-          return {type: sys[i].getAttribute('type'), network: sys[i].getAttribute('network') };
+          return {
+            type: sys[i].getAttribute('type'),
+            network: sys[i].getAttribute('network'),
+            api: (sys[i].getAttribute('api') != undefined) ? sys[i].getAttribute('api') : "UserW",
+            path: null,
+            servers: null,
+            databases: null
+          };
       }
     }
 

@@ -38,6 +38,7 @@ import { FiltersComponent } from './components/filters/filters.component';
 import { TableFilterPipe } from './services/tablefilter.pipe';
 import { ListboxComponent } from './components/listbox/listbox.component';
 import { ConlogModule } from './modules/conlog/conlog.module';
+import { RouterModule, Routes } from '@angular/router';
 
 // Services
 import { StorageService } from './services/storage.service';
@@ -46,6 +47,7 @@ import { ConfigService } from './services/config.service';
 import { DataService } from './services/data.service';
 import { ExcelService } from './services/excel.service';
 import { CopyTextDirective } from './services/copy-text.directive';
+import {AuthInterceptorService} from "./services/auth-interceptor.service";
 
 // Angular Modules Imports
 import { MatTabsModule } from '@angular/material/tabs';
@@ -101,6 +103,7 @@ import { BoldSpanPipe } from './services/bold-span.pipe';
 import { ApiDialogComponent } from './dialogs/api-dialog/api-dialog.component';
 
 
+const routes: Routes = [];
 
 // @ts-ignore
 @NgModule({
@@ -166,7 +169,8 @@ import { ApiDialogComponent } from './dialogs/api-dialog/api-dialog.component';
     MatProgressSpinnerModule,
     AgGridModule,
     FontAwesomeModule,
-    CdkAccordionModule
+    CdkAccordionModule,
+    RouterModule.forRoot(routes)
   ],
   providers: [
     DataService,
@@ -174,7 +178,8 @@ import { ApiDialogComponent } from './dialogs/api-dialog/api-dialog.component';
     ConfigService,
     ConfirmationDialogService,
     OkDialogService,
-    ExcelService
+    ExcelService,
+    AuthInterceptorService
   ],
   bootstrap: [AppComponent],
   entryComponents: [
