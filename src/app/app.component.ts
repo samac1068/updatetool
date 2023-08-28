@@ -87,6 +87,14 @@ export class AppComponent implements OnInit {
     this.appInit["id"] = setInterval(() => {
       if(this.appInit["server"] && this.appInit["system"] && this.appInit["build"])
         clearInterval(this.appInit["id"]);
+        this.conlog.log("initializeApp");
+        this.conlog.log("API path: " + this.data.getWSPath());
+
+        // Get and manage the user access token
+        this.conlog.log("urlToken: " + this.urlToken);
+        this.conlog.log("Development Mode: " + this.store.isDevMode());
+        this.conlog.log("Network: " + this.store.system['webservice']['network']);
+        this.conlog.log(this.store.system['webservice']['type'] + ' webservice - devmode is ' + this.store.isDevMode());
         this.userAuthenticate();
     }, 300);
   }
@@ -116,8 +124,6 @@ export class AppComponent implements OnInit {
   }
 
   getApplicationBuild() {
-    /*TODO - Modify exisiting data subscriber with new signature as done before. */
-    // Using new subscriber signature change
     this.data.getAppUpdates()
       .subscribe({
         next: (results) => {
@@ -145,7 +151,7 @@ export class AppComponent implements OnInit {
             this.validateCapturedToken();
           }
         });
-    } else if (this.urlToken == undefined && !this.store.isDevMode()) { // in production mode without url token from anywhere
+    } else if ((this.urlToken == undefined || this.urlToken == undefined) && !this.store.isDevMode()) { // in production mode without url token from anywhere
       alert("No Application Token Found - Your access cannot be validated, therefore, you are not permitted to use this application. Application Aborted. Returning to previous application.");
     }
   }
@@ -166,7 +172,7 @@ export class AppComponent implements OnInit {
             this.store.setUserValue("skey", result[0]["sKey"]);
 
             //Signal that user has been validated - They should be able to use the tool at this point.
-            this.getUserInformation();
+            this.generateBearerToken();
           } else {
             // Need to account for people hitting the refresh or back buttons - The entry key needs to be regenerated to access the application again.
             alert("The access entry key is now invalid. It is not recommended to use the refresh page at anytime while using this application.  You must close this tab and open from DAMPS-Orders.");
@@ -178,6 +184,22 @@ export class AppComponent implements OnInit {
       });
   }
 
+  generateBearerToken(){
+    this.data.getBearerToken(this.store.user.username)
+      .subscribe((bearer:any) => {
+        this.store.setBearerToken(bearer.data);
+
+        // If we don't have authorization to even user the API, there is no sense going forward.
+        if(this.store.getBearerToken() == "") {
+          this.conlog.log("No Authorization Token Received. User is not Authorized Access.");
+          window.alert("No Authorization Token Received. User is not Authorized Access.");
+        } else {
+          //Make sure the API is available before we start attempting to load anything
+          this.conlog.log("authorizationTokenValid");
+          this.getUserInformation();
+        }
+      });
+  }
   getUserInformation() {
     this.data.getUserInfo()
       .subscribe({
