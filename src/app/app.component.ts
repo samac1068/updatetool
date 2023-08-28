@@ -154,7 +154,8 @@ export class AppComponent implements OnInit {
   validateCapturedToken() {
     this.conlog.log("validateCaptureToken");
     this.data.validateUserToken(this.urlToken)
-      .subscribe( result => {
+      .subscribe({
+        next: (result: any) => {
           this.conlog.log("value returned from token validation is " + (result[0] != null));
           if(result[0] != null) {
             this.conlog.log("assigned returned userinfo: " + result[0]["Username"] + " / " + result[0]["sKey"]);
@@ -171,14 +172,16 @@ export class AppComponent implements OnInit {
             alert("The access entry key is now invalid. It is not recommended to use the refresh page at anytime while using this application.  You must close this tab and open from DAMPS-Orders.");
           }
         },
-        error => {
-          alert("validateCaptureToken: " + error.message);
-        });
+        error: (err: any) => {
+          alert("validateCaptureToken: " + err.message);
+        }
+      });
   }
 
   getUserInformation() {
     this.data.getUserInfo()
-      .subscribe((results) => {
+      .subscribe({
+        next: (results: any) => {
           if(results[0] != undefined) {
             this.conlog.log("userinfo was successfully retrieved. [UID: " + results[0].UserID + "]");
             let row: any = results[0];
@@ -223,9 +226,10 @@ export class AppComponent implements OnInit {
             this.comm.noToolUserInfoFound.emit();
           }
         },
-        error=> {
-          alert("getUserInformation: " + error.message);
-        });
+        error: (err: any) => {
+          alert("getUserInformation: " + err.message);
+        }
+      });
   }
 
 }
