@@ -23,7 +23,7 @@ export class AppComponent implements OnInit {
   urlToken: string | null  = null;
   invalidLoad: boolean = false;
   isConsoleOpen: boolean = false;
-  isApiOpen: boolean = false;
+  isDialogApiOpen: boolean = false;
   dialogQuery: any;
   dialogApi: any;
   appInit: any = {id: null, system: false, server: false, build: false};
@@ -55,22 +55,23 @@ export class AppComponent implements OnInit {
         this.dialogQuery.close();
       }
     } else if (event.ctrlKey && event.code =="KeyI") {  // Perform API Test
-      if(!this.isApiOpen) {
-        this.isApiOpen = true;
-        this.dialogApi = this.dialog.open(ApiDialogComponent, {
+      if(!this.isDialogApiOpen) {
+        this.isDialogApiOpen = true;
+          this.dialogApi = this.dialog.open(ApiDialogComponent, {
           width: '350px',
-          height: '120px',
+          height: '140px',
           autoFocus: false,
-          position: {left: '20px', top: '200px'}
+          position: {left: '20px', top: '200px'},
+          data: true
         });
 
         this.dialogApi.afterClose()
           .subscribe(() => {
-            this.isApiOpen = false;
+            this.isDialogApiOpen = false;
           });
       } else
       {
-        this.isApiOpen = false;
+        this.isDialogApiOpen = false;
         this.dialogApi.close();
       }
     }
@@ -95,7 +96,7 @@ export class AppComponent implements OnInit {
         this.conlog.log("Development Mode: " + this.store.isDevMode());
         this.conlog.log("Network: " + this.store.system['webservice']['network']);
         this.conlog.log(this.store.system['webservice']['type'] + ' webservice - devmode is ' + this.store.isDevMode());
-        this.userAuthenticate();
+        this.confirmEstablishedComms();
     }, 300);
   }
 
@@ -138,6 +139,23 @@ export class AppComponent implements OnInit {
       });
   }
 
+  confirmEstablishedComms(){
+    // Open a small communications window to confirm the connection
+    if(this.dialogApi != null || this.isDialogApiOpen) {
+      this.dialogApi.close();
+    }
+      this.dialogApi = this.dialog.open(ApiDialogComponent, {
+        width: '350px',
+        height: '140px',
+        autoFocus: false,
+        position: {left: '20px', top: '200px'},
+        data: false
+    });
+
+      this.dialogApi.afterClosed().subscribe( ()=> {
+          this.userAuthenticate();
+      });
+  }
   userAuthenticate() {    // Used to create and store a JWT for communications during the established session
     this.conlog.log("userAuthenticate");
     if(this.urlToken != undefined) {      // in production mode with url token from Orders

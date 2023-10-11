@@ -44,6 +44,7 @@
     {"BuildDate": "2/21/2023", "BuildVersion": "2.23.0221", "BuildChanges": "Corrected functionality of the temporary primary key.  Now will store that temporary primary key for the selected table until deleted. Added a dialog to test the API, both the GET and POST requests."},
     {"BuildDate": "5/16/2023", "BuildVersion": "2.23.0516", "BuildChanges": "Corrected bug in zero results from table, to include displaying header even if no records are found. Corrected bug in filter causing error when a stored query is called."},
     {"BuildDate": "6/14/2023", "BuildVersion": "2.23.0614", "BuildChanges": "Corrected bug in the primary key selection dialog. Now able to select multiple primary keys which will remain until the user removes them."},
-    {"BuildDate": "8/28/2023", "BuildVersion": "2.23.0828", "BuildChanges": "Included a function to retrieve a bearer token from the API and store it. - Added interceptor for all POST request that will include sending the new bearer token. - Reorganized the initialization process of the application, the validation of the user execute earlier in the process."}
+    {"BuildDate": "8/28/2023", "BuildVersion": "2.23.0828", "BuildChanges": "Included a function to retrieve a bearer token from the API and store it. - Added interceptor for all POST request that will include sending the new bearer token. - Reorganized the initialization process of the application, the validation of the user execute earlier in the process."},
+    {"BuildDate": "9/20/2023", "BuildVersion": "2.23.0920", "BuildChanges": "Added communications check dialog that tests GET, POST, and DB connection.  It will halt if there is any issue. "}
   ]
 }

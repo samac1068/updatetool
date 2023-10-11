@@ -26,14 +26,18 @@ export class DataService {
   getWSPath(): string { // This updates the relative path depending on running locally or on a server.
     let bcPath: string;
 
-    if(this.store.system['webservice']['path'] != undefined)
-      bcPath = this.store.system['webservice']['path'] + "/querytool/api";  // Include the path to the API web server.
-    else
-      // No path is being provided
-      bcPath = (this.store.system['webservice']['type'] != 'development') ? "/querytool/api" : "";
+    // Add a specific path, if provided to the API
+    bcPath = (this.store.system['webservice']['path'] != null) ? this.store.system['webservice']['path'] : "";
+
+    // Add in the folder path (following the domain)
+    bcPath += (this.store.system['webservice']['sapi'] != null ) ? ("/" + this.store.system['webservice']['sapi']) : "";
 
     // Add on the specific API Controller ID
-    bcPath += "/" + this.store.system['webservice']['api'];
+    bcPath += "/" + this.store.system['webservice']['webcontrol'];
+
+    // For local testing and not to be stored
+    console.log(this.store.system['webservice']);
+    console.log(bcPath);
 
     return bcPath;
   }
@@ -106,11 +110,19 @@ export class DataService {
   }
 
   apiPostCommsCheck() {  // This is used to confirm that the API is accessible
-    this.conlog.log("Responding to initial API failure. Performing Comms Check");
+    this.conlog.log("Performing Post Comms Check");
     const reqbody = {
-      action: 'of performing automatic communications check with designated QT API.'
+      action: 'Communications check with designated QT API.'
     };
     return this.http.post<any[]>(`${this.getWSPath()}/CheckPostCommsParam`, reqbody, httpHeaders);
+  }
+
+  apiPostDBCommsCheck() {
+    this.conlog.log("Performing POST DB Comms Check");
+    const reqbody = {
+      action: 'Checking API to DB Communications: '
+    };
+    return this.http.post<any>(`${this.getWSPath()}/CheckPostAPIDBConnection`, reqbody, httpHeaders)
   }
 
   validateUserToken(token: string | null) { //First service called when the application is first executed, unless executed locally

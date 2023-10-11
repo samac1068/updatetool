@@ -54,25 +54,19 @@ export class ConfigService {
     const sys = xmlData!.getElementsByTagName('system');
     for (let i = 0; i < sys.length; i++) {
       if (sys[i].getAttribute('active') === 'true') {
-        // Adding for development only, the ability to redirect to an API outside of localhost.  This can be used to test the published API.
-        if(sys[i].getAttribute('type') == 'development' && sys[i].getAttribute('path') != undefined)
-          return {
-            type: sys[i].getAttribute('type'),
-            network: sys[i].getAttribute('network'),
-            path: sys[i].getAttribute('path'),
-            api: (sys[i].getAttribute('api') != undefined) ? sys[i].getAttribute('api') : "UserW",
-            servers: null,
-            databases: null
-          };
-        else
-          return {
-            type: sys[i].getAttribute('type'),
-            network: sys[i].getAttribute('network'),
-            api: (sys[i].getAttribute('api') != undefined) ? sys[i].getAttribute('api') : "UserW",
-            path: null,
-            servers: null,
-            databases: null
-          };
+        return {
+          type: sys[i].getAttribute('type'),
+          network: sys[i].getAttribute('network'),
+          path: (sys[i].getAttribute('path')  != undefined) ? sys[i].getAttribute('path') : null,
+          sapi: (sys[i].getAttribute('sapi') != undefined) ? sys[i].getAttribute('sapi') : null,
+          webcontrol: (sys[i].getAttribute('webcontrol') != undefined) ? sys[i].getAttribute('webcontrol') : "UTool",
+          servers: null,
+          databases: null,
+          apiGet: false,
+          apiPost: false,
+          apiDB: false,
+          apiIntID: -1
+        }
       }
     }
 
