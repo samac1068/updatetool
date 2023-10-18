@@ -38,14 +38,17 @@ export class ColumnsDialogComponent implements OnInit {
   ngOnInit() {
     this.columnArr = [];
 
+    // Pull in all previous stored column information for this user
     let storedColumns: any = this.store.getUserValue('storedcolumns');
     if(storedColumns != null) {
-      this.columnListArr = storedColumns.filter((row: any) => row.TableName.toUpperCase() == this.data.table.name.toUpperCase() && row.RType == "C");
+
+      // Load the columnListArr with all previously stored columns for the currently selected table
+      this.columnListArr = storedColumns.filter((row: any) => row["TableName"].toUpperCase() == this.data.table.name.toUpperCase() && row["RType"] == "C");
     }
 
-    //Make sure to initialize this variable EACH time we come to this window
+    // Make sure to initialize this variable EACH time we come to this window
     if(this.data.columns.length > 0) {
-      for (let i = 0; i < this.data.columns.length; i++) {
+      for (let i: number = 0; i < this.data.columns.length; i++) {
         let isDefCol: boolean = false;
         if(this.columnListArr.length > 0)
           isDefCol = this.columnListArr[0].ColumnNames.indexOf(this.data.columns[i].columnname) > -1;
@@ -57,7 +60,7 @@ export class ColumnsDialogComponent implements OnInit {
       }
     } else this.store.generateToast("Application Error: No columns available.", false);
 
-    // Load the filtered array with the available data.column information
+    // Load the filtered array with the available data.column information (this will be all-of-the columns)
     this.filteredColumns = this.data.columns;
 
     // Initialize the distinct column operator
@@ -76,42 +79,32 @@ export class ColumnsDialogComponent implements OnInit {
         }
       }
     }
-
     this.chgMade = true;
-
-    /*TODO - This is being removed as it bypasses the force database exchange: 08/30/2021 - Let make sure before it is removed. */
-    //if(this.columnArr.length == 0) this.resetAllColumns();
-
-    // If nothing is selected, execute reset to set to defaults
-    /*if(this.columnArr.length == 0) {
-      this.resetStoredColFilterArr();
-      this.chgMade = false;
-    } else
-      this.chgMade = true;*/
   }
-
-  /*resetStoredColFilterArr() {
-    this.recordSelectedValues('remove');
-  }*/
 
   recordDistinctCol() {
     this.data.distinctcol = this.distinctCol;
   }
 
   resetAllColumns(){
+    // Initiate the reset of all columns
+    this.recordSelectedValues('remove');
+  }
+
+  finalizeColumnReset() {
+    this.comm.reloadStoredColumnData.emit();
+
     this.columnArr = [];
     this.distinctCol = "";
+    this.columnListArr = [];
 
-    for(let i=0; i < this.data.columns.length; i++){
+    for (let i = 0; i < this.data.columns.length; i++) {
       this.data.columns[i].selected = false;
     }
-
-    this.recordSelectedValues('remove');
 
     // Reset the values to default column selection
     this.data.colfilterarr = [];
     this.data.colfilterarr.push("*");
-    this.data.distinctcol = "";
   }
 
   filterColumns(filterTerm: string): any {
@@ -150,7 +143,7 @@ export class ColumnsDialogComponent implements OnInit {
   storeSelectedColumns() {
     //If a distinct column is selected, then we need to make sure it falls first in the list followed by the rest of the selected columns
     if(this.distinctCol != "") {
-      for (let d = 0; d < this.columnArr.length; d++) {
+      for (let d: number = 0; d < this.columnArr.length; d++) {
         if(this.columnArr[d] == this.distinctCol) {
           this.columnArr.splice(d,1);
           break;
@@ -167,42 +160,44 @@ export class ColumnsDialogComponent implements OnInit {
     this.chgMade = false;
 
     //We also need to make sure the list of items are marked as selected
-    for(let i=0; i < this.data.columns.length; i++)
-    {
-      if(this.columnArr.indexOf(this.data.columns[i].tablename + "." + this.data.columns[i].columnname) > -1)
-        this.data.columns[i].selected = true; //This one was marked
-    }
+    this.columnArr.forEach((column: string) => {
+      let matchArr: Column[] = this.data.columns.filter((cols: Column): boolean => cols.columnname == column);
+      matchArr.forEach((match: Column): void => { match.selected = true; });
+    });
 
-    if(this.columnArr.length > 0)
-      this.recordSelectedValues((this.columnListArr.length > 0) ? 'update' : 'insert');
+    // Record everything that was changes.  OVERWRITE the previous column list with this new list
+    this.recordSelectedValues((this.columnListArr.length > 0) ? 'update' : 'insert');   // Either it is a new record or updating an existing one
   }
 
   recordSelectedValues(action: string) {
     // Need to update or insert the values into the appropriate database
     let colSto:any = {};
 
-    if((action == 'update' || action == 'remove') && this.columnListArr.length > 0) {
+    if(this.columnListArr.length > 0 || this.columnArr.length > 0) {
       colSto.action = action;
       colSto.tablename = this.data.table.name;
-      colSto.columnnames = (action == 'remove') ? 'null' : this.columnArr.join();
-      colSto.distinctcol = (action == 'remove') ? 'null' : this.distinctCol;
-      colSto.id = (action == 'update' || action == 'remove') ? this.columnListArr[0].ID : null;
+      colSto.columnnames = this.columnArr.join();
+      colSto.distinctcol = this.distinctCol;
+      colSto.id = (action == 'update' || action == 'remove') ? this.columnListArr[0]["ID"] : null;
       colSto.rtype = "C";
 
       // Call the database service
       this.api.updateUserColumnSelection(colSto)
         .subscribe(results => {
-            if (results) {
+            if (this.store.errorCheckReturn(results)) {
               this.comm.reloadStoredColumnData.emit();
-
               this.store.getUserValue('storedcolumns').forEach((row: any, index: number) => {
-                if (row.TableName.toUpperCase() == this.data.table.name.toUpperCase() && row.Rtype == "C") {
+                if (row["TableName"].toUpperCase() == this.data.table.name.toUpperCase() && row.Rtype == "C") {
                   this.store.getUserValue('storedcolumns').splice(index, 1);
                   return;
                 }
               });
-
               this.store.generateToast('Your selection(s) have been stored.');
+            } else {
+              if(action == 'remove') {
+                this.finalizeColumnReset();
+                this.store.generateToast('Your selection(s) have been removed.');
+              }
             }
           },
           error => {

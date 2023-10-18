@@ -6,6 +6,7 @@ import {IconDefinition} from "@fortawesome/free-regular-svg-icons";
 import {CommService} from "../../services/comm.service";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {System} from "../../models/System.model";
+import {StorageService} from "../../services/storage.service";
 
 @Component({
   selector: 'app-api-dialog',
@@ -24,7 +25,7 @@ export class ApiDialogComponent implements OnInit {
 
   sysData: System = new System();
 
-  constructor(public dialogRef: MatDialogRef<ApiDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: boolean, private ds: DataService, private conlog: ConlogService, private comm:CommService) { }
+  constructor(public dialogRef: MatDialogRef<ApiDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: boolean, private ds: DataService, private conlog: ConlogService, private store:StorageService) { }
 
   ngOnInit(): void {
     this.getIcon = this.faChecking;
@@ -32,6 +33,7 @@ export class ApiDialogComponent implements OnInit {
     this.postDBIcon = this.faChecking;
 
     console.log(this.data);
+    this.conlog.log("Running Communications Check with Database.");
 
     // Perform both checks now.  They can be done asynchronously
     this.checkGetConnection();

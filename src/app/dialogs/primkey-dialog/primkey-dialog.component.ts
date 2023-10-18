@@ -19,6 +19,7 @@ export class PrimkeyDialogComponent implements OnInit {
   _searchTerm!: string;
   filPrimColumns!: any[];
   colnamearr: string[] = [];
+  primKeyPopulated: boolean = false;
 
   get searchTerm(){
     return this._searchTerm;
@@ -35,6 +36,7 @@ export class PrimkeyDialogComponent implements OnInit {
     this.tabs = this.data.tabinfo.availcolarr;
     this.selectCols = (this.data.tabinfo.tempPrimKey == null || this.data.tabinfo.tempPrimKey[0] == undefined) ? [] : this.data.tabinfo.tempPrimKey;
     this.selectedcol = this.data.col;
+    this.primKeyPopulated = this.selectCols.length > 0;
 
     // Only need to be concerned if a column to be altered has been selected to modify its data.  If null, then make available all columns.
     if(this.selectedcol != null) {
@@ -91,20 +93,31 @@ export class PrimkeyDialogComponent implements OnInit {
         colnamestr+= this.availcol.find((x: any) => x.columnid == this.selectCols[c]).columnname.toUpperCase();
     }*/
 
-    // Used to just build the defining message string for the confirmation.  This columnname are not stored.
-    this.selectCols.forEach((sc: any) => {
-      if(colnamestr.length > 0) colnamestr+= ' and ';
-      let colname = this.availcol.find((x: any) => x.columnid == sc).columnname.toUpperCase();
-      colnamestr+= colname;     // This is storing the column ID
-      this.colnamearr.push(colname);  // This is storing the column name
-    });
+    // If at one point there was something there, and now it was removed, we need to just perform the reset and not the normal steps.
+    if(this.selectCols.length == 0){
+      if(this.primKeyPopulated)    // At one point something was selected, but now all have been removed
+        this.clearHandler();
+      else
+        this.cancelHandler();
+    } else {
+      // Used to just build the defining message string for the confirmation.  This columnname are not stored.
+      this.selectCols.forEach((sc: any) => {
+        if (colnamestr.length > 0) colnamestr += ' and ';
+        let colname = this.availcol.find((x: any) => x.columnid == sc).columnname.toUpperCase();
+        colnamestr += colname;     // This is storing the column ID
+        this.colnamearr.push(colname);  // This is storing the column name
+      });
 
-    if(confirm("Are you sure you want to make " + colnamestr + " the temporary unique " + ((this.selectCols.length > 1) ? "keys" : "key") + "?"))
-      this.dialogRef.close({colids: this.selectCols, colnames: this.colnamearr});
+      if (confirm("Are you sure you want to make " + colnamestr + " the temporary unique " + ((this.selectCols.length > 1) ? "keys" : "key") + "?"))
+        this.dialogRef.close({colids: this.selectCols, colnames: this.colnamearr});
+    }
   }
 
   // Close out the dialog window with no follow-on actions whatsoever
   cancelHandler() {
+    if(this.primKeyPopulated)
+      this.clearHandler();
+
     this.dialogRef.close();
   }
 }

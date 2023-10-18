@@ -19,7 +19,7 @@
 
   <div style="margin-top: 10px; margin-bottom: 5px; text-align: right; margin-right: 5px;">
     <button id="btnClear" class="standardRedBtn" (click)="clearHandler()" style="margin-right: 90px;" [disabled]="selectCols.length == 0" title="Click to clear selected primary key">Clear</button>
-    <button id="btnSubmit" class="standardGreenBtn" (click)="submitHandler()" title="Click to submit selected primary key(s)">Submit</button>
+    <button id="btnSubmit" class="standardGreenBtn" (click)="submitHandler()" [disabled]="selectCols.length == 0" title="Click to submit selected primary key(s)">Submit</button>
     <button id="btnCancel" class="standardGreenBtn" (click)="cancelHandler()" title="Click to close this window without action.">Close</button>
   </div>
 </div>

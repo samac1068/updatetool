@@ -34,7 +34,7 @@ export class ServersComponent implements OnInit {
 
     //Listeners
       this.comm.setQueryButton.subscribe(() => { this.setQueryButton() });  //  enable/disable the Save Current Query when table is selected
-      this.comm.populateQueryList.subscribe(() => { this.populateStoredQueryList() });  //  Repopulate 'Your Saved Queries' dropdown after query is saved
+      this.comm.populateQueryList.subscribe(() => { this.selectedQueryID = -1; this.populateStoredQueryList() });  //  Repopulate 'Your Saved Queries' dropdown after query is saved
       this.comm.selectTab.subscribe(() => { this.setSettingsByTab() });  //  enable/disable the Save Current Query button when tabs are changed
 
       this.comm.userInfoLoaded.subscribe(() => {
@@ -46,7 +46,6 @@ export class ServersComponent implements OnInit {
         this.defaultDB = this.store.getUserValue("database");
 
         //Need to grab a list of the queries for this user
-        this.queries = [];
         this.populateStoredQueryList();
 
         // Grab any stored column selection for the user
@@ -82,6 +81,9 @@ export class ServersComponent implements OnInit {
     this.comm.saveNewQuery.emit();
   }
 
+  deleteSelectedQuery() {
+    this.comm.deleteSavedQueryClicked.emit(this.selectedQueryID);
+  }
   setQueryButton(){
     this.isTableSelected = this.store.selectedTab.table.isSelected;
   }

@@ -11,6 +11,7 @@ import {PrimkeyDialogComponent} from '../../dialogs/primkey-dialog/primkey-dialo
 import {ModifierDialogComponent} from '../../dialogs/modifier-dialog/modifier-dialog.component';
 import {ConlogService} from '../../modules/conlog/conlog.service';
 import {ColDef, GridApi, RowDataChangedEvent} from 'ag-grid-community';
+import {ConfirmationDialogService} from "../../services/confirm-dialog.service";
 
 @Component({
   selector: 'app-query-result',
@@ -31,9 +32,10 @@ export class QueryResultComponent implements OnInit {
 
   rowsReturned!: string;
   loadingQuery: boolean = false;
-  //queryid: number = -1;
   userSqlDisplay: number = 1;
-  constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog, private conlog: ConlogService) { }
+
+  constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog, private conlog: ConlogService,
+              private dialogBox: ConfirmationDialogService) { }
 
   ngOnInit() {
     //Listener
@@ -55,6 +57,10 @@ export class QueryResultComponent implements OnInit {
 
     this.comm.saveNewQuery.subscribe(() => {
       this.saveCurrentQuery();
+    });
+
+    this.comm.deleteSavedQueryClicked.subscribe((queryid) => {
+      this.deleteSelectedQuery(queryid);
     });
 
     this.comm.copyToClipboardClicked.subscribe(() => {
@@ -130,7 +136,7 @@ export class QueryResultComponent implements OnInit {
         if (columnArr.length > 0) {
           for (let i = 0; i < columnArr.length; i++) {
             const tbl = columnArr[i].split(".")[0];
-            if (this.tabinfo.table.name == tbl || this.checkForTableInJoinsArr(tbl))
+            if (this.tabinfo.table.name.toUpperCase() == tbl.toUpperCase() || this.checkForTableInJoinsArr(tbl))
               newArr.push(columnArr[i]);
           }
 
@@ -148,11 +154,14 @@ export class QueryResultComponent implements OnInit {
 
     // Identify and updated all primary keys for this table
     if(storedColumns != null) {
-      let primaryKeyList: any = storedColumns.filter((row: any) => row.TableName.toUpperCase() == this.tabinfo.table.name.toUpperCase() && row.RType == 'P');
+      let primaryKeyList: any = storedColumns.filter((row: any) => {
+        row["TableName"].toUpperCase() == this.tabinfo.table.name.toUpperCase() && row["RType"] == 'P'
+      });
+
       if(primaryKeyList.length == 1) {
         // This will account for the original storage location.  Will be ignored after the first time the column is updated.
-        this.tabinfo.tempPrimKey = (primaryKeyList[0].DistinctCol != null) ? primaryKeyList[0].DistinctCol.split() : primaryKeyList[0].ColumnNames.split();
-        this.tabinfo.primKeyID = primaryKeyList[0].ID;
+        this.tabinfo.tempPrimKey = (primaryKeyList[0]["DistinctCol"] != null) ? primaryKeyList[0]["DistinctCol"].split() : primaryKeyList[0].ColumnNames.split();
+        this.tabinfo.primKeyID = primaryKeyList[0]["ID"];
 
         // Account for all the primary keys
         if (this.tabinfo.tempPrimKey != null) {
@@ -629,6 +638,22 @@ export class QueryResultComponent implements OnInit {
     }
   }
 
+  deleteSelectedQuery(queryid: number){
+    // Let make sure you want to delete this selected query
+    let storedqueries: any = this.store.getUserValue("storedqueries");
+    let selectedquery: any = this.store.getIndexByID(storedqueries, 'id', queryid);
+    console.log(selectedquery);
+
+    this.dialogBox.confirm('Confirm Deletion', 'Are you sure you want to delete the query title "' + storedqueries[selectedquery].title + '"? There is no UNDO to this process.')
+      .then(() => {
+        // Remove the selected query from the database. There is no safety net for this deletion
+        this.data.deleteSavedQuery(storedqueries[selectedquery].id, this.store.getUserValue("userid"))
+          .subscribe(() => {
+            this.comm.populateQueryList.emit();
+            this.store.generateToast("The selected query has been removed.");
+          });
+      });
+  }
   rowClickedHandler(row: any) {
     this.tabinfo.selectedrow = row.data;
   }
@@ -668,8 +693,9 @@ export class QueryResultComponent implements OnInit {
 
   validateTempPrimKey(tabdata: any) {
     // Doesn't have a primary key, so user must select a unique identifier to be used in the where clause
-    let dialogPrimeKey;
-    if(!dialogPrimeKey) {
+    if(!this.store.dialogOpen) {
+      let dialogPrimeKey;
+      this.store.dialogOpen = true;
       dialogPrimeKey = this.dialog.open(PrimkeyDialogComponent, {width: '350px', height: '430px', autoFocus: true, data: tabdata});
 
       // Actions if the clear button is selected - Regardless if previously saved, we need to ignore the information and make them do it again.
@@ -688,10 +714,11 @@ export class QueryResultComponent implements OnInit {
       // Actions when the dialog is closed - this should exclude the clear button.
       dialogPrimeKey.afterClosed().subscribe((coldata: any ) => {
         //console.log("primkey dialog was closed with: ", coldata.colids, coldata.colnames);
-
+        this.store.dialogOpen = false;
         if (coldata == undefined) {
           // Nothing was selected, so just close this bloody window
-          this.store.generateToast('No primary key was altered or stored. Action Aborted.');
+          this.conlog.log("No changes made to primary key selection.");
+          //this.store.generateToast('No primary key was altered or stored. Action Aborted.');
         } else {
           let pk: any = {}
           pk.tablename = this.tabinfo.table.name;

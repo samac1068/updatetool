@@ -15,7 +15,7 @@ export class StorageService {
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _devKey = "4c7a4455fdab4fb8228748fd7702d245";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.23.0920 (Doc: 1.6)';
+  private _appVersion = '2.23.1018 (Doc: 1.6)';
   private _inDev: boolean = false;
   private _bearerToken: string = "";
 
@@ -25,6 +25,7 @@ export class StorageService {
   system: System = new System();
   selectedTabID: string = "";
   selectedTab: Tab = new Tab;
+  dialogOpen: boolean = false;
 
   // Variable Constant
   rowOptions: any[] = [{lbl:'1 Row', value: 1}, {lbl: '10 Rows', value: 10}, {lbl: '50 Rows', value: 50}, {lbl:'100 Rows', value: 100},
@@ -124,7 +125,7 @@ export class StorageService {
 
   getIndexByID(arr: any, key: string, value: any){
     for (let i = 0; i < arr.length; i++) {
-      if (arr[i][key] === value) {
+      if (arr[i][key] == value) {
           return i;
       }
     }
@@ -262,5 +263,23 @@ export class StorageService {
       return str.length == 0 ? "" : str;
 
     return "";
+  }
+
+  errorCheckReturn(result: any): any {
+    // Need to check for specific error values.  If not found, then return what was passed otherwise return null
+    if(result != null) {
+      if (result.errmess) {
+        this.conlog.log(result.errmess);
+
+        if (result.errmess.substring(0, 3) == "C101" || result.errmess.substring(0, 3) == "C201") {
+          alert(result.errmess);
+          result = null;
+        } else {
+          this.generateToast('A non-fatal error was report. Please check the conlog for more information.', false);
+        }
+      }
+    }
+
+    return result;
   }
 }

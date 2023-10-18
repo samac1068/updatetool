@@ -317,6 +317,17 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
+  deleteSavedQuery(id: number, userid: number) {
+    this.conlog.log("deleteUserQuery");
+    const reqbody = {
+      apikey: this.store.getPassKey(),
+      skey: this.store.getUserValue("skey"),
+      userid: userid,
+      id: id
+    };
+    return this.http.post<any[]>(`${this.getWSPath()}/DeleteStoredQuery`, reqbody, httpHeaders)
+     .pipe(catchError(this.errorHandler));
+  }
   updateRowInfo(server: string, db: string, table: string, updatekey: string, extwhere: string) {
     this.conlog.log('updateRowInfo');
     const reqbody = {

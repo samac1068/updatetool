@@ -9,7 +9,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {LogConsoleDialogComponent} from './modules/conlog/log-console-dialog/log-console-dialog.component';
 import {ApiDialogComponent} from "./dialogs/api-dialog/api-dialog.component";
 import {System} from "./models/System.model";
-import {Token} from "./models/Token.model";
+
 
 @Component({
   selector: 'app-root',
@@ -65,7 +65,7 @@ export class AppComponent implements OnInit {
           data: true
         });
 
-        this.dialogApi.afterClose()
+        this.dialogApi.afterClosed()
           .subscribe(() => {
             this.isDialogApiOpen = false;
           });
@@ -93,9 +93,9 @@ export class AppComponent implements OnInit {
 
         // Get and manage the user access token
         this.conlog.log("urlToken: " + this.urlToken);
-        this.conlog.log("Development Mode: " + this.store.isDevMode());
+        this.conlog.log("In Development Mode: " + this.store.isDevMode());
         this.conlog.log("Network: " + this.store.system['webservice']['network']);
-        this.conlog.log(this.store.system['webservice']['type'] + ' webservice - devmode is ' + this.store.isDevMode());
+        //this.conlog.log(this.store.system['webservice']['type'] + ' webservice - devmode is ' + this.store.isDevMode());
         this.confirmEstablishedComms();
     }, 300);
   }
@@ -223,9 +223,9 @@ export class AppComponent implements OnInit {
       .subscribe({
         next: (results: any) => {
           if(results[0] != undefined) {
-            this.conlog.log("userinfo was successfully retrieved. [UID: " + results[0].UserID + "]");
             let row: any = results[0];
-            if(results[0].UserID != -9) {
+            this.conlog.log("userinfo was successfully retrieved. [UID: " + row["UserID"] + "]");
+            if(row["UserID"] != -9) {
               this.store.setUserValue("fname", this.store.checkForNull(row["FirstName"]));
               this.store.setUserValue("lname", this.store.checkForNull(row["LastName"]));
               this.store.setUserValue("appdata", this.store.checkForNull(row["AppData"]));
@@ -271,5 +271,4 @@ export class AppComponent implements OnInit {
         }
       });
   }
-
 }
