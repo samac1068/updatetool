@@ -12,6 +12,7 @@ import {ModifierDialogComponent} from '../../dialogs/modifier-dialog/modifier-di
 import {ConlogService} from '../../modules/conlog/conlog.service';
 import {ColDef, GridApi, RowDataChangedEvent} from 'ag-grid-community';
 import {ConfirmationDialogService} from "../../services/confirm-dialog.service";
+import {Column} from 'src/app/models/Column.model';
 
 @Component({
   selector: 'app-query-result',
@@ -34,6 +35,8 @@ export class QueryResultComponent implements OnInit {
   loadingQuery: boolean = false;
   userSqlDisplay: number = 1;
 
+  tblPrimaryKey: any[] = [];
+  pgInterval: number = -1;
   constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog, private conlog: ConlogService,
               private dialogBox: ConfirmationDialogService) { }
 
@@ -134,7 +137,7 @@ export class QueryResultComponent implements OnInit {
       if(columnListArr.length > 0) {  // Only perform this step if the user previous saved a list of column favorites.
         let columnArr = columnListArr[0].ColumnNames.split(",");
         if (columnArr.length > 0) {
-          for (let i = 0; i < columnArr.length; i++) {
+          for (let i: number = 0; i < columnArr.length; i++) {
             const tbl = columnArr[i].split(".")[0];
             if (this.tabinfo.table.name.toUpperCase() == tbl.toUpperCase() || this.checkForTableInJoinsArr(tbl))
               newArr.push(columnArr[i]);
@@ -154,25 +157,43 @@ export class QueryResultComponent implements OnInit {
 
     // Identify and updated all primary keys for this table
     if(storedColumns != null) {
-      let primaryKeyList: any = storedColumns.filter((row: any) => {
-        row["TableName"].toUpperCase() == this.tabinfo.table.name.toUpperCase() && row["RType"] == 'P'
-      });
+      let primaryKeyList: any[] = [];
+      for(let i: number = 0; i < storedColumns.length; i++) {
+        console.log('table compare: ' + this.tabinfo.table.name, storedColumns[i]["TableName"], storedColumns[i].RType);
+        if(this.tabinfo.table.name == storedColumns[i]["TableName"] && storedColumns[i].RType == "P")
+          primaryKeyList.push(storedColumns[i]);
+      }
 
-      if(primaryKeyList.length == 1) {
-        // This will account for the original storage location.  Will be ignored after the first time the column is updated.
-        this.tabinfo.tempPrimKey = (primaryKeyList[0]["DistinctCol"] != null) ? primaryKeyList[0]["DistinctCol"].split() : primaryKeyList[0].ColumnNames.split();
-        this.tabinfo.primKeyID = primaryKeyList[0]["ID"];
+      // Store the temporary primary key information.
+      if(primaryKeyList.length >= 1)
+        this.tblPrimaryKey = primaryKeyList;
 
-        // Account for all the primary keys
-        if (this.tabinfo.tempPrimKey != null) {
-          if (this.tabinfo.tempPrimKey.length > 0) {
-            for (let c = 0; c < this.tabinfo.tempPrimKey.length; c++) {
-              let selCol = this.tabinfo.availcolarr.find((x: any) => x.columnid == this.tabinfo.tempPrimKey[c]);
-              if (selCol != undefined)
-                selCol.primarykey = true;
-            }
-            this.tabinfo.hasPrimKey = true;
+      // Need to wait until the column list is populated before marking the primary key. If not ready, then wait until done.
+      this.pgInterval = setInterval(() => {
+        if(this.tabinfo.availcolarr.length > 0) {
+          clearInterval(this.pgInterval);
+          this.markPrimaryKeyOnCol();
+        }
+      }, 100);
+    }
+  }
+
+  markPrimaryKeyOnCol() {
+    if(this.tblPrimaryKey.length == 1) {
+      // This will account for the original storage location.  Will be ignored after the first time the column is updated.
+      //this.tabinfo.tempPrimKey = (this.tblPrimaryKey[0]["DistinctCol"] != null) ? this.tblPrimaryKey[0]["DistinctCol"].split(",") : this.tblPrimaryKey[0].ColumnNames.split(",");
+      this.tabinfo.tempPrimKey = this.tblPrimaryKey[0].ColumnNames.split(",");
+      this.tabinfo.primKeyID = this.tblPrimaryKey[0]["ID"];
+
+      // Account for all the primary keys
+      if (this.tabinfo.tempPrimKey != null) {
+        if (this.tabinfo.tempPrimKey.length > 0) {
+          for (let c: number = 0; c < this.tabinfo.tempPrimKey.length; c++) {
+            let selCol: Column | undefined = this.tabinfo.availcolarr.find((x: any) => x.columnname == this.tabinfo.tempPrimKey[c]);
+            if (selCol != undefined)
+              selCol.primarykey = true;
           }
+          this.tabinfo.hasPrimKey = true;
         }
       }
     }
@@ -249,9 +270,10 @@ export class QueryResultComponent implements OnInit {
       }
 
       // Order By
-      if (this.tabinfo.orderarr.length > 0)
+      if (this.tabinfo.orderarr.length > 0) {
         strSQL += this.constructOrderBy();
-
+        displayStrSQL += this.constructOrderBySentence();
+      }
       //Display the information
       this.tabinfo.rawquerystr = strSQL;
       this.tabinfo.querystr = displayStrSQL;
@@ -440,6 +462,18 @@ export class QueryResultComponent implements OnInit {
     for (let i = 0; i < this.tabinfo.orderarr.length; i++){
       if(i > 0) oStr += ", ";
       oStr += this.tabinfo.orderarr[i].name + " " + this.tabinfo.orderarr[i].sort
+    }
+
+    return oStr;
+  }
+
+  constructOrderBySentence(): string {
+    let oStr: string = ", sorting by ";
+
+    for (let i: number = 0; i < this.tabinfo.orderarr.length; i++){
+      if(i > 0) oStr += " and ";
+      oStr += this.tabinfo.orderarr[i].name + " "
+      oStr += (this.tabinfo.orderarr[i].sort == "DESC") ? "descending" : "accending";
     }
 
     return oStr;

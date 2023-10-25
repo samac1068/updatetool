@@ -5,7 +5,7 @@ import {ConlogService} from '../modules/conlog/conlog.service';
 
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
-const CSV_EXTENSION = ".csv";
+const CSV_EXTENSION = '.csv';
 
 @Injectable()
 export class ExcelService {
@@ -15,13 +15,17 @@ export class ExcelService {
   public exportAsExcelFile(json: any[], excelFileName: string, type: string): void {
 
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
-    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    this.conlog.log(type);
-    if(type == "excel")
+
+    if(type == "excel") {
+      this.conlog.log("Generating EXCEL report");
+      const workbook: XLSX.WorkBook = {Sheets: {'data': worksheet}, SheetNames: ['data']};
+      const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
       ExcelService.saveAsExcelFile(excelBuffer, excelFileName);
-    else
-      ExcelService.saveAsCSVFile(excelBuffer, excelFileName);
+    } else {
+      this.conlog.log("Generating CSV report");
+      const csvOutput: string = XLSX.utils.sheet_to_csv(worksheet);
+      ExcelService.saveAsCSVFile(new Blob([csvOutput]), excelFileName);
+    }
   }
 
   private static saveAsExcelFile(buffer: any, fileName: string): void {

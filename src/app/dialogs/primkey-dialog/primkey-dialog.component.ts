@@ -79,19 +79,15 @@ export class PrimkeyDialogComponent implements OnInit {
   // A column has been selected, so temporarily store in selectCols variable
   columnClickedHandler(col: any) {
     // adjust the values in the selectCols array.  If it exists, then remove it.  If it doesn't, then add it
-    if(this.store.isInArray(this.selectCols, col.columnid))
-      this.selectCols = this.selectCols.filter((x:number) => x != col.columnid); // Item was in the array, so remove it
+    if(this.store.isInArray(this.selectCols, col.columnname))
+      this.selectCols = this.selectCols.filter((x:string) => x != col.columnname); // Item was in the array, so remove it
     else
-      this.selectCols.push(col.columnid.toString()); // Item was NOT in the array, so add it
+      this.selectCols.push(col.columnname.toString()); // Item was NOT in the array, so add it
   }
 
   // Submit the selected primary key columns to the database to be used later
   submitHandler() {
     let colnamestr: string = "";
-    /*for(let c = 0; c < this.selectCols.length; c++) {
-        if(c > 0 ) colnamestr+= ' and ';
-        colnamestr+= this.availcol.find((x: any) => x.columnid == this.selectCols[c]).columnname.toUpperCase();
-    }*/
 
     // If at one point there was something there, and now it was removed, we need to just perform the reset and not the normal steps.
     if(this.selectCols.length == 0){
@@ -103,7 +99,7 @@ export class PrimkeyDialogComponent implements OnInit {
       // Used to just build the defining message string for the confirmation.  This columnname are not stored.
       this.selectCols.forEach((sc: any) => {
         if (colnamestr.length > 0) colnamestr += ' and ';
-        let colname = this.availcol.find((x: any) => x.columnid == sc).columnname.toUpperCase();
+        let colname = this.availcol.find((x: any) => x.columnname == sc).columnname.toUpperCase();
         colnamestr += colname;     // This is storing the column ID
         this.colnamearr.push(colname);  // This is storing the column name
       });
@@ -115,9 +111,6 @@ export class PrimkeyDialogComponent implements OnInit {
 
   // Close out the dialog window with no follow-on actions whatsoever
   cancelHandler() {
-    if(this.primKeyPopulated)
-      this.clearHandler();
-
     this.dialogRef.close();
   }
 }

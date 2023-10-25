@@ -53,7 +53,7 @@ export class UpdaterDialogComponent implements AfterContentInit  {
     let wStatement: string = "";
     if(this.data.tabinfo.tempPrimKey != null) {
       for (let c = 0; c < this.data.tabinfo.tempPrimKey.length; c++) {
-        let primecol = this.data.tabinfo.availcolarr.find((x: any) => x.columnid == this.data.tabinfo.tempPrimKey[c]);
+        let primecol = this.data.tabinfo.availcolarr.find((x: any) => x.columnname == this.data.tabinfo.tempPrimKey[c]);
 
         // If more than one limiter needs to be separated by the phrase 'AND'
         if (c > 0) wStatement += (this.genSentence) ? " and " : " AND ";

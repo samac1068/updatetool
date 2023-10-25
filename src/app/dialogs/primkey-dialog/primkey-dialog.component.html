@@ -13,7 +13,7 @@
 
   <div id="divDDL" style="text-align:left;" >
     <div id="lstPrimeKey">
-      <app-listbox *ngFor="let column of filPrimColumns" [item]="column" [selected]="isItemSelected(column.columnid)" (click)="columnClickedHandler(column)"></app-listbox>
+      <app-listbox *ngFor="let column of filPrimColumns" [item]="column" [selected]="isItemSelected(column.columnname)" (click)="columnClickedHandler(column)"></app-listbox>
     </div>
   </div>
 
