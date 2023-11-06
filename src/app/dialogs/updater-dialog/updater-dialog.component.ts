@@ -22,7 +22,7 @@ export class UpdaterDialogComponent implements AfterContentInit  {
 
   ngAfterContentInit () {
     // Determine the display format
-    this.genSentence = parseInt(this.store.getUserValue("appdata").substr(0,1)) == 0;
+    this.genSentence = parseInt(this.store.getUserValue("appdata").substr(0,1)) == 1;
 
     // Generate the query for display
     this.selcol = this.data.tabinfo.availcolarr.find((x: any) => x.columnname == this.data.tabinfo.table["selectedColumn"]);

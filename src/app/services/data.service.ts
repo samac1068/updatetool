@@ -383,6 +383,7 @@ export class DataService {
       skey: this.store.getUserValue("skey"),
       action: colObj.action,
       rtype: colObj.rtype,
+      databasename: colObj.databasename,
       tablename: colObj.tablename,
       columnnames: colObj.columnnames,
       distinctcol: colObj.distinctcol,

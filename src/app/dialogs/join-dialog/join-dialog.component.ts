@@ -8,6 +8,7 @@ import { DataService } from 'src/app/services/data.service';
 import { ConfirmationDialogService } from 'src/app/services/confirm-dialog.service';
 import {CommService} from '../../services/comm.service';
 import {ConlogService} from '../../modules/conlog/conlog.service';
+import {faPencil, faTrash} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
   selector: 'app-join-dialog',
@@ -31,12 +32,16 @@ export class JoinDialogComponent implements OnInit {
   tleftcolumn: string = "";
   tlefttblarr: any[] = [];
   tleftcolarr: Column[] = [];
+  tleftalias: string = "";
+
   trightdbarr: any[] = [];
   trightdb: string = "";
   trighttable: string = "";
   trightcolumn: string = "";
   trighttblarr: any[] = [];
   trightcolarr: Column[] = [];
+  trightalias: string = "";
+
   tjtype: string = "LEFT JOIN";
   tjop: string = "=";
   tjoinid: number = -1;
@@ -59,7 +64,7 @@ export class JoinDialogComponent implements OnInit {
   }
 
   findIndexByID(id: number){
-    for(let k=0; k < this.joinclausearr.length; k++){
+    for(let k: number = 0; k < this.joinclausearr.length; k++){
       if(this.joinclausearr[k].jid == id){
         return k;
       }
@@ -88,12 +93,6 @@ export class JoinDialogComponent implements OnInit {
 
     this.ws.getTableDBList( this.serverfull.replace('{0}', serverinfo), dbinfo)
     .subscribe((results) => {
-//  headleyt:  20210218  Added a check on the size of the joinclausearr to see if there are 5 rows already.  If there are 5 rows already, no more can be added
-      if (this.joinclausearr.length >= 5){
-        this.msgarr = "You cannot have more than 4 join statements. Please try again.";
-      }
-      else
-      {
         let arr: any = [];
         for(let i = 0; i < results.length; i++) {
             arr.push(results[i]);
@@ -104,7 +103,6 @@ export class JoinDialogComponent implements OnInit {
           this.tlefttblarr = arr;
         else
           this.trighttblarr = arr;
-      }
     });
   }
 
@@ -179,6 +177,15 @@ export class JoinDialogComponent implements OnInit {
 
   saveJoinClause() {
     this.data.joinarr = this.joinclausearr;
+
+    // Full Value View
+    console.log(this.data.joinarr);
+    this.data.joinarr.forEach((r) => {
+      let len:number = 0;
+      len += r.joinclausestr.length;
+      console.log("join string length: " + len);
+    });
+
     this.comm.runQueryChange.emit();
   }
 
@@ -190,55 +197,51 @@ export class JoinDialogComponent implements OnInit {
     temp.dbleft = this.tleftdb;
     temp.tableleft = this.tlefttable;
     temp.columnleft = this.tleftcolumn;
+    temp.aliasleft = "";
 
     temp.dbright = this.trightdb;
     temp.tableright = this.trighttable;
     temp.columnright = this.trightcolumn;
+    temp.aliasright = "";
 
     temp.operator = this.tjop;
 
-    //Properly construct the where clause.
-    temp.joinclausestr = temp.type;
-
     this.msgarr = "";
 
-//  headleyt:  20210224 Added a check to see
+    // We are currently only going to allow to have 8 join statements at this time
+    if(this.data.joinarr.length <= 7) {
+      // Need to verify that left table is either primary or in the collection, and right table is NOT primary.  The right table can appear in the collection without a problem
+      if (this.searchForTable(temp.tableleft) || temp.tableleft == this.data.table.name) {
+        // Search for an alias for the left table
+        this.joinclausearr.forEach((j: Join): any => {
+          if ((j["tableleft"] == temp.tableleft) && j["aliasleft"] != "")
+            temp.aliasleft = j["aliasleft"];
+        });
 
-    if(temp.tableleft != this.data.table.name) {
-      for (let i = 0; i < this.joinclausearr.length; i++){
-        if (this.joinclausearr[i].joinclausestr.indexOf("[" + temp.dbleft + "]..[" + temp.tableleft + "]") > 0)
-          temp.joinclausestr = temp.type + " [" + temp.dbright + "]..[" + temp.tableright + "] ON [" + temp.tableleft + "].[" + temp.columnleft + "] " + temp.operator +
-                        " [" + temp.tableright + "].[" + temp.columnright + "]";
-        else
-          temp.joinclausestr = temp.type + " [" + temp.dbleft + "]..[" + temp.tableleft + "] ON [" + temp.tableleft + "].[" + temp.columnleft + "] " + temp.operator +
-          " [" + temp.tableright + "].[" + temp.columnright + "]";
-      }
-    }
-    else
-      temp.joinclausestr = temp.type + " [" + temp.dbright + "]..[" + temp.tableright + "] ON [" + temp.tableleft + "].[" + temp.columnleft + "] " + temp.operator +
-                        " [" + temp.tableright + "].[" + temp.columnright + "]";
+        // If the right table was used previous, then we need to auto add an alias.  First two charcters of the table name + a number representing the number of additional tables.
+        if (this.store.rtnCountTimesFoundInArr(this.joinclausearr, "tableright", temp.tableright) > 0)
+          temp.aliasright = temp.tableright.substring(0, 1) + (this.store.rtnCountTimesFoundInArr(this.joinclausearr, "tableright", temp.tableright) + 1);
 
+        // Build the statement
+        temp.joinclausestr = temp.type;   // JOIN TYPE
+        temp.joinclausestr += " [" + temp.dbright + "]..[" + temp.tableright + "]"   // RIGHT TABLE
+        temp.joinclausestr += temp.aliasright // RIGHT ALIAS
+        temp.joinclausestr += " ON ";
+        temp.joinclausestr += (temp.aliasleft.length > 0) ? temp.aliasleft + ".[" + temp.columnleft + "] " : "[" + temp.tableleft + "].[" + temp.columnleft + "] ";  // LEFT TABLE
+        temp.joinclausestr += temp.operator   // Operator
+        temp.joinclausestr += (temp.aliasright.length > 0) ? temp.aliasright + ".[" + temp.columnright + "]" : "[" + temp.tableright + "].[" + temp.columnright + "]";  // RIGHT TABLE
+      } else
+        this.msgarr = "You are attempting to join to a table not previously used. This is an invalid join request.";
 
-    //  headleyt;  20210219  Added a check on the length of the join string.  It seems it is good with 260 but not good at 278 characters
-    if ((this.checkJoinClauseLength() + temp.joinclausestr.length) > 260)
-      this.msgarr = "The join string cannot be more than 260 characters. This join will not be added.";
-    else {
+      // Store the newly constructed join information
       this.conlog.log("add join:" + temp);
       this.joinclausearr.push(temp);
       this.data.columns = this.data.columns.concat(this.trightcolarr); // Need to add the joined table's column to the list of available columns, so they can be limited using the column limiter.
+    } else {
+      this.msgarr = "You can only have a maximum of 8 individual join statements. You need to remove one to add a new statement.";
     }
 
     this.resetAllFields();
-  }
-
-  //  headleyt:  20210219  Added function to check the length of the join string to be added.  Adding one to it to account for the spade that
-  //   needs to be added between each join clause
-  checkJoinClauseLength(){
-    let iJoinLength: number = 0;
-    for (let i = 0; i < this.joinclausearr.length; i++){
-      iJoinLength += this.joinclausearr[i].joinclausestr.length;
-    }
-    return iJoinLength + 1;
   }
 
   removeJoinItem(itemid: number) {
@@ -258,6 +261,7 @@ export class JoinDialogComponent implements OnInit {
     this.tleftdb = temp.dbleft;
     this.tlefttable = temp.tableleft;
     this.tleftcolumn = temp.columnleft;
+
     this.trightdb = temp.dbright;
     this.trighttable = temp.tableright;
     this.trightcolumn = temp.columnright;
@@ -272,4 +276,23 @@ export class JoinDialogComponent implements OnInit {
     this.getAvailableTables('right');
     this.getAvailableColumns('right');
   }
+
+  searchForTable(tblName: string, side: string = "r"): boolean {
+    let count: number = 0;
+
+    if(side == "l") {
+      this.joinclausearr.forEach((join: Join) => {
+        (join["tlefttable"] == tblName && count++)
+      });
+    } else {
+      this.joinclausearr.forEach((join: Join) => {
+        (join["trighttable"] == tblName && count++)
+      });
+    }
+
+    return count > 0;
+  }
+
+  protected readonly faTrash = faTrash;
+  protected readonly faPencil = faPencil;
 }

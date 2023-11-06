@@ -175,6 +175,7 @@ export class ColumnsDialogComponent implements OnInit {
 
     if(this.columnListArr.length > 0 || this.columnArr.length > 0) {
       colSto.action = action;
+      colSto.databasename = this.data.database;
       colSto.tablename = this.data.table.name;
       colSto.columnnames = this.columnArr.join();
       colSto.distinctcol = this.distinctCol;
@@ -187,7 +188,7 @@ export class ColumnsDialogComponent implements OnInit {
             if (this.store.errorCheckReturn(results)) {
               this.comm.reloadStoredColumnData.emit();
               this.store.getUserValue('storedcolumns').forEach((row: any, index: number) => {
-                if (row["TableName"].toUpperCase() == this.data.table.name.toUpperCase() && row.Rtype == "C") {
+                if (row["DatabaseName"] == this.data.database && row["TableName"].toUpperCase() == this.data.table.name.toUpperCase() && row.Rtype == "C") {
                   this.store.getUserValue('storedcolumns').splice(index, 1);
                   return;
                 }

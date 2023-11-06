@@ -1,6 +1,6 @@
 .outerbox {
     width: 650px;
-    height: 470px;
+    height: 530px;
     background-color: #fdfdfd;
     overflow: hidden;
 }
@@ -9,6 +9,7 @@
     border: 1px solid black;
     width: 650px;
     height: 175px;
+    align-content: center;
 }
 
 .bottombox {
@@ -55,11 +56,11 @@ button {
 
 .section {
     border: 1px solid black;
-    height: 190px;
+    height: 240px;
 }
 
 .data {
-    border: 1px solid gray;
+    border: 1px solid grey;
 }
 
 .statementtext {
@@ -73,4 +74,20 @@ button {
     width: 650px;
     height: 20px;
     text-align: center;
+    margin-top: 25px;
+}
+
+.grpSep {
+  margin-left: 10px;
+}
+
+.sectionSep {
+  width: 695px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.divSep {
+  margin-top: 15px;
 }

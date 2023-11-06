@@ -131,7 +131,7 @@ export class QueryResultComponent implements OnInit {
 
     // Identify all preselected preferred columns for this table
     if(storedColumns != null) {
-      let columnListArr: any = storedColumns.filter((row: any) => row.TableName.toUpperCase() == this.tabinfo.table.name.toUpperCase() && row.RType == 'C');
+      let columnListArr: any = storedColumns.filter((row: any) => row.TableName.toUpperCase() == this.tabinfo.table.name.toUpperCase() && row.DatabaseName.toUpperCase() == this.tabinfo.database && row.RType == 'C');
 
       // Before finalizing the list, make sure associated TABLES are support within JOIN statement or PRIMARY table.
       if(columnListArr.length > 0) {  // Only perform this step if the user previous saved a list of column favorites.
@@ -160,7 +160,7 @@ export class QueryResultComponent implements OnInit {
       let primaryKeyList: any[] = [];
       for(let i: number = 0; i < storedColumns.length; i++) {
         console.log('table compare: ' + this.tabinfo.table.name, storedColumns[i]["TableName"], storedColumns[i].RType);
-        if(this.tabinfo.table.name == storedColumns[i]["TableName"] && storedColumns[i].RType == "P")
+        if((this.tabinfo.table.name == storedColumns[i]["TableName"]) && (this.tabinfo.database == storedColumns[i]["DatabaseName"]) && storedColumns[i].RType == "P" )
           primaryKeyList.push(storedColumns[i]);
       }
 
@@ -250,7 +250,7 @@ export class QueryResultComponent implements OnInit {
       }
 
       //Include the FROM
-      strSQL += "FROM ";
+      strSQL += " FROM ";
       displayStrSQL += "from the "
 
       //Add the database and table info
@@ -719,9 +719,10 @@ export class QueryResultComponent implements OnInit {
   }
 
   processMissingTempPrimKey() {
+    // If no temporary primary key is being used, then identify the true database managed primary key for this table
     if(this.tabinfo.tempPrimKey == null) {
       this.tabinfo.tempPrimKey = [];
-      this.tabinfo.tempPrimKey.push(this.tabinfo.availcolarr.find((x: any) => x.primarykey == true)?.columnid);
+      this.tabinfo.tempPrimKey.push(this.tabinfo.availcolarr.find((x: any) => x.primarykey == true)?.columnname);
     }
   }
 
@@ -755,6 +756,7 @@ export class QueryResultComponent implements OnInit {
           //this.store.generateToast('No primary key was altered or stored. Action Aborted.');
         } else {
           let pk: any = {}
+          pk.databasename = this.tabinfo.database;
           pk.tablename = this.tabinfo.table.name;
           pk.columnnames = coldata.colnames.join();
           pk.distinctcol = coldata.colids.join();
