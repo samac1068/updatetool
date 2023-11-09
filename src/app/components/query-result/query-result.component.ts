@@ -222,7 +222,7 @@ export class QueryResultComponent implements OnInit {
       }
 
       // Determine the number of rows to be returned.  10 with no where clause, full amount with a clause.
-      this.tabinfo.selectcnt = (this.tabinfo.wherearrcomp.length == 0 && this.tabinfo.distinctcol == "") ? "10" : "-9";
+      this.tabinfo.selectcnt = (this.tabinfo.wherearrcomp.length == 0 && this.tabinfo.distinctcol == "" && !this.tabinfo.limitRows) ? "10" : "-9";
 
       // Depending on how many returning, generate the rest of the visual information.
       if (this.tabinfo.selectcnt == "-9") {
@@ -331,7 +331,6 @@ export class QueryResultComponent implements OnInit {
     }
 
     //console.log("Formatting Script Output is: " + str);
-
     return str;
   }
   reorderColListBasedOnDistinct(colArr: any, distinctList: string): string {
@@ -371,12 +370,7 @@ export class QueryResultComponent implements OnInit {
       if(i > 0) wStr += " " + (row.condition.length == 0 ? " AND " : " " + row.condition + " ") + " ";
 
       //Add the column and operator
-      //  headleyt:  20210115  modifications integrated from Sean
-      if(forDisplay)
-        wStr += row.name + " " + row.operator + " ";
-      else
-        wStr += "[" + row.table + "].[" + row.name + "] {" + this.store.operators.indexOf(row.operator) + "} ";
-
+      wStr += ((forDisplay) ? (row.name + " " + row.operator + " ") : ("[" + row.table + "].[" + row.name + "] {" + this.store.operators.indexOf(row.operator) + "} "));
       wStr += this.whereClauseQuotes(row, forDisplay);
     }
 
@@ -393,9 +387,7 @@ export class QueryResultComponent implements OnInit {
       if(i > 0) wStr += " " + (row.condition.length == 0 ? " and " : " " + row.condition.toUpperCase() + " ") ;
 
       //Add the column and operator
-      //  headleyt:  20210115  modifications integrated from Sean
       wStr += this.TitleCase(row.name) + " " + this.getTextOperator(this.store.operators.indexOf(row.operator)) + " ";
-
       wStr += this.whereClauseQuotes(row, true);
     }
 
