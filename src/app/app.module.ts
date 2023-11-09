@@ -101,6 +101,8 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 import { ColumnFilterPipe } from './services/column-filter.pipe';
 import { BoldSpanPipe } from './services/bold-span.pipe';
 import { ApiDialogComponent } from './dialogs/api-dialog/api-dialog.component';
+import { QueryPipe } from './services/pipes/query.pipe';
+
 
 
 const routes: Routes = [];
@@ -142,7 +144,8 @@ const routes: Routes = [];
     ColumnFilterPipe,
     ColumnOrderDialogComponent,
     BoldSpanPipe,
-    ApiDialogComponent
+    ApiDialogComponent,
+    QueryPipe
   ],
   imports: [
     BrowserModule,

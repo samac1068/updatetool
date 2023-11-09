@@ -18,7 +18,7 @@ import {ColDef, GridApi} from 'ag-grid-community'
 export class UsermgrDialogComponent implements OnInit {
 
   assignedUser: any = [];
-  //colHeader!: string[];
+
   columnDefs: any[] = [{field: 'userid', headerName: 'UID', width: 80}, {field: 'username', headerName: 'UserName'}];
   defColDefine: ColDef = { sortable: true, filter: true, resizable: true, autoHeaderHeight: true };
   gridHeaderHeight: number = 22;
@@ -26,7 +26,7 @@ export class UsermgrDialogComponent implements OnInit {
   gridApi!: GridApi;
   isManEntry: boolean = true;
   selectedData: any;
-  //displayedColumns: string[] = ['select', 'UserID', 'Username'];
+
   mgrGrp!: FormGroup;
   availDatabase: any = [];
   adminItem: Admin = new Admin();

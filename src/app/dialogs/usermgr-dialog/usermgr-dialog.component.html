@@ -11,7 +11,7 @@
     <div class="upper">
       <span class="subtitle">Query Tool User List</span>
 
-      <div class="divusertable">
+      <div class="divusertable" [hidden]="assignedUser.length == 0">
         <ag-grid-angular
           style="width: 100%; height: 100%;"
           class="ag-theme-alpine"
@@ -26,8 +26,11 @@
           (cellClicked)="onSelectionChange()"
         ></ag-grid-angular>
       </div>
+      <div class="divusertable loadingDiv" [hidden]="assignedUser.length > 0">Stand by Loading Data</div>
 
       <button class="standardRedBtn" style="width: 95%; margin-left: 5px; margin-top: 5px;" [disabled]="!selection" (click)="purgeSelectedUsers()">Delete Selected User</button>
+
+
     </div>
 
     <div class="upper">

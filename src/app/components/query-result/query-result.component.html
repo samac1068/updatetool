@@ -1,14 +1,6 @@
 <!-- SQL Statement display window -->
-<div class="divQuery">
- {{ userSqlDisplay == 1 ? tabinfo.querystr : tabinfo.rawquerystr }}
-</div>
-
-<!-- Modifier Buttons -->
-<!--<div class="divModButtons" *ngIf="colHeader">
-  <span style="margin-left: 5px; font-weight: bold">Data Modifier Navigation:</span>
-  <button class="standardBtn" style="margin-left: 10px; width: 120px;"><span class="fa fa-plus-square"></span> Add Row</button>
-  <button class="standardRedBtn" style="margin-left: 30px; width:120px;"><span class="fa fa-minus-square" (click)="showHideEditColumn()"></span> Remove Row</button>
-</div>-->
+<div id="divQueryStr" class="divQuery" contenteditable=false [innerHTML]="htmlQueryDisplay | querySafe"></div>
+<div id="divScriptr" class="divQuery" contenteditable=true [innerHTML]="htmlQueryDisplay | querySafe" style="display:none"></div>
 
 <!-- Row Counter and separator -->
 <div class="separator"></div>

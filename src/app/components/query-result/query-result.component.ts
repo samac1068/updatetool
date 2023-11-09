@@ -2,7 +2,7 @@ import {ExcelService} from '../../services/excel.service';
 import {DataService} from '../../services/data.service';
 import {StorageService} from '../../services/storage.service';
 import {CommService} from '../../services/comm.service';
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {Tab} from 'src/app/models/Tab.model';
 import {MatDialog} from '@angular/material/dialog';
 import {QueryDialogComponent} from 'src/app/dialogs/query-dialog/query-dialog.component';
@@ -10,14 +10,15 @@ import {UpdaterDialogComponent} from '../../dialogs/updater-dialog/updater-dialo
 import {PrimkeyDialogComponent} from '../../dialogs/primkey-dialog/primkey-dialog.component';
 import {ModifierDialogComponent} from '../../dialogs/modifier-dialog/modifier-dialog.component';
 import {ConlogService} from '../../modules/conlog/conlog.service';
-import {ColDef, GridApi, RowDataChangedEvent} from 'ag-grid-community';
+import {ColDef, GridApi, RowDataUpdatedEvent} from 'ag-grid-community';
 import {ConfirmationDialogService} from "../../services/confirm-dialog.service";
 import {Column} from 'src/app/models/Column.model';
 
 @Component({
   selector: 'app-query-result',
   templateUrl: './query-result.component.html',
-  styleUrls: ['./query-result.component.css']
+  styleUrls: ['./query-result.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class QueryResultComponent implements OnInit {
 
@@ -33,10 +34,14 @@ export class QueryResultComponent implements OnInit {
 
   rowsReturned!: string;
   loadingQuery: boolean = false;
-  userSqlDisplay: number = 1;
+  //userSqlDisplay: number = 1;
+  htmlQueryDisplay!: string;
 
   tblPrimaryKey: any[] = [];
   pgInterval: number = -1;
+
+  totalRecCount: number = 0;
+
   constructor(private comm: CommService, private data: DataService, private store: StorageService, private excel: ExcelService, public dialog: MatDialog, private conlog: ConlogService,
               private dialogBox: ConfirmationDialogService) { }
 
@@ -131,7 +136,7 @@ export class QueryResultComponent implements OnInit {
 
     // Identify all preselected preferred columns for this table
     if(storedColumns != null) {
-      let columnListArr: any = storedColumns.filter((row: any) => row.TableName.toUpperCase() == this.tabinfo.table.name.toUpperCase() && row.DatabaseName.toUpperCase() == this.tabinfo.database && row.RType == 'C');
+      let columnListArr: any = storedColumns.filter((row: any) => row["TableName"].toUpperCase() == this.tabinfo.table.name.toUpperCase() && row["DatabaseName"].toUpperCase() == this.tabinfo.database && row["RType"] == 'C');
 
       // Before finalizing the list, make sure associated TABLES are support within JOIN statement or PRIMARY table.
       if(columnListArr.length > 0) {  // Only perform this step if the user previous saved a list of column favorites.
@@ -216,18 +221,16 @@ export class QueryResultComponent implements OnInit {
         displayStrSQL += "the total number of records ";
       }
 
-      if (this.tabinfo.wherearrcomp.length == 0 && this.tabinfo.distinctcol == "") {
-        if (this.tabinfo.selectcnt == "0") this.tabinfo.selectcnt = "10";
+      // Determine the number of rows to be returned.  10 with no where clause, full amount with a clause.
+      this.tabinfo.selectcnt = (this.tabinfo.wherearrcomp.length == 0 && this.tabinfo.distinctcol == "") ? "10" : "-9";
 
-        if (this.tabinfo.selectcnt == "-9") {
-          strSQL += " ";
-          displayStrSQL += "all records ";
-        } else {
-          strSQL += "TOP " + this.tabinfo.selectcnt + " ";
-          displayStrSQL += "the first " + this.tabinfo.selectcnt + " " + ((parseInt(this.tabinfo.selectcnt) > 1) ? "records " : "record ");
-        }
-      } else if (this.tabinfo.wherearrcomp.length > 0 && this.tabinfo.distinctcol == "") {
+      // Depending on how many returning, generate the rest of the visual information.
+      if (this.tabinfo.selectcnt == "-9") {
+        strSQL += " ";
         displayStrSQL += "all records ";
+      } else {
+        strSQL += "TOP " + this.tabinfo.selectcnt + " ";
+        displayStrSQL += "the first " + this.tabinfo.selectcnt + " " + ((parseInt(this.tabinfo.selectcnt) > 1) ? "records " : "record ");
       }
 
       // Specific columns or all columns
@@ -244,7 +247,7 @@ export class QueryResultComponent implements OnInit {
         }
 
         if (this.tabinfo.colfilterarr[0] == "*" && this.tabinfo.distinctcol == "") {
-          strSQL += "* ";
+          strSQL += "*";
           displayStrSQL += "of all columns ";
         }
       }
@@ -282,12 +285,55 @@ export class QueryResultComponent implements OnInit {
       this.conlog.log("SQL: " + strSQL);
       this.conlog.log("DISPLAY: " + displayStrSQL);
 
-      this.userSqlDisplay = parseInt(this.store.getUserValue("appdata").substr(0,1));
+      this.htmlQueryDisplay = (parseInt(this.store.getUserValue("appdata").substr(0,1)) == 1) ? this.tabinfo.querystr : this.applyHTMLFormat(this.tabinfo.rawquerystr);
 
       this.executeSQL();
     }
   }
 
+  applyHTMLFormat(str: string): string {
+    // This will search through the string, and apply formatting changes to alter the layout of the query in the display window
+    let blueLBKWArr: string[] = ["from", "where"];
+    let blueKWArr: string[] = ["select","desc", "asc", "on", "update", "delete"];
+    let blueINDKWArr: string[] = ["top","order by", "distinct"];
+    let grayLBINDKWArr: string[] = ["and", "inner join", "outer join ", "left join", "right join"];
+
+    // Replace blue keywords and linebreak
+    blueLBKWArr.forEach((item: string): void => {
+      let re: RegExp = new RegExp("\\b" + item + "\\b", "gi");
+      str = str.replace(re, "<br/><span class='keyblue'>" + item.toUpperCase() + "</span><br/>&nbsp;&nbsp;");
+    });
+
+    // Replace for blue keywords and no line break
+    blueKWArr.forEach((item: string): void => {
+      let re: RegExp = new RegExp("\\b" + item + "\\b", "gi");
+      str = str.replace(re, "<span class='keyblue'>" + item.toUpperCase() + "</span>");
+    });
+
+    // Replace for blue keyword with line break and indenting
+    blueINDKWArr.forEach((item: string): void => {
+      let re: RegExp = new RegExp("\\b" + item + "\\b", "gi");
+      str = str.replace(re, "<br/>&nbsp;&nbsp;<span class='keyblue'>" + item.toUpperCase() + "</span>");
+    });
+
+    // Replace for gray keywork with line break and indenting
+    grayLBINDKWArr.forEach((item): void => {
+      let re: RegExp = new RegExp("\\b" + item + "\\b", "gi");
+      str = str.replace(re, "<br/>&nbsp;&nbsp;<span class='keygrey'>" + item.toUpperCase() + "</span>");
+    });
+
+    // Replace for blod count value
+    if(this.tabinfo.selectcnt != "-9"){
+      this.store.rowOptions.forEach((grp: any): void => {
+        let re: RegExp = new RegExp("\\b" + grp["value"] + "\\b", "gi");
+        str = str. replace(re, "<span class='keyblack'>" + grp["value"] + "</span> ");
+      });
+    }
+
+    //console.log("Formatting Script Output is: " + str);
+
+    return str;
+  }
   reorderColListBasedOnDistinct(colArr: any, distinctList: string): string {
     if (distinctList != "") {
       for(let i = 0; i < colArr.length; i++) {
@@ -331,39 +377,7 @@ export class QueryResultComponent implements OnInit {
       else
         wStr += "[" + row.table + "].[" + row.name + "] {" + this.store.operators.indexOf(row.operator) + "} ";
 
-      if (row.operator.toUpperCase() != "IS NULL" && row.operator.toUpperCase() != "IS NOT NULL"){
-      //Add the value (quote if type requires)
-        switch (row.type) {
-          case "char":
-	  			case "varchar":
-		  		case "datetime":
-			  	case "date":
-				  case "time":
-  				case "xml":
-	  			case "nvarchar":
-		  		case "nchar":
-			  	case "ntext":
-				  case "text":
-  				case "uniqueidentifier":
-    //headleyt:  20210205  added a check to parse/build the proper string for the IN operator
-            {
-              if (row.operator.toUpperCase() != "IN")
-                wStr += "'" + this.checkForWildcards(row.value, forDisplay) + "'";
-              else
-                wStr += this.checkValidINString(this.checkForWildcards(row.value, forDisplay));
-            }
-		  			break;
-			  	case "float":
-				  case "bigint":
-  				case "int":
-	  			case "bit":
-		  		case "decimal":
-          wStr += this.checkValidINString(row.value);
-				  	break;
-        }
-      } else {
-        wStr = wStr.substr(0, wStr.length - 1);
-      }
+      wStr += this.whereClauseQuotes(row, forDisplay);
     }
 
     return wStr;
@@ -376,47 +390,52 @@ export class QueryResultComponent implements OnInit {
       let row: any = this.tabinfo.wherearrcomp[i];
 
       //Add in the condition for the second + where item
-      //if(i > 0) wStr += " " + (row.condition == 'IS NOT NULL' || row.condition == 'IS NULL') ? row.condition.toUpperCase() : row.condition + " ";
       if(i > 0) wStr += " " + (row.condition.length == 0 ? " and " : " " + row.condition.toUpperCase() + " ") ;
 
       //Add the column and operator
       //  headleyt:  20210115  modifications integrated from Sean
       wStr += this.TitleCase(row.name) + " " + this.getTextOperator(this.store.operators.indexOf(row.operator)) + " ";
 
-      if (row.operator.toUpperCase() != "IS NULL" && row.operator.toUpperCase() != "IS NOT NULL"){
-      //Add the value (quote if type requires)
-        switch (row.type) {
-          case "char":
-	  			case "varchar":
-		  		case "datetime":
-			  	case "date":
-				  case "time":
-  				case "xml":
-	  			case "nvarchar":
-		  		case "nchar":
-			  	case "ntext":
-				  case "text":
-  				case "uniqueidentifier":
-          //  headleyt:  20210205  added a check to parse/build the proper string for the IN operator
-            {
-              if (row.operator.toUpperCase() != "IN")
-                wStr += "'" + this.checkForWildcards(row.value, true) + "'";
-              else
-                wStr += this.checkValidINString(this.checkForWildcards(row.value, true));
-            }
-		  			break;
-			  	case "float":
-				  case "bigint":
-  				case "int":
-	  			case "bit":
-		  		case "decimal":
-          wStr += this.checkValidINString(row.value);
-				  	break;
-        }
-      }
+      wStr += this.whereClauseQuotes(row, true);
     }
 
     return wStr;
+  }
+
+  whereClauseQuotes(row: any, forDisplay: boolean): string {
+    let sentFrag: string = "";
+    if (row.operator.toUpperCase() != "IS NULL" && row.operator.toUpperCase() != "IS NOT NULL"){
+      //Add the value (quote if type requires)
+      switch (row.type) {
+        case "char":
+        case "varchar":
+        case "datetime":
+        case "date":
+        case "time":
+        case "xml":
+        case "nvarchar":
+        case "nchar":
+        case "ntext":
+        case "text":
+        case "uniqueidentifier": //headleyt:  20210205  added a check to parse/build the proper string for the IN operator
+          if (row.operator.toUpperCase() != "IN")
+            sentFrag += "'" + this.checkForWildcards(row.value, forDisplay) + "'";
+          else
+            sentFrag += this.checkValidINString(this.checkForWildcards(row.value, forDisplay));
+          break;
+        case "float":
+        case "bigint":
+        case "int":
+        case "bit":
+        case "decimal":
+          sentFrag += (row.operator.toUpperCase() == "IN") ? this.checkValidINString(row.value) : row.value;
+          break;
+      }
+    } else {
+      sentFrag = sentFrag.substr(0, sentFrag.length - 1);
+    }
+
+    return sentFrag
   }
 
   //  headleyt:  20210204  Added new function to check the string entered for the IN operator
@@ -566,6 +585,8 @@ export class QueryResultComponent implements OnInit {
     let lmtRow: number = (this.tabinfo.limitRows)? 1 : 0;
     let distinct: number = (this.tabinfo.distinctcol != "") ? 1 : 0;                                       // boolean converted to string
 
+    this.rowsReturned = "Loading";
+
     this.data.getQueryData(this.tabinfo.server.replace('{0}', this.tabinfo.database), this.tabinfo.database, this.tabinfo.table.name,
     col, where, join, order, count, lmtRow, this.tabinfo.selectcnt, this.store.user.username, distinct)
       .subscribe((results: any) => {
@@ -598,7 +619,10 @@ export class QueryResultComponent implements OnInit {
     let colDef:any = [];
 
     if(results.length > 0) {
-      // Only display results less than 1001 rows
+      // Only display results less than 1001 rows - Make sure to display a message
+      this.totalRecCount = results.length;
+      if(results.length > this.store.maximumRowReturnCnt)
+        this.store.generateToast(results.length + " records returned, but restricting to displaying only 1000. Modify your filters to reduce return.", true);
       results = results.splice(0, this.store.maximumRowReturnCnt);
 
       // Populated the Data Grid
@@ -621,11 +645,12 @@ export class QueryResultComponent implements OnInit {
       }
     }
 
-    this.rowsReturned = "Rows Returned: " + results.length;
+    // Generate the string for the return display
+    this.rowsReturned = "Rows Returned: " + results.length + ((this.totalRecCount > results.length) ? " (Out of " + this.totalRecCount + ")" : "");
     this.loadingQuery = false;
   }
 
-  onRowDataChanged(params: RowDataChangedEvent) {
+  onRowDataChanged(params: RowDataUpdatedEvent) {
     // make sure the returned columns fits the width of the viewable table
     /*TODO: Need to fix the new Ag Grid to fit the width of the screen when is a low count of columns. */
     this.conlog.log(params);

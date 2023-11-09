@@ -295,6 +295,7 @@ export class DataService {
       appdata: user.appdata,
       userid: user.userid
     };
+    console.log("addEditUpdateUserInfo", reqbody);
     return this.http.post<any[]>(`${this.getWSPath()}/AddEditUpdateUserInfo`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
