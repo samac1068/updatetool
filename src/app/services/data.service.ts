@@ -35,10 +35,6 @@ export class DataService {
     // Add on the specific API Controller ID
     bcPath += "/" + this.store.system['webservice']['webcontrol'];
 
-    // For local testing and not to be stored
-    console.log(this.store.system['webservice']);
-    console.log(bcPath);
-
     return bcPath;
   }
 
@@ -104,12 +100,12 @@ export class DataService {
       .pipe(catchError(this.errorHandler)));
   }
 
-  apiGetCommsCheck() {  // This is used to confirm that the API is accessible
+  apiGetCommsCheck(): Observable<Object> {  // This is used to confirm that the API is accessible
     this.conlog.log("Performing Get Comms Check");
     return this.http.get(`${this.getWSPath()}/CheckWbComms`);
   }
 
-  apiPostCommsCheck() {  // This is used to confirm that the API is accessible
+  apiPostCommsCheck(): Observable<any[]> {  // This is used to confirm that the API is accessible
     this.conlog.log("Performing Post Comms Check");
     const reqbody = {
       action: 'Communications check with designated QT API.'
@@ -117,7 +113,7 @@ export class DataService {
     return this.http.post<any[]>(`${this.getWSPath()}/CheckPostCommsParam`, reqbody, httpHeaders);
   }
 
-  apiPostDBCommsCheck() {
+  apiPostDBCommsCheck(): Observable<any>  {
     this.conlog.log("Performing POST DB Comms Check");
     const reqbody = {
       action: 'Checking API to DB Communications: '
@@ -125,7 +121,7 @@ export class DataService {
     return this.http.post<any>(`${this.getWSPath()}/CheckPostAPIDBConnection`, reqbody, httpHeaders)
   }
 
-  validateUserToken(token: string | null) { //First service called when the application is first executed, unless executed locally
+  validateUserToken(token: string | null): Observable<any[]> { //First service called when the application is first executed, unless executed locally
     this.conlog.log('validateUserToken');
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -140,7 +136,7 @@ export class DataService {
   }
 
   //Second service called to pull in the user's specific information which is required for set up of the individual pages
-  getUserInfo() {
+  getUserInfo(): Observable<any[]> {
     this.conlog.log('getUserInfo');
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -180,7 +176,7 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  getTableDBList(server: string, db: string) {
+  getTableDBList(server: string, db: string): Observable<any[]> {
     this.conlog.log('getTableDBList');
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -228,7 +224,7 @@ export class DataService {
   }
 
   //Used to get all the stored materials like stored procedures, views, and functions.
-  getStoredObjectList(server: string, db: string, type: string) {
+  getStoredObjectList(server: string, db: string, type: string): Observable<any[]> {
     this.conlog.log('getStoredObjectList for ' + type);
     let webservice: string = "";
 
@@ -255,7 +251,7 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  getStoredValues(server: string, db: string, itemname: string) {
+  getStoredValues(server: string, db: string, itemname: string): Observable<any[]> {
     this.conlog.log('getStoredValues');
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -268,7 +264,7 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  executeQStr(queryid: number) {
+  executeQStr(queryid: number): Observable<any[]> {
     this.conlog.log('executeQStr');
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -279,7 +275,7 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  addEditUpdateUserInfo(user: User) {
+  addEditUpdateUserInfo(user: User): Observable<any[]> {
     this.conlog.log('addEditUpdateUserInfo');
     let action: string = (user.userid == -9) ? "add" : "edit";
     const reqbody = {
@@ -301,7 +297,7 @@ export class DataService {
   }
 
   //  headleyt:  20210106  added a new parameter, qtype, to be added when the query is created
-  storeNewQuery(title: string, body: string, server: string, database: string, userid: string, qtype: string, display: string) {
+  storeNewQuery(title: string, body: string, server: string, database: string, userid: string, qtype: string, display: string): Observable<any[]> {
     this.conlog.log('storeNewQuery');
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -318,7 +314,7 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  deleteSavedQuery(id: number, userid: number) {
+  deleteSavedQuery(id: number, userid: number): Observable<any[]> {
     this.conlog.log("deleteUserQuery");
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -329,7 +325,7 @@ export class DataService {
     return this.http.post<any[]>(`${this.getWSPath()}/DeleteStoredQuery`, reqbody, httpHeaders)
      .pipe(catchError(this.errorHandler));
   }
-  updateRowInfo(server: string, db: string, table: string, updatekey: string, extwhere: string) {
+  updateRowInfo(server: string, db: string, table: string, updatekey: string, extwhere: string): Observable<any[]> {
     this.conlog.log('updateRowInfo');
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -344,7 +340,7 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  adminManager(ad: Admin) {
+  adminManager(ad: Admin): Observable<any[]> {
     this.conlog.log("adminManager");
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -366,7 +362,7 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  getUserColumnSelection(userid: number) {
+  getUserColumnSelection(userid: number): Observable<any[]> {
     this.conlog.log('getUserColummnSelection');
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -377,7 +373,7 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  updateUserColumnSelection(colObj: any) {
+  updateUserColumnSelection(colObj: any): Observable<any[]> {
     this.conlog.log("updateUserColumnSelection");
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -395,7 +391,7 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  clearUserDefinedPK(tablename: string) {
+  clearUserDefinedPK(tablename: string): Observable<any[]> {
     this.conlog.log("clearUserDefinedPK");
     const reqbody = {
       apikey: this.store.getPassKey(),
@@ -407,7 +403,7 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  getResetPortalSession(action: string, cutidlist: string) {
+  getResetPortalSession(action: string, cutidlist: string): Observable<any[]> {
     this.conlog.log('getResetPortalSession');
     const reqbody = {
       apikey: this.store.getPassKey(),

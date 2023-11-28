@@ -186,7 +186,7 @@ export class ColumnsDialogComponent implements OnInit {
       this.api.updateUserColumnSelection(colSto)
         .subscribe(results => {
             if (this.store.errorCheckReturn(results)) {
-              this.comm.reloadStoredColumnData.emit();
+              this.store.setUserValue('storedcolumns', results);
               this.store.getUserValue('storedcolumns').forEach((row: any, index: number) => {
                 if (row["DatabaseName"] == this.data.database && row["TableName"].toUpperCase() == this.data.table.name.toUpperCase() && row.Rtype == "C") {
                   this.store.getUserValue('storedcolumns').splice(index, 1);

@@ -34,7 +34,7 @@ export class QueryResultComponent implements OnInit {
 
   rowsReturned!: string;
   loadingQuery: boolean = false;
-  //userSqlDisplay: number = 1;
+
   htmlQueryDisplay!: string;
 
   tblPrimaryKey: any[] = [];
@@ -283,10 +283,8 @@ export class QueryResultComponent implements OnInit {
 
       //Run the string based on this information (it won't be a direct run)
       this.conlog.log("SQL: " + strSQL);
-      this.conlog.log("DISPLAY: " + displayStrSQL);
-
+      //this.conlog.log("DISPLAY: " + displayStrSQL);
       this.htmlQueryDisplay = (parseInt(this.store.getUserValue("appdata").substr(0,1)) == 1) ? this.tabinfo.querystr : this.applyHTMLFormat(this.tabinfo.rawquerystr);
-
       this.executeSQL();
     }
   }
@@ -323,7 +321,7 @@ export class QueryResultComponent implements OnInit {
     });
 
     // Replace for blod count value
-    if(this.tabinfo.selectcnt != "-9"){
+    if(this.tabinfo.selectcnt != "-9" && str.indexOf("TOP") > -1){
       this.store.rowOptions.forEach((grp: any): void => {
         let re: RegExp = new RegExp("\\b" + grp["value"] + "\\b", "gi");
         str = str. replace(re, "<span class='keyblack'>" + grp["value"] + "</span> ");
@@ -594,9 +592,11 @@ export class QueryResultComponent implements OnInit {
   executeStoredQuery(tab: Tab) {
     //I need to confirm what tab I should be on
     if(tab.sqid != undefined){
+      this.loadingQuery = true;
+      this.rowsReturned = "Loading";
+      this.htmlQueryDisplay = (parseInt(this.store.getUserValue("appdata").substr(0,1)) == 1) ? tab.querystr : this.applyHTMLFormat(tab.rawquerystr);
       this.data.executeQStr(tab.sqid).subscribe((results) => {
         this.processReturnedData(results);
-        this.loadingQuery = false;
       });
     } else {
       alert("Current tab id doesn't match for the selected stored query.  Execution aborted.");
@@ -624,7 +624,7 @@ export class QueryResultComponent implements OnInit {
       this.dataSource = results;
 
       // If this was executed by the updater, then now send a response to display the update complete
-      this.conlog.log(this.tabinfo.updateRecReq);
+      //this.conlog.log(this.tabinfo.updateRecReq);
       if (this.tabinfo.updateRecReq) {
         this.tabinfo.updateRecReq = false;
         this.store.generateToast("Record Successfully Updated");
@@ -642,11 +642,12 @@ export class QueryResultComponent implements OnInit {
     this.loadingQuery = false;
   }
 
-  onRowDataChanged(params: RowDataUpdatedEvent) {
+  onRowDataUpdated(params: RowDataUpdatedEvent) {
     // make sure the returned columns fits the width of the viewable table
     /*TODO: Need to fix the new Ag Grid to fit the width of the screen when is a low count of columns. */
-    this.conlog.log(params);
-    this.gridApi.sizeColumnsToFit();
+    //this.conlog.log(params);
+    if(params.context != undefined)
+      this.gridApi.sizeColumnsToFit();
   }
 
   exportAsXLSX(type: string):void {
@@ -710,29 +711,32 @@ export class QueryResultComponent implements OnInit {
   }
 
   cellClickedHandler(cellData: any) {
-    // Store the column that has been selected for modification
-    this.tabinfo.table["selectedColumn"] = cellData.colDef.field;
-    this.tabinfo.table["curvalue"] = cellData.value;
+    if(!this.tabinfo.isstoredquery) {
+      // Store the column that has been selected for modification
+      this.tabinfo.table["selectedColumn"] = cellData.colDef.field;
+      this.tabinfo.table["curvalue"] = cellData.value;
 
-    // Identify the appropriate column to be modified
-    let colObj: any = this.tabinfo.availcolarr.find(x => cellData.colDef.field === x.columnname);
-    colObj.colSelected = true;
+      // Identify the appropriate column to be modified
+      let colObj: any = this.tabinfo.availcolarr.find(x => cellData.colDef.field === x.columnname);
+      colObj.colSelected = true;
 
-    //Does this table have a primary key or a temporary primary key (is required)
-    if(!this.tabinfo.hasPrimKey) {
-      let tabdata: any = {col: this.tabinfo.table["selectedColumn"], tabinfo: this.tabinfo };
-      this.validateTempPrimKey(tabdata);   // Make sure a primary key get selected, since none is identified at this point
+      //Does this table have a primary key or a temporary primary key (is required)
+      if (!this.tabinfo.hasPrimKey) {
+        let tabdata: any = {col: this.tabinfo.table["selectedColumn"], tabinfo: this.tabinfo};
+        this.validateTempPrimKey(tabdata);   // Make sure a primary key get selected, since none is identified at this point
 
-      if(this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0)
-        this.processCellClicked(colObj);
-      else {
-        this.tabinfo.tempPrimKey = null;
+        if (this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0)
+          this.processCellClicked(colObj);
+        else {
+          this.tabinfo.tempPrimKey = null;
+          this.processMissingTempPrimKey();
+        }
+      } else {
         this.processMissingTempPrimKey();
+        this.processCellClicked(this.tabinfo.availcolarr.find(x => cellData.colDef.field === x.columnname));
       }
-    } else {
-      this.processMissingTempPrimKey();
-      this.processCellClicked(this.tabinfo.availcolarr.find(x => cellData.colDef.field === x.columnname));
-    }
+    } else
+      this.store.generateToast("You cannot update column information without an established Primary Key. Stored Queries don't maintain Primary Keys.", false);
   }
 
   processMissingTempPrimKey() {

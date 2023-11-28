@@ -10,11 +10,15 @@
 
 <!-- Display Results Datatable -->
 <div class="divResults">    <!-- [text-copy] -->
-  <div *ngIf="tabinfo.table == undefined && !tabinfo.isstoredquery">
+  <div *ngIf="!loadingQuery && tabinfo.table == undefined && !tabinfo.isstoredquery">
     <span class="preloader" style="margin-left: 5px">Please select a table from the table list.</span>
   </div>
 
-  <div *ngIf="(!loadingQuery && tabinfo.table != undefined) || tabinfo.isstoredquery ">
+  <div *ngIf="loadingQuery && (tabinfo.table != undefined || tabinfo.isstoredquery)" class="spinner">
+    <mat-spinner class="loadIcon"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loadingQuery && (tabinfo.table != undefined || tabinfo.isstoredquery)">
     <ag-grid-angular
       style="width: 100%; height: 42vh;"
       class="ag-theme-alpine"
@@ -28,10 +32,7 @@
       (gridReady)="onGridReady($event)"
       (cellClicked)="rowClickedHandler($event)"
       (cellDoubleClicked)= "cellClickedHandler($event)"
-      (rowDataChanged)="onRowDataChanged($event)"
+      (rowDataUpdated)="onRowDataUpdated($event)"
     ></ag-grid-angular>
-  </div>
-  <div *ngIf="loadingQuery && tabinfo.table != undefined" class="spinner">
-    <mat-spinner class="loadIcon"></mat-spinner>
   </div>
 </div>

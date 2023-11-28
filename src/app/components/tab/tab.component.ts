@@ -19,7 +19,6 @@ import { ViewerDialogComponent } from 'src/app/dialogs/viewer-dialog/viewer-dial
 export class TabComponent implements OnInit {
 
   @Input() tabinfo!: Tab;
-  tabid: string = "";
 
   constructor(private store: StorageService, private data: DataService, private comm: CommService, public dialog: MatDialog) { }
 
@@ -101,15 +100,5 @@ export class TabComponent implements OnInit {
         this.dialog.open(ViewerDialogComponent, {width: '1000px', height: '730px', autoFocus: true, data: this.tabinfo });
       }
     });
-
-    // A stored query was requested
-    if(this.tabinfo.isstoredquery) {
-      setTimeout(() => {    // This delay is added to wait until the tab is completely generated before we execute the stored query, otherwise it will appear on the wrong tab.
-        if(this.tabinfo === this.store.selectedTab) {
-          this.comm.runStoredQuery.emit(this.tabinfo);
-        }
-      }, 500);
-    }
   }
-
 }

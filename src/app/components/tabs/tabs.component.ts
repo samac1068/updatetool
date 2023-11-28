@@ -80,29 +80,44 @@ export class TabsComponent implements OnInit {
     tabCont.active = false;
 
     this.tabs.push(tabCont);
-
     this.selectTab(this.tabs[this.tabs.length - 1]);
   }
 
    selectTab(tab: Tab) {
-    for(let i =0; i < this.tabs.length; i++)
-      this.tabs[i].active = false;
+    if(this.selectedTab != this.tabs.length) {  // Only the concern if a tab was added.
+      for (let i = 0; i < this.tabs.length; i++)
+        this.tabs[i].active = false;
 
-    tab.active = true;
+      tab.active = true;
 
-    this.selectedTab = tab.tabindex;
-    this.selectedTabID = tab.tabid;
-    this.store.selectedTabID = tab.tabid;
-    this.store.selectedTab = tab;
-    this.comm.selectTab.emit();
+      this.selectedTab = tab.tabindex;
+      this.selectedTabID = tab.tabid;
+      this.store.selectedTabID = tab.tabid;
+      this.store.selectedTab = tab;
+
+      if(this.store.selectedTab.tablearr.length > 0 || this.store.selectedTab.isstoredquery) {
+        if (this.store.selectedTab.isstoredquery)
+          this.comm.runStoredQuery.emit(this.store.selectedTab);
+        else {
+          this.comm.runQueryChange.emit();
+          this.comm.selectTab.emit();
+        }
+      }
+    }
   }
 
   updateActiveTabID(evt: any) {
     if(this.tabs.length > 0)
-      this.selectTab(this.tabs[evt.index]);
+        this.selectTab(this.tabs[evt.index]);
   }
 
   removeTab(index: number) {
+    if(this.selectedTab == index){ // Is the tab to be deleted currently selected?
+      if((this.tabs.length - 1) > 0) { // Make sure we have a tab to the left, if not then ignore.
+        this.selectTab(this.tabs[index - 1]);
+      }
+    }
+
     this.tabs.splice(index, 1);
   }
 }
