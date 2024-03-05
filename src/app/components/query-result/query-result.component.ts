@@ -4,7 +4,7 @@ import {StorageService} from '../../services/storage.service';
 import {CommService} from '../../services/comm.service';
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {Tab} from 'src/app/models/Tab.model';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {QueryDialogComponent} from 'src/app/dialogs/query-dialog/query-dialog.component';
 import {UpdaterDialogComponent} from '../../dialogs/updater-dialog/updater-dialog.component';
 import {PrimkeyDialogComponent} from '../../dialogs/primkey-dialog/primkey-dialog.component';
@@ -13,6 +13,7 @@ import {ConlogService} from '../../modules/conlog/conlog.service';
 import {ColDef, GridApi, RowDataUpdatedEvent} from 'ag-grid-community';
 import {ConfirmationDialogService} from "../../services/confirm-dialog.service";
 import {Column} from 'src/app/models/Column.model';
+import {SpmanagerDialogComponent} from "../../dialogs/spmanager-dialog/spmanager-dialog.component";
 
 @Component({
   selector: 'app-query-result',
@@ -34,6 +35,7 @@ export class QueryResultComponent implements OnInit {
 
   rowsReturned!: string;
   loadingQuery: boolean = false;
+  nocolumns: boolean = false;
 
   htmlQueryDisplay!: string;
 
@@ -47,7 +49,7 @@ export class QueryResultComponent implements OnInit {
 
   ngOnInit() {
     //Listener
-    this.comm.tableSelected.subscribe(() => {
+    this.comm.tableSelected.subscribe((tabinfo) => {
       this.newTableSelected();
     });
 
@@ -86,6 +88,10 @@ export class QueryResultComponent implements OnInit {
 
     this.comm.userUpdatedReloadSys.subscribe( () => {
       this.constructSQLString();
+    });
+
+    this.comm.runStoredProcedureClicked.subscribe(() =>{
+      this.processRunStoredProcedure();
     });
   }
 
@@ -164,7 +170,7 @@ export class QueryResultComponent implements OnInit {
     if(storedColumns != null) {
       let primaryKeyList: any[] = [];
       for(let i: number = 0; i < storedColumns.length; i++) {
-        console.log('table compare: ' + this.tabinfo.table.name, storedColumns[i]["TableName"], storedColumns[i].RType);
+        //console.log('table compare: ' + this.tabinfo.table.name, storedColumns[i]["TableName"], storedColumns[i].RType);
         if((this.tabinfo.table.name == storedColumns[i]["TableName"]) && (this.tabinfo.database == storedColumns[i]["DatabaseName"]) && storedColumns[i].RType == "P" )
           primaryKeyList.push(storedColumns[i]);
       }
@@ -205,7 +211,7 @@ export class QueryResultComponent implements OnInit {
   }
 
   constructSQLString() {
-    if (this.tabinfo === this.store.selectedTab) {
+    if (this.tabinfo === this.store.selectedTab && this.tabinfo.table != undefined) {
       this.loadingQuery = true;   // Display the loading indicator, so they know something is going on.
       this.colHeader = [];        // Clear out the current displayed results
 
@@ -609,13 +615,15 @@ export class QueryResultComponent implements OnInit {
     this.columnDefs = [];
     this.colHeader = [];
     let colDef:any = [];
+    this.nocolumns = false;
 
     if(results.length > 0) {
       // Only display results less than 1001 rows - Make sure to display a message
       this.totalRecCount = results.length;
-      if(results.length > this.store.maximumRowReturnCnt)
+      if(results.length > this.store.maximumRowReturnCnt) {
         this.store.generateToast(results.length + " records returned, but restricting to displaying only 1000. Modify your filters to reduce return.", true);
-      results = results.splice(0, this.store.maximumRowReturnCnt);
+        results = results.splice(0, this.store.maximumRowReturnCnt);
+      }
 
       // Populated the Data Grid
       this.colHeader = Object.keys(results[0]);
@@ -630,10 +638,14 @@ export class QueryResultComponent implements OnInit {
         this.store.generateToast("Record Successfully Updated");
       }
     } else {
-      for(let i=0; i < this.tabinfo.columns.length; i++) {
-        let col: any = this.tabinfo.columns[this.store.getIndexByID(this.tabinfo.columns, "columnid", (i+1))];
-        this.columnDefs.push({field: col.columnname, headerName: col.columnname });
-        this.colHeader.push(col.columnname);
+      if(this.tabinfo.columns != undefined) {
+        for (let i: number = 0; i < this.tabinfo.columns.length; i++) {
+          let col: any = this.tabinfo.columns[this.store.getIndexByID(this.tabinfo.columns, "columnid", (i + 1))];
+          this.columnDefs.push({field: col.columnname, headerName: col.columnname});
+          this.colHeader.push(col.columnname);
+        }
+      } else {
+        this.nocolumns = true;
       }
     }
 
@@ -756,7 +768,7 @@ export class QueryResultComponent implements OnInit {
 
       // Actions if the clear button is selected - Regardless if previously saved, we need to ignore the information and make them do it again.
       dialogPrimeKey.componentInstance.onClear.subscribe(() => {
-        this.data.clearUserDefinedPK(this.tabinfo.table.name).subscribe(() => {
+        this.data.clearUserDefinedPK(this.tabinfo.table.name, this.tabinfo.database).subscribe(() => {
               this.comm.reloadStoredColumnData.emit();
               this.tabinfo.tempPrimKey = [];
               this.tabinfo.hasPrimKey = false;
@@ -848,13 +860,13 @@ export class QueryResultComponent implements OnInit {
           console.log("VARTYPE: " + selcol.vartype);
 
           // Generate the full where clause especially if there is more than one column used for the unique key
-          let wheredata = " WHERE ";
-          if(this.tabinfo.hasPrimKey) {  // If using permanent primary keys
+          let wheredata:string = " WHERE ";
+          if(this.tabinfo.hasPrimKey && this.tabinfo.tempPrimKey == null) {  // If using permanent primary keys only
             wheredata += this.generateLimiter(this.tabinfo.availcolarr.find(x => x.primarykey));
-          } else if(!this.tabinfo.hasPrimKey && this.tabinfo.tempPrimKey != null) { // If using temporary primary keys
+          } else if(this.tabinfo.hasPrimKey && this.tabinfo.tempPrimKey != null) { // If using temporary primary keys only
             for (let c = 0; c < this.tabinfo.tempPrimKey.length; c++) {
               if (c > 0) wheredata += " AND ";
-              wheredata += this.generateLimiter(this.tabinfo.availcolarr.find(x => x.columnid == this.tabinfo.tempPrimKey[c]));
+              wheredata += this.generateLimiter(this.tabinfo.availcolarr.find(x => x.columnname == this.tabinfo.tempPrimKey[c]));
             }
           } else alert("Missing Primary Key.  Unable to update value");
 
@@ -881,5 +893,13 @@ export class QueryResultComponent implements OnInit {
       .subscribe((rtn) => {
           this.conlog.log(rtn);
       });
+  }
+
+  processRunStoredProcedure(): void {
+    let dialogExecute: MatDialogRef<SpmanagerDialogComponent>|null = null;
+    dialogExecute = this.dialog.open(SpmanagerDialogComponent, {width: '1200px', height: '700px', autoFocus: false, data: this.tabinfo, disableClose: true });
+    dialogExecute.afterClosed().subscribe(() => {
+      dialogExecute = null;
+    });
   }
 }

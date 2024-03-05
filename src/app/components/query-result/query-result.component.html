@@ -10,15 +10,19 @@
 
 <!-- Display Results Datatable -->
 <div class="divResults">    <!-- [text-copy] -->
-  <div *ngIf="!loadingQuery && tabinfo.table == undefined && !tabinfo.isstoredquery">
+  <div *ngIf="!loadingQuery && tabinfo.table == undefined && !tabinfo.isstoredquery && !nocolumns">
     <span class="preloader" style="margin-left: 5px">Please select a table from the table list.</span>
   </div>
 
-  <div *ngIf="loadingQuery && (tabinfo.table != undefined || tabinfo.isstoredquery)" class="spinner">
+  <div *ngIf="loadingQuery && tabinfo.table != undefined && !tabinfo.isstoredquery && nocolumns">
+    <span class="preloader" style="margin-left: 5px">There was an error in the return. Your session may have timed out. Please reload and try again.</span>
+  </div>
+
+  <div *ngIf="loadingQuery && !nocolumns && (tabinfo.table != undefined || tabinfo.isstoredquery)" class="spinner">
     <mat-spinner class="loadIcon"></mat-spinner>
   </div>
 
-  <div *ngIf="!loadingQuery && (tabinfo.table != undefined || tabinfo.isstoredquery)">
+  <div *ngIf="!loadingQuery && !nocolumns && (tabinfo.table != undefined || tabinfo.isstoredquery)">
     <ag-grid-angular
       style="width: 100%; height: 42vh;"
       class="ag-theme-alpine"

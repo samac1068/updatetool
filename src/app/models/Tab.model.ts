@@ -29,7 +29,7 @@ export class Tab {
   querytitle!: string;
   qtype!: string;  // headleyt:  20210106 added qtype to make it available as a parameter when saving a query
 
-  //Variabled for standard uses
+  //Variable for standard uses
   databasearr!: any[]; //id, name
   tablearr!: any[];    //id, name, did
 
@@ -55,4 +55,14 @@ export class Tab {
   selectedrow: any;
 
   updateRecReq: boolean = false;
+
+  // Variables for the Stored Procedure Execution Function
+  spManager!: any;
+  storedProcArr!: string[] | null;
+  selectedSPName!: string | null;
+  selectedSPProps!: any[] | null;
+  selectedSPResults!: any[] | null;
+  spListCollectDate!: number | null;
+  resultsExported: boolean = false;
+
 }

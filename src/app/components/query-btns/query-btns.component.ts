@@ -6,7 +6,8 @@ import {DataService} from '../../services/data.service';
 import {StorageService} from '../../services/storage.service';
 import {User} from '../../models/User.model';
 import {ConlogService} from '../../modules/conlog/conlog.service';
-import { faColumns, faList, faCompress, faFileText, faFileExcel, faFileClipboard, faKey, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faColumns, faList, faCompress, faFileText, faFileExcel, faFileClipboard, faKey, faEye, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import {IconDefinition} from "@fortawesome/free-regular-svg-icons";
 
 @Component({
   selector: 'app-query-btns',
@@ -21,6 +22,7 @@ export class QueryBtnsComponent implements OnInit {
   faFileText = faFileText
   faFileExcel = faFileExcel
   faFileClipboard = faFileClipboard
+  fdUprightSquare: IconDefinition = faUpRightFromSquare
   faKey = faKey
   faEye = faEye
 
@@ -76,5 +78,9 @@ export class QueryBtnsComponent implements OnInit {
     }
     else
       alert("You must select table and have results to export data.");
+  }
+
+  openExecuteDialog(): void {
+    this.comm.runStoredProcedureClicked.emit();
   }
 }

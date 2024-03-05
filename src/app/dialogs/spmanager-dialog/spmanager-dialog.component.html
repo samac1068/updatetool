@@ -1,0 +1,66 @@
+<div id="selectbox">
+  <div id="title">
+    <h2>Run Stored Procedure Direct</h2>
+    <div class="gridWrapper">
+      <div class="one"><strong>DataBase:</strong> {{ data.database }}</div>
+      <div class="two"><strong>Selected Stored Procedure:</strong>&nbsp;<span style="color: blue; text-decoration: underline;">{{ data.selectedSPName }}</span></div>
+      <div class="three"><strong>Rows Returned:</strong>&nbsp; {{ controlledDataReturn?.length }}</div>
+    </div>
+  </div>
+
+  <div id="leftCenter">
+    <div *ngIf="loadedStoredProcArr != null">
+    <button class="qryButton specialBtn" (click)="reloadStoredProcList()" ngbTooltip="Reexecute SQL query" placement="bottom" ><fa-icon [icon]="faRefresh"></fa-icon> Reload Data</button>
+
+    <div class="tableFilter">
+      <input id="txtSPName" type="text" [(ngModel)]="filterTerm" autocomplete="off" placeholder="Filter Text" />
+      <button class="standardGreenBtn" style="padding: 0 5px;" (click)="resetFilterTerm()"> X </button>
+
+      <div class="innerTable">
+        <a *ngFor="let sp of loadedStoredProcArr | storedProcFilter: filterTerm"
+           class="list-group-item list-group-item-action tablelistitem" [ngClass]="{'spselected': data.selectedSPName == sp.NAME}"
+           (click)="storedProcSelected(sp.NAME);">
+          {{ sp.NAME | uppercase}} <i class="fa fa-arrow-left" *ngIf="data.selectedSPName == sp.NAME" aria-hidden="true"></i></a>
+      </div>
+    </div>
+    </div>
+    <div *ngIf="loadedStoredProcArr == null">Stand By Loading Stored Procedure List</div>
+  </div>
+
+  <div id="middleCenter">
+    <h3>Stored Procedure Properties</h3>
+    <div id="fieldWrapper">
+      <div id="wrapContainer">
+        <mat-form-field class="propertyField" *ngFor="let obj of loadedSPProperties">
+          <mat-label>{{ obj.NAME.toUpperCase().replace("@", "") }}</mat-label>
+          <input matInput type="text" (focusout)="addPropValue($event, obj.NAME)" />
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+
+  <div id="rightCenter">
+    <div style="text-align: center; margin-top: 10px;">
+      <button class="standardGreenBtn buttonFormat" [disabled]="data.selectedSPName == null" (click)="executeSelectedSP()" title="Click to Execute the selected Stored Procedure with the property values">Execute Stored Proc</button>
+      <button class="standardGreenBtn buttonFormat" [disabled]="data.selectedSPResults == null" title="Export the Results to Excel" (click)="exportAsXLSX()">Export to Excel</button>
+      <button class="standardGreenBtn buttonFormat" [disabled]=1 title="Clear the provided property values." (click)="resetProperties()">Clear Properties</button>
+      <button class="standardGreenBtn buttonFormat" title="Close the dialog" (click)="closeDialog()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="resultsGrid" >
+  <div *ngIf="controlledDataReturn == null" class="rtnGridInfo">Select a Stored Procedure, provide parameters, and click the Execute Stored Proc button</div>
+  <ag-grid-angular *ngIf="controlledDataReturn != null"
+    style="width: 100%; height: 38.5vh;"
+    class="ag-theme-alpine"
+    [columnDefs]="rtnColDef"
+    [defaultColDef]="defColDefine"
+    [rowData]="controlledDataReturn"
+    [rowSelection]="'single'"
+    [animateRows]="true"
+    [rowHeight]="gridRowHeight"
+    [headerHeight]="gridHeaderHeight"
+    (gridReady)="onGridReady($event)"
+  ></ag-grid-angular>
+</div>

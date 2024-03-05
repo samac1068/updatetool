@@ -35,7 +35,6 @@ import { SelectPnlComponent } from './components/select-pnl/select-pnl.component
 import { TablesComponent } from './components/tables/tables.component';
 import { QueryBtnsComponent } from './components/query-btns/query-btns.component';
 import { FiltersComponent } from './components/filters/filters.component';
-import { TableFilterPipe } from './services/tablefilter.pipe';
 import { ListboxComponent } from './components/listbox/listbox.component';
 import { ConlogModule } from './modules/conlog/conlog.module';
 import { RouterModule, Routes } from '@angular/router';
@@ -90,6 +89,8 @@ import { UsermgrDialogComponent } from './dialogs/usermgr-dialog/usermgr-dialog.
 import { ToastNotificationsModule } from 'ngx-toast-notifications';
 import { SessionDialogComponent } from './dialogs/session-dialog/session-dialog.component';
 import { ColumnOrderDialogComponent } from './dialogs/column-order-dialog/column-order-dialog.component';
+import { SpmanagerDialogComponent } from "./dialogs/spmanager-dialog/spmanager-dialog.component";
+import { ApiDialogComponent } from './dialogs/api-dialog/api-dialog.component';
 
 // Font Awesome
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -98,11 +99,11 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 
 // Custom Pipes
-import { ColumnFilterPipe } from './services/column-filter.pipe';
-import { BoldSpanPipe } from './services/bold-span.pipe';
-import { ApiDialogComponent } from './dialogs/api-dialog/api-dialog.component';
+import { ColumnFilterPipe } from './services/pipes/column-filter.pipe';
+import { BoldSpanPipe } from './services/pipes/bold-span.pipe';
 import { QueryPipe } from './services/pipes/query.pipe';
-
+import { StoredProcFilterPipe } from './services/pipes/storedprocfilter.pipe';
+import { TableFilterPipe } from './services/pipes/tablefilter.pipe';
 
 
 const routes: Routes = [];
@@ -145,7 +146,9 @@ const routes: Routes = [];
     ColumnOrderDialogComponent,
     BoldSpanPipe,
     ApiDialogComponent,
-    QueryPipe
+    QueryPipe,
+    SpmanagerDialogComponent,
+    StoredProcFilterPipe
   ],
   imports: [
     BrowserModule,
@@ -197,7 +200,8 @@ const routes: Routes = [];
     WhatsnewDialogComponent,
     UpdaterDialogComponent,
     PrimkeyDialogComponent,
-    UsermgrDialogComponent
+    UsermgrDialogComponent,
+    SpmanagerDialogComponent
   ]
 })
 export class AppModule {

@@ -31,11 +31,31 @@ export class TabsComponent implements OnInit {
     });
 
     this.comm.addNewTabClicked.subscribe((data) => {
+      this.validateActiveOpen();
       if(data != undefined) {
         this.addTab(data);
       } else
         this.addTab();
     });
+
+    this.comm.deleteSPDialog.subscribe( ()=> {
+      this.store.selectedTab.spManager = null;
+      this.store.selectedTab.storedProcArr = null;
+      this.store.selectedTab.selectedSPName = null;
+      this.store.selectedTab.selectedSPProps = null;
+      this.store.selectedTab.selectedSPResults = null;
+      this.store.selectedTab.spListCollectDate = null;
+    });
+  }
+
+  validateActiveOpen()
+  {
+    // This will close any tab that doesn't have a table assignment yet. This is used prior to adding a new tab only
+    for(let t: number = 0; t < this.tabs.length; t++)
+    {
+      if(this.tabs[t].table == undefined)
+        this.tabs.splice(t, 1); // Table assigned made for this existing table, so let's delete it before we add
+    }
   }
 
   addTab(queryid?: string) {
@@ -83,9 +103,10 @@ export class TabsComponent implements OnInit {
     this.selectTab(this.tabs[this.tabs.length - 1]);
   }
 
-   selectTab(tab: Tab) {
+   selectTab(tab: Tab)
+   {
     if(this.selectedTab != this.tabs.length) {  // Only the concern if a tab was added.
-      for (let i = 0; i < this.tabs.length; i++)
+      for (let i: number = 0; i < this.tabs.length; i++)
         this.tabs[i].active = false;
 
       tab.active = true;
@@ -106,12 +127,14 @@ export class TabsComponent implements OnInit {
     }
   }
 
-  updateActiveTabID(evt: any) {
+  updateActiveTabID(evt: any)
+  {
     if(this.tabs.length > 0)
         this.selectTab(this.tabs[evt.index]);
   }
 
-  removeTab(index: number) {
+  removeTab(index: number)
+  {
     if(this.selectedTab == index){ // Is the tab to be deleted currently selected?
       if((this.tabs.length - 1) > 0) { // Make sure we have a tab to the left, if not then ignore.
         this.selectTab(this.tabs[index - 1]);

@@ -10,6 +10,12 @@ import {LogConsoleDialogComponent} from './modules/conlog/log-console-dialog/log
 import {ApiDialogComponent} from "./dialogs/api-dialog/api-dialog.component";
 import {System} from "./models/System.model";
 
+export interface WhatNew {
+  BuildDate: string
+  BuildVersion: string
+  BuildChanges: string
+}
+
 
 @Component({
   selector: 'app-root',
@@ -78,11 +84,15 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Get the query string parameter for key
-    this.urlToken = this.store.getParamValueQueryString('key');
     this.getSystemConfig();
     this.getServerConfig();
     this.getApplicationBuild();
+
+    // Get the query string parameter for key
+    if(this.store.system['webservice']['network'] == "sipr"){
+      this.store.setUserValue("username", this.store.getParamValueQueryString('key'));
+    } else
+      this.urlToken = this.store.getParamValueQueryString('key');
 
     // Only continue when the three areas above have finished processing
     this.appInit["id"] = setInterval(() => {
@@ -125,6 +135,13 @@ export class AppComponent implements OnInit {
   }
 
   getApplicationBuild() {
+    /*TODO - would like to stop using the data service to pull in the JSON file. It produces an uncaught promise error but does not impact the function of the application. */
+    /*this.conlog.log('getAppUpdates - From local JSON file');
+    this.store.setSystemValue('build', this.store.sortArr(<WhatNew[]> whatsnew, "BuildDate"));
+    this.conlog.log("Retrieved all update items listed in locally stored JSON file.");
+    this.appInit['build'] = true;
+    */
+
     this.data.getAppUpdates()
       .subscribe({
         next: (results) => {
@@ -158,20 +175,48 @@ export class AppComponent implements OnInit {
   }
   userAuthenticate() {    // Used to create and store a JWT for communications during the established session
     this.conlog.log("userAuthenticate");
-    if(this.urlToken != undefined) {      // in production mode with url token from Orders
-      this.validateCapturedToken();       //this.getToken();
-    } else if (this.urlToken == undefined && this.store.isDevMode()) {  // in development mode without url token from anywhere
-      this.data.getLocalToken('sean.mcgill')
-        .subscribe({
-          next: (result: string) => {
-            // Take the new fake and temporary token and push in variable.  Will be used as if received from Orders.
+
+    if(this.urlToken == undefined && this.store.system['webservice']['network'] != "sipr" && !this.store.isDevMode())
+    {
+      alert("No Application Token Found - Your access cannot be validated, therefore, you are not permitted to use this application. Application Aborted. Returning to previous application.");
+    }
+    else {
+      if (this.store.system['webservice']['network'] == "sipr") {
+        if (this.store.isDevMode())
+          this.store.setUserValue("username", "sean.mcgill");
+
+        this.validateCapturedSiprInfo();
+      } else // Then it is NIPR and we will act accordingly
+      {
+        if (this.urlToken != undefined)
+          this.validateCapturedToken();
+        if (this.urlToken == undefined && this.store.isDevMode()) {
+          this.data.getLocalToken("sean.mcgill")
+            .subscribe({
+              next: (result: string) => {
+                this.urlToken = result["tokensid"];
+                this.validateCapturedToken();
+              }
+            });
+        }
+      }
+    }
+  }
+
+  validateCapturedSiprInfo() {
+    // Need to pull in the username and then get the user information
+    this.data.getLocalToken(this.store.getUserValue("username"))
+      .subscribe({
+        next: (result: any) => {
+
+          this.conlog.log((this.store.system['webservice']['network'] == "sipr") ? "Creating a SIPR Bridge Token" : "Creating a local token for development user only");
+          if(result["tokensid"] != null)
+          {
             this.urlToken = result["tokensid"];
             this.validateCapturedToken();
           }
-        });
-    } else if ((this.urlToken == undefined || this.urlToken == undefined) && !this.store.isDevMode()) { // in production mode without url token from anywhere
-      alert("No Application Token Found - Your access cannot be validated, therefore, you are not permitted to use this application. Application Aborted. Returning to previous application.");
-    }
+        }
+      });
   }
 
   //Validate the token

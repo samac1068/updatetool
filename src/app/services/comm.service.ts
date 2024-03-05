@@ -33,4 +33,6 @@ export class CommService {
   resetPortalSessionClicked: EventEmitter<any> = new EventEmitter();   // Used when the button to reset the portal from the User Manager is clicked.
   //commsCheckComplete: EventEmitter<any> = new EventEmitter();       // Used when the communications check completes all steps and ready to close.
   deleteSavedQueryClicked: EventEmitter<any> = new EventEmitter();    // Used when the user clicks the delete query button
+  runStoredProcedureClicked: EventEmitter<any> = new EventEmitter();     // Used to open associated stored procedure dialog and allow the execute and display of the information.
+  deleteSPDialog: EventEmitter<any> = new EventEmitter();
 }

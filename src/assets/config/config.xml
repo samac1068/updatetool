@@ -1,4 +1,4 @@
 <systems>
-  <system type="development" active="true" network="nipr" webcontrol="UTool"  />  <!-- sapi="api" path='https://mobdev.mkgcs.com' -->
-  <system type="development" active="false" network="sipr" subapi="api" controller="UTool"  />
+  <system type="development" active="false" network="nipr" webcontrol="UTool"  />  <!-- sapi="api" path='https://mobdev.mkgcs.com' -->
+  <system type="development" active="true" network="sipr" controller="UTool"  /> <!-- subapi="api" -->
 </systems>

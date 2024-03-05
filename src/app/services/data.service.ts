@@ -6,6 +6,7 @@ import { catchError } from 'rxjs/operators';
 import {Admin} from '../models/Admin.model';
 import {ConlogService} from '../modules/conlog/conlog.service';
 import {User} from '../models/User.model';
+import {Spmanager} from "../models/Spmanager.model";
 
 const httpHeaders = {
   headers: new HttpHeaders({
@@ -391,13 +392,14 @@ export class DataService {
       .pipe(catchError(this.errorHandler));
   }
 
-  clearUserDefinedPK(tablename: string): Observable<any[]> {
+  clearUserDefinedPK(tablename: string, databasename: string): Observable<any[]> {
     this.conlog.log("clearUserDefinedPK");
     const reqbody = {
       apikey: this.store.getPassKey(),
       skey: this.store.getUserValue("skey"),
       userid: this.store.getUserValue("userid"),
-      tablename: tablename
+      tablename: tablename,
+      databasename: databasename
     };
     return this.http.post<any[]>(`${this.getWSPath()}/ClearUserDefinedPk`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
@@ -412,6 +414,22 @@ export class DataService {
       cutidlist: cutidlist
     };
     return this.http.post<any[]>(`${this.getWSPath()}/GetResetActivePortalSessions`, reqbody, httpHeaders)
+      .pipe(catchError(this.errorHandler));
+  }
+
+  processSPManageRequest(obj: Spmanager ): Observable<any[]> {
+    this.conlog.log('processSPManagerRequest');
+    const reqbody = {
+      apikey: this.store.getPassKey(),
+      skey: this.store.getUserValue("skey"),
+      action: obj.action,
+      username: this.store.user.username,
+      database: obj.database,
+      procname: (obj.procname != undefined) ? obj.procname : null,
+      assignments: (obj.assignments != undefined) ? obj.assignments : null
+    };
+
+    return this.http.post<any[]>(`${this.getWSPath()}/ProcessStoredProcManager`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
 }
