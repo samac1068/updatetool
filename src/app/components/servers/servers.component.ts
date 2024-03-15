@@ -72,9 +72,9 @@ export class ServersComponent implements OnInit {
   }
 
   createNewTab() {
-    this.comm.addNewTabClicked.emit();
     this.selectedQueryID = -1;
     this.isTableSelected = false;
+    this.comm.addNewTabClicked.emit();
   }
 
   saveCurrentQuery() {

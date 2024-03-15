@@ -16,7 +16,7 @@ export class Tab {
   hasPrimKey!: boolean;  // Set to true if the table has a primary key (temporary or created)
   tempPrimKey: any = null;    //Storage location of a temporary primary key.  May include multiple columns
   primKeyID!: number;      // The database ID number of the currently selected tempPrimKey
-
+  col: string|null = null;   // Used for storing the cell information for the primary key function
   active!: boolean;
 
   tabtitle!: string;

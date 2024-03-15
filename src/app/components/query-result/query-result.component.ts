@@ -50,6 +50,7 @@ export class QueryResultComponent implements OnInit {
   ngOnInit() {
     //Listener
     this.comm.tableSelected.subscribe((tabinfo) => {
+      this.tabinfo = tabinfo;
       this.newTableSelected();
     });
 
@@ -82,8 +83,9 @@ export class QueryResultComponent implements OnInit {
       this.processDataModifyClicked();
     });
 
-    this.comm.validatePrimKey.subscribe((tabdata) => {
-      this.validateTempPrimKey(tabdata);  //Line 587
+    this.comm.validatePrimKey.subscribe(() => {
+      this.conlog.log(this.tabinfo);
+      this.validateTempPrimKey();
     });
 
     this.comm.userUpdatedReloadSys.subscribe( () => {
@@ -200,7 +202,7 @@ export class QueryResultComponent implements OnInit {
       if (this.tabinfo.tempPrimKey != null) {
         if (this.tabinfo.tempPrimKey.length > 0) {
           for (let c: number = 0; c < this.tabinfo.tempPrimKey.length; c++) {
-            let selCol: Column | undefined = this.tabinfo.availcolarr.find((x: any) => x.columnname == this.tabinfo.tempPrimKey[c]);
+            let selCol: Column | undefined = this.tabinfo.availcolarr.find((x: any) => x.columnname.toUpperCase() === this.tabinfo.tempPrimKey[c].toUpperCase());
             if (selCol != undefined)
               selCol.primarykey = true;
           }
@@ -734,8 +736,8 @@ export class QueryResultComponent implements OnInit {
 
       //Does this table have a primary key or a temporary primary key (is required)
       if (!this.tabinfo.hasPrimKey) {
-        let tabdata: any = {col: this.tabinfo.table["selectedColumn"], tabinfo: this.tabinfo};
-        this.validateTempPrimKey(tabdata);   // Make sure a primary key get selected, since none is identified at this point
+        this.tabinfo.col = this.tabinfo.table["selectedColumn"];
+        this.validateTempPrimKey();   // tabdata Make sure a primary key get selected, since none is identified at this point
 
         if (this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0)
           this.processCellClicked(colObj);
@@ -759,16 +761,17 @@ export class QueryResultComponent implements OnInit {
     }
   }
 
-  validateTempPrimKey(tabdata: any) {
+  validateTempPrimKey() {
     // Doesn't have a primary key, so user must select a unique identifier to be used in the where clause
     if(!this.store.dialogOpen) {
       let dialogPrimeKey;
       this.store.dialogOpen = true;
-      dialogPrimeKey = this.dialog.open(PrimkeyDialogComponent, {width: '350px', height: '430px', autoFocus: true, data: tabdata});
+      dialogPrimeKey = this.dialog.open(PrimkeyDialogComponent, {width: '350px', height: '430px', autoFocus: true, data: this.tabinfo});
 
       // Actions if the clear button is selected - Regardless if previously saved, we need to ignore the information and make them do it again.
       dialogPrimeKey.componentInstance.onClear.subscribe(() => {
-        this.data.clearUserDefinedPK(this.tabinfo.table.name, this.tabinfo.database).subscribe(() => {
+        this.data.clearUserDefinedPK(this.tabinfo.table.name, this.tabinfo.database)
+          .subscribe(() => {
               this.comm.reloadStoredColumnData.emit();
               this.tabinfo.tempPrimKey = [];
               this.tabinfo.hasPrimKey = false;
@@ -788,45 +791,56 @@ export class QueryResultComponent implements OnInit {
           this.conlog.log("No changes made to primary key selection.");
           //this.store.generateToast('No primary key was altered or stored. Action Aborted.');
         } else {
-          let pk: any = {}
-          pk.databasename = this.tabinfo.database;
-          pk.tablename = this.tabinfo.table.name;
-          pk.columnnames = coldata.colnames.join();
-          pk.distinctcol = coldata.colids.join();
-          pk.id = (this.tabinfo.primKeyID > 0) ? this.tabinfo.primKeyID : null;
-          pk.rtype = "P";
+          try {
+            let pk: any = {}
+            pk.databasename = this.tabinfo.database;
+            pk.tablename = this.tabinfo.table.name;
+            pk.columnnames = coldata.colnames.join();
+            pk.distinctcol = coldata.colids.join();
+            pk.id = (this.tabinfo.primKeyID > 0) ? this.tabinfo.primKeyID : null;
+            pk.rtype = "P";
 
-          if (coldata.colids.length == 0) {
-            pk.action = 'remove';
-            this.tabinfo.hasPrimKey = false;
-            this.tabinfo.primKeyID = 0;
-            // Loop through and remove all selected primary keys from the selection
-            for (let c = 0; c < this.tabinfo.availcolarr.length; c++) {
-              this.tabinfo.availcolarr[c].primarykey = false;
-            }
-            this.executePrimaryKeyStore(pk, "removed.", "remove");
-          } else if (coldata.colids.length > 0) {
-            // Store the potentially multiple IDs in a variable
-            this.tabinfo.tempPrimKey = coldata.colids;
-
-            // Account for all selected primary keys
-            if (this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0) {
-              // Need to update our local variable with the information
-              for (let c = 0; c < coldata.colids.length; c++) {
-                let selCol = this.tabinfo.availcolarr.find(x => x.columnid == coldata.colids[c]);
-                if (selCol != undefined) selCol.primarykey = true;
+            if (coldata.colids.length == 0) {
+              pk.action = 'remove';
+              this.tabinfo.hasPrimKey = false;
+              this.tabinfo.primKeyID = 0;
+              // Loop through and remove all selected primary keys from the selection
+              for (let c = 0; c < this.tabinfo.availcolarr.length; c++) {
+                this.tabinfo.availcolarr[c].primarykey = false;
               }
+              this.executePrimaryKeyStore(pk, "removed.", "remove");
+            } else if (coldata.colids.length > 0) {
+              // Store the potentially multiple IDs in a variable
+              this.tabinfo.tempPrimKey = coldata.colids;
 
-              // All done with identifying the primary keys, so move forward with the process
-              this.tabinfo.hasPrimKey = true;
+              // Account for all selected primary keys
+              if (this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0) {
+                // Need to update our local variable with the information
+                for (let c = 0; c < coldata.colids.length; c++) {
+                  let selCol: Column|undefined = this.tabinfo.availcolarr.find(x => x.columnid == coldata.colids[c]);
+                  if (selCol != undefined) selCol.primarykey = true;
+                }
 
-              // Make sure to save the information also in the database
-              pk.action = (this.tabinfo.primKeyID > 0) ? 'update' : 'insert';
-              this.executePrimaryKeyStore(pk, "stored.", "store");
-            } else {
-              this.tabinfo.tempPrimKey = null;
-              if (tabdata.col != null)   // Only show this alert if a column was selected to open the dialog
-                alert("Unable to modify the selected value without a primary key. Operation canceled.");
+                // All done with identifying the primary keys, so move forward with the process
+                this.tabinfo.hasPrimKey = true;
+
+                // Make sure to save the information also in the database
+                pk.action = (this.tabinfo.primKeyID > 0) ? 'update' : 'insert';
+                this.executePrimaryKeyStore(pk, "stored.", "store");
+              } else {
+                this.tabinfo.tempPrimKey = null;
+                if (this.tabinfo.col != null)   // Only show this alert if a column was selected to open the dialog
+                  alert("Unable to modify the selected value without a primary key. Operation canceled.");
+              }
+            }
+          }
+          catch(e: any)
+          {
+            alert("Operations Error: Unable to store the selected primary key. Review logs to determine why.");
+            if (typeof e === "string") {
+              this.conlog.log("Error in Primary Key Function: " + e.toUpperCase());
+            } else if (e instanceof Error) {
+              this.conlog.log("Error in Primary Key Function: " + e.message);
             }
           }
         }

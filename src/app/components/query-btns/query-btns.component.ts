@@ -60,8 +60,7 @@ export class QueryBtnsComponent implements OnInit {
 
   openTempPrimaryKey() {
     // Used to reopen the selected primary key for this table
-    let tabdata: any = {col: null, tabinfo: this.tabinfo };
-    this.comm.validatePrimKey.emit(tabdata);
+    this.comm.validatePrimKey.emit();
   }
 
   exportToExcelHandler(type: string) {

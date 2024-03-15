@@ -15,7 +15,7 @@ export class StorageService {
   private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
   private _devKey = "4c7a4455fdab4fb8228748fd7702d245";
   private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.24.0304 (Doc: 1.7)';
+  private _appVersion = '2.24.0315 (Doc: 1.7)';
   private _inDev: boolean = false;
   private _bearerToken: string = "";
 
@@ -103,12 +103,19 @@ export class StorageService {
   }
 
   /// Global Services - Let's see if this will work
-  isInArray(arr: any, value: any) {
+  isInArray(arr: any, value: any): boolean {
     if(arr == null || arr.length == 0) return false;
 
     for(let i = 0; i < arr.length; i++) {
-      if(arr[i] == value)
-        return true;
+      if(typeof(value) == "string")
+      {
+        if(arr[i].toLowerCase() === value.toLowerCase())
+          return true;
+      } else
+      {
+        if(arr[i] == value)
+          return true;
+      }
     }
 
     return false;

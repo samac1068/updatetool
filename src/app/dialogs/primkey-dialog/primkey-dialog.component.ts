@@ -29,23 +29,24 @@ export class PrimkeyDialogComponent implements OnInit {
     this._searchTerm = value;
     this.filPrimColumns = this.filterColumns(value);
   }
-  constructor(public dialogRef: MatDialogRef<PrimkeyDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private store: StorageService) { }
+  constructor(public dialogRef: MatDialogRef<PrimkeyDialogComponent>, @Inject(MAT_DIALOG_DATA) public tabinfo: any, private store: StorageService) { }
 
   ngOnInit() {
     // Getting the information in for this pop means we should populate the dropdown with all the columns except
-    this.tabs = this.data.tabinfo.availcolarr;
-    this.selectCols = (this.data.tabinfo.tempPrimKey == null || this.data.tabinfo.tempPrimKey[0] == undefined) ? [] : this.data.tabinfo.tempPrimKey;
-    this.selectedcol = this.data.col;
+    this.tabs = this.tabinfo.availcolarr;
+    this.selectCols = (this.tabinfo.tempPrimKey == null || this.tabinfo.tempPrimKey[0] == undefined) ? [] : this.tabinfo.tempPrimKey;
+    this.selectedcol = this.tabinfo.col;
     this.primKeyPopulated = this.selectCols.length > 0;
 
     // Only need to be concerned if a column to be altered has been selected to modify its data.  If null, then make available all columns.
     if(this.selectedcol != null) {
-      for (let i = 0; i < this.tabs.length; i++) {
+      for (let i: number = 0; i < this.tabs.length; i++) {
         if (this.tabs[i].columnname != this.selectedcol) {
           this.availcol.push(this.tabs[i]);
         }
       }
     } else this.availcol = this.tabs;
+
 
     // Now pass the list of available columns to the filterable array
     this.filPrimColumns = this.availcol;
