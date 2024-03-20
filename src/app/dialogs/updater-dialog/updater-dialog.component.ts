@@ -1,5 +1,4 @@
 import {Component, Inject, AfterContentInit } from '@angular/core';
-import {Tab} from '../../models/Tab.model';
 import {StorageService} from '../../services/storage.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
@@ -51,20 +50,28 @@ export class UpdaterDialogComponent implements AfterContentInit  {
 
   generateWhereClause() {
     let wStatement: string = "";
-    if(this.data.tabinfo.tempPrimKey != null) {
-      for (let c = 0; c < this.data.tabinfo.tempPrimKey.length; c++) {
-        let primecol = this.data.tabinfo.availcolarr.find((x: any) => x.columnname == this.data.tabinfo.tempPrimKey[c]);
+    let primecol: any;
 
-        // If more than one limiter needs to be separated by the phrase 'AND'
-        if (c > 0) wStatement += (this.genSentence) ? " and " : " AND ";
+    if(this.data.tabinfo.tempPrimKey != null || this.data.tabinfo.hasPermPrimKey) {
 
-        // Depending on if a sentence or SQL statement add the number of where items now.
-        if (this.genSentence)
-          wStatement += primecol.columnname + " equals " + this.data.tabinfo.selectedrow[primecol.columnname];
-        else
-          wStatement += primecol.columnname + " = " + this.store.determineValueType(this.data.tabinfo.selectedrow[primecol.columnname], primecol.vartype);
+      if(this.data.tabinfo.hasPermPrimKey){
+        primecol = this.data.tabinfo.availcolarr.find((x: any) => x.primarykey === true);
+      } else {
+        for (let c: number = 0; c < this.data.tabinfo.tempPrimKey.length; c++) {
+          primecol = this.data.tabinfo.availcolarr.find((x: any) => x.columnname == this.data.tabinfo.tempPrimKey[c]);
+
+          // If more than one limiter needs to be separated by the phrase 'AND'
+          if (c > 0) wStatement += (this.genSentence) ? " and " : " AND ";
+        }
       }
+
+      // Depending on if a sentence or SQL statement add the number of where items now.
+      if (this.genSentence)
+        wStatement += primecol.columnname + " equals " + this.data.tabinfo.selectedrow[primecol.columnname];
+      else
+        wStatement += primecol.columnname + " = " + this.store.determineValueType(this.data.tabinfo.selectedrow[primecol.columnname], primecol.vartype);
     }
+
     return wStatement;
   }
 

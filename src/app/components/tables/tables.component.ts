@@ -31,7 +31,7 @@ export class TablesComponent implements OnInit {
   }
 
   processTableList(tables: any){
-    let tempArr = [];
+    let tempArr: any[] = [];
 
     for (let tbl of tables)
     {
@@ -73,7 +73,8 @@ export class TablesComponent implements OnInit {
       //Update tabinfo before sending
       this.tabinfo.table = table;
       this.tabinfo.tempPrimKey = null;
-      this.tabinfo.hasPrimKey = false;
+      this.tabinfo.hasTempPrimKey = false;
+      this.tabinfo.hasPermPrimKey = false;
 
       //report the table selection
       this.comm.tableSelected.emit(this.tabinfo);

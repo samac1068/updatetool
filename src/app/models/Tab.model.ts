@@ -13,7 +13,8 @@ export class Tab {
   columns!: Column[];  //List of columns or primary table
   distinctcol!: string;  //Used to identify the single distinct column for this query
 
-  hasPrimKey!: boolean;  // Set to true if the table has a primary key (temporary or created)
+  hasPermPrimKey!: boolean;   // Identifies if the table has a true primary key that is not temporary.
+  hasTempPrimKey!: boolean;  // Set to true if the table has a primary key (temporary or created)
   tempPrimKey: any = null;    //Storage location of a temporary primary key.  May include multiple columns
   primKeyID!: number;      // The database ID number of the currently selected tempPrimKey
   col: string|null = null;   // Used for storing the cell information for the primary key function

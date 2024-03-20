@@ -185,14 +185,14 @@ export class QueryResultComponent implements OnInit {
       this.pgInterval = setInterval(() => {
         if(this.tabinfo.availcolarr.length > 0) {
           clearInterval(this.pgInterval);
-          this.markPrimaryKeyOnCol();
+          this.markTempPrimKeyOnCol();
         }
       }, 100);
     }
   }
 
-  markPrimaryKeyOnCol() {
-    if(this.tblPrimaryKey.length == 1) {
+  markTempPrimKeyOnCol() {
+    if(this.tblPrimaryKey.length == 1 && !this.tabinfo.hasPermPrimKey) {
       // This will account for the original storage location.  Will be ignored after the first time the column is updated.
       //this.tabinfo.tempPrimKey = (this.tblPrimaryKey[0]["DistinctCol"] != null) ? this.tblPrimaryKey[0]["DistinctCol"].split(",") : this.tblPrimaryKey[0].ColumnNames.split(",");
       this.tabinfo.tempPrimKey = this.tblPrimaryKey[0].ColumnNames.split(",");
@@ -206,7 +206,7 @@ export class QueryResultComponent implements OnInit {
             if (selCol != undefined)
               selCol.primarykey = true;
           }
-          this.tabinfo.hasPrimKey = true;
+          this.tabinfo.hasTempPrimKey = true;
         }
       }
     }
@@ -735,31 +735,24 @@ export class QueryResultComponent implements OnInit {
       colObj.colSelected = true;
 
       //Does this table have a primary key or a temporary primary key (is required)
-      if (!this.tabinfo.hasPrimKey) {
+      if (!this.tabinfo.hasTempPrimKey && !this.tabinfo.hasPermPrimKey) {
         this.tabinfo.col = this.tabinfo.table["selectedColumn"];
         this.validateTempPrimKey();   // tabdata Make sure a primary key get selected, since none is identified at this point
-
-        if (this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0)
-          this.processCellClicked(colObj);
-        else {
-          this.tabinfo.tempPrimKey = null;
-          this.processMissingTempPrimKey();
-        }
-      } else {
-        this.processMissingTempPrimKey();
-        this.processCellClicked(this.tabinfo.availcolarr.find(x => cellData.colDef.field === x.columnname));
       }
+
+      if (this.tabinfo.hasPermPrimKey || (this.tabinfo.tempPrimKey != null && this.tabinfo.tempPrimKey.length > 0))
+        this.processCellClicked(colObj);
     } else
-      this.store.generateToast("You cannot update column information without an established Primary Key. Stored Queries don't maintain Primary Keys.", false);
+      this.store.generateToast("You cannot update column information without an established Primary Key. Stored Queries don't maintain primary key information.", false);
   }
 
-  processMissingTempPrimKey() {
+  /*processMissingTempPrimKey() {
     // If no temporary primary key is being used, then identify the true database managed primary key for this table
     if(this.tabinfo.tempPrimKey == null) {
       this.tabinfo.tempPrimKey = [];
       this.tabinfo.tempPrimKey.push(this.tabinfo.availcolarr.find((x: any) => x.primarykey == true)?.columnname);
     }
-  }
+  }*/
 
   validateTempPrimKey() {
     // Doesn't have a primary key, so user must select a unique identifier to be used in the where clause
@@ -774,7 +767,7 @@ export class QueryResultComponent implements OnInit {
           .subscribe(() => {
               this.comm.reloadStoredColumnData.emit();
               this.tabinfo.tempPrimKey = [];
-              this.tabinfo.hasPrimKey = false;
+              this.tabinfo.hasTempPrimKey = false;
               this.store.generateToast("All selected primary keys have been cleared.");
             },
             () => {
@@ -802,7 +795,7 @@ export class QueryResultComponent implements OnInit {
 
             if (coldata.colids.length == 0) {
               pk.action = 'remove';
-              this.tabinfo.hasPrimKey = false;
+              this.tabinfo.hasTempPrimKey = false;
               this.tabinfo.primKeyID = 0;
               // Loop through and remove all selected primary keys from the selection
               for (let c = 0; c < this.tabinfo.availcolarr.length; c++) {
@@ -822,7 +815,7 @@ export class QueryResultComponent implements OnInit {
                 }
 
                 // All done with identifying the primary keys, so move forward with the process
-                this.tabinfo.hasPrimKey = true;
+                this.tabinfo.hasTempPrimKey = true;
 
                 // Make sure to save the information also in the database
                 pk.action = (this.tabinfo.primKeyID > 0) ? 'update' : 'insert';
@@ -862,22 +855,22 @@ export class QueryResultComponent implements OnInit {
   processCellClicked(obj: any){
     console.log("processCellClicked");
     if(!obj.primarykey) {
-      const dialogProcessChg = this.dialog.open(UpdaterDialogComponent, { width: '385px', height: '350px', autoFocus: true, data: {tabinfo: this.tabinfo, datasource: this.dataSource.filteredData }});
+      const dialogProcessChg: MatDialogRef<UpdaterDialogComponent> = this.dialog.open(UpdaterDialogComponent, { width: '385px', height: '350px', autoFocus: true, data: {tabinfo: this.tabinfo, datasource: this.dataSource.filteredData }});
       dialogProcessChg.afterClosed()
         .subscribe((rtn) => {
           if (rtn != undefined){
           //Value has been set to something new, so let's save it (//this.comm.runQueryChange.emit();)
           let selcol: any = this.tabinfo.availcolarr.find(x => x.columnname == this.tabinfo.table["selectedColumn"]);
-          let updatekey = "SET [" + selcol.columnname + "] = " + this.store.determineValueType(this.tabinfo.table["setvalue"], selcol.vartype);
+          let updatekey: string = "SET [" + selcol.columnname + "] = " + this.store.determineValueType(this.tabinfo.table["setvalue"], selcol.vartype);
 
           // This section will allow user to enter NULL into date time columns only
           console.log("VARTYPE: " + selcol.vartype);
 
           // Generate the full where clause especially if there is more than one column used for the unique key
           let wheredata:string = " WHERE ";
-          if(this.tabinfo.hasPrimKey && this.tabinfo.tempPrimKey == null) {  // If using permanent primary keys only
+          if(this.tabinfo.hasPermPrimKey) {  // If using permanent primary keys only
             wheredata += this.generateLimiter(this.tabinfo.availcolarr.find(x => x.primarykey));
-          } else if(this.tabinfo.hasPrimKey && this.tabinfo.tempPrimKey != null) { // If using temporary primary keys only
+          } else if(this.tabinfo.hasTempPrimKey && this.tabinfo.tempPrimKey != null) { // If using temporary primary keys only
             for (let c = 0; c < this.tabinfo.tempPrimKey.length; c++) {
               if (c > 0) wheredata += " AND ";
               wheredata += this.generateLimiter(this.tabinfo.availcolarr.find(x => x.columnname == this.tabinfo.tempPrimKey[c]));

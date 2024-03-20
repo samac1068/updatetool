@@ -24,8 +24,7 @@ export class TabComponent implements OnInit {
 
   ngOnInit() {
     //Table was selected
-    this.comm.tableSelected
-      .subscribe((data) => {
+    this.comm.tableSelected.subscribe((data) => {
         //Need to pull all the columns for the selected table
         //  headleyt:  20210120  Added a condition so this action will only take place on the active tab
         if (data) {
@@ -34,6 +33,7 @@ export class TabComponent implements OnInit {
               .subscribe((results) => {
                 this.tabinfo.columns = [];
                 this.tabinfo.availcolarr = [];
+                this.tabinfo.hasTempPrimKey = false;
 
                 for (let row of results) {
                   var r: Column = new Column();
@@ -51,7 +51,9 @@ export class TabComponent implements OnInit {
 
                   this.tabinfo.columns.push(r);
                   this.tabinfo.availcolarr.push(r);
-                  if (r.primarykey) this.tabinfo.hasPrimKey = true;
+
+                  if(r.primarykey)    // Only need to set once if true only.
+                    this.tabinfo.hasPermPrimKey = true;
                 }
 
                 this.comm.columnsUpdated.emit(this.tabinfo);

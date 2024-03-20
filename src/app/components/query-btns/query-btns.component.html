@@ -16,7 +16,7 @@
   </div>
 
   <div class="btnGroup">
-    <button class="qryButton" id="btnPrimaryKey" [disabled]="(tabinfo.table == undefined || (tabinfo.hasPrimKey && tabinfo.tempPrimKey == null))" (click)="openTempPrimaryKey()"><fa-icon [icon]="faKey"></fa-icon> Sel/Chg Primary Key</button>
+    <button class="qryButton" id="btnPrimaryKey" [disabled]="(tabinfo.table == undefined || tabinfo.hasPermPrimKey)" (click)="openTempPrimaryKey()"><fa-icon [icon]="faKey"></fa-icon> Sel/Chg Primary Key</button>
     <button class="qryButton" id="btnViewer" (click)="openViewerWindow()" ngbTooltip="View existing Stored Procs, Views, and Function" placement="bottom"><fa-icon [icon]="faEye"></fa-icon> Proc/View/Func Viewer</button>
   </div>
 
