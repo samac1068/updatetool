@@ -55,6 +55,7 @@ export class Tab {
   selectedrow: any;
 
   updateRecReq: boolean = false;
+  sqlResults!: any;
 
   // Variables for the Stored Procedure Execution Function
   spManager!: any;

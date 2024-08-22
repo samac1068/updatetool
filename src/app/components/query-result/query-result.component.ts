@@ -40,7 +40,7 @@ export class QueryResultComponent implements OnInit {
   htmlQueryDisplay!: string;
 
   tblPrimaryKey: any[] = [];
-  pgInterval: number = -1;
+  pgInterval: any = -1;
 
   totalRecCount: number = 0;
 
@@ -60,6 +60,11 @@ export class QueryResultComponent implements OnInit {
 
     this.comm.runStoredQuery.subscribe((data) => {
       this.executeStoredQuery(data);
+    });
+
+    this.comm.newTabClicked.subscribe(() => {
+      this.tabinfo = this.store.selectedTab;
+      this.reloadConstructedSql();
     });
 
     this.comm.exportToExcelClicked.subscribe((data) => {
@@ -209,6 +214,16 @@ export class QueryResultComponent implements OnInit {
           this.tabinfo.hasPrimKey = true;
         }
       }
+    }
+  }
+
+  reloadConstructedSql(){
+    if(this.tabinfo.sqlResults != undefined) {
+      this.conlog.log("SQL: " + this.tabinfo.rawquerystr);
+      this.htmlQueryDisplay = (parseInt(this.store.getUserValue("appdata").substr(0, 1)) == 1) ? this.tabinfo.querystr : this.applyHTMLFormat(this.tabinfo.rawquerystr);
+      this.processReturnedData(this.tabinfo.sqlResults);
+    } else {
+      this.constructSQLString();
     }
   }
 
@@ -592,8 +607,10 @@ export class QueryResultComponent implements OnInit {
           // We received an error from the sql statement and could not execute.  Popup the error and stop the processing
           this.loadingQuery = false;
           alert("Received an error from the SQL Execution:\n" + results[0]["Message"]);
-        } else
+        } else {
+          this.tabinfo.sqlResults = results;
           this.processReturnedData(results);
+        }
       });
   }
 
@@ -604,6 +621,7 @@ export class QueryResultComponent implements OnInit {
       this.rowsReturned = "Loading";
       this.htmlQueryDisplay = (parseInt(this.store.getUserValue("appdata").substr(0,1)) == 1) ? tab.querystr : this.applyHTMLFormat(tab.rawquerystr);
       this.data.executeQStr(tab.sqid).subscribe((results) => {
+        this.tabinfo.sqlResults = results;
         this.processReturnedData(results);
       });
     } else {

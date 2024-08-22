@@ -120,7 +120,7 @@ export class TabsComponent implements OnInit {
         if (this.store.selectedTab.isstoredquery)
           this.comm.runStoredQuery.emit(this.store.selectedTab);
         else {
-          this.comm.runQueryChange.emit();
+          this.comm.newTabClicked.emit();
           this.comm.selectTab.emit();
         }
       }

@@ -35,4 +35,5 @@ export class CommService {
   deleteSavedQueryClicked: EventEmitter<any> = new EventEmitter();    // Used when the user clicks the delete query button
   runStoredProcedureClicked: EventEmitter<any> = new EventEmitter();     // Used to open associated stored procedure dialog and allow the execute and display of the information.
   deleteSPDialog: EventEmitter<any> = new EventEmitter();
+  newTabClicked: EventEmitter<any> = new EventEmitter<any>();
 }
