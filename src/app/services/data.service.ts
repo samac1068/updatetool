@@ -432,5 +432,34 @@ export class DataService {
     return this.http.post<any[]>(`${this.getWSPath()}/ProcessStoredProcManager`, reqbody, httpHeaders)
       .pipe(catchError(this.errorHandler));
   }
+
+  processImpersonateRequest(action: string): Observable<any[]> {
+    this.conlog.log("processImpersonationRequest");
+
+    let reqbody: any = {};
+
+    if(action == "enable"){
+      reqbody = {
+        apikey: this.store.getPassKey(),
+        skey: this.store.getUserValue("skey"),
+        action: action,
+        currentuid: this.store.imperStorage.adminUser.userid,
+        nextuid: this.store.imperStorage.imperUser.userid
+      };
+    } else {
+      reqbody = {
+        apikey: this.store.getPassKey(),
+        skey: this.store.getUserValue("skey"),
+        action: action,
+        currentuid: this.store.imperStorage.imperUser.userid,
+        nextuid: this.store.imperStorage.adminUser.userid
+      };
+    }
+
+    console.log("Impersonation ReqBody (data service): ", reqbody);
+
+    return this.http.post<any[]>(`${this.getWSPath()}/ImpersonManager`, reqbody, httpHeaders)
+      .pipe(catchError(this.errorHandler));
+  }
 }
 

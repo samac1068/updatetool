@@ -35,4 +35,7 @@ export class CommService {
   deleteSavedQueryClicked: EventEmitter<any> = new EventEmitter();    // Used when the user clicks the delete query button
   runStoredProcedureClicked: EventEmitter<any> = new EventEmitter();     // Used to open associated stored procedure dialog and allow the execute and display of the information.
   deleteSPDialog: EventEmitter<any> = new EventEmitter();
+  impersonateClicked: EventEmitter<any> = new EventEmitter<any>();      // Used to start impersonating the selected user from the User Manager. Only admins will have this option
+  killImpersonateClicked: EventEmitter<any> = new EventEmitter<any>();  // Used to end impersonation and return to original administrator.
+  newTabClicked: EventEmitter<any> = new EventEmitter<any>();
 }

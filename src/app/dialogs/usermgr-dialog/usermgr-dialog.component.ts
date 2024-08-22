@@ -19,7 +19,7 @@ export class UsermgrDialogComponent implements OnInit {
 
   assignedUser: any = [];
 
-  columnDefs: any[] = [{field: 'userid', headerName: 'UID', width: 80}, {field: 'username', headerName: 'UserName'}];
+  columnDefs: any[] = [ {field: 'userid', headerName: 'UID', width: 80}, {field: 'username', headerName: 'UserName', width: 170} ];
   defColDefine: ColDef = { sortable: true, filter: true, resizable: true, autoHeaderHeight: true };
   gridHeaderHeight: number = 22;
   gridRowHeight: number = 22;
@@ -36,6 +36,7 @@ export class UsermgrDialogComponent implements OnInit {
   curUser!: User;
   onSipr: boolean = false;
   validateData: boolean = false;
+  isAdmin: boolean = false;
 
   constructor(private dialogRef: MatDialogRef<UsermgrDialogComponent>, private fb: FormBuilder, private store: StorageService, private data: DataService, private conlog: ConlogService,
               private comm: CommService) {
@@ -63,6 +64,7 @@ export class UsermgrDialogComponent implements OnInit {
     this.availDatabase = this.store.system['databases'];
     this.adminItem.adminuser = this.store.user.username;
     this.curUser = this.store.getUser();
+    this.isAdmin = this.curUser.priv == 1;
     this.onSipr = this.store.getSystemValue('webservice').network == "sipr";
     this.getQTUserList();
   }
@@ -205,28 +207,11 @@ export class UsermgrDialogComponent implements OnInit {
     } else alert("You did not provide enough data to complete this request. Please review the form and try again.");
   }
 
-  /*isAllSelected() {
-    const numSelected = (this.selection.selected != undefined) ? this.selection.selected.length : 0;
-    const numRows = (this.assignedUser.filteredData != undefined) ? this.assignedUser.filteredData.length : 0;
-    return numSelected === numRows;
-  }*/
-
- /* masterToggle() {
-    if (this.isAllSelected()) {
-      this.selection.clear();
-      return;
-    }
-
-    this.selection.select(...this.assignedUser.data);
-  }*/
-
-  /*checkboxLabel(row?: Admin): string {
-    if (!row) {
-      return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
-    }
-
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.userid + 1}`;
-  }*/
+  imperClick(user: any) {
+    console.log(user);
+    this.closeDialog();
+    this.comm.impersonateClicked.emit(user);
+  }
 
   closeDialog() {
     this.resetForm();

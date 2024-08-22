@@ -46,6 +46,12 @@ export class TabsComponent implements OnInit {
       this.store.selectedTab.selectedSPResults = null;
       this.store.selectedTab.spListCollectDate = null;
     });
+
+    this.comm.impersonateClicked.subscribe(() => {
+      this.tabs = [];
+      this.selectedTab = -1;
+      this.selectedTabID = "";
+    })
   }
 
   validateActiveOpen()
@@ -120,7 +126,8 @@ export class TabsComponent implements OnInit {
         if (this.store.selectedTab.isstoredquery)
           this.comm.runStoredQuery.emit(this.store.selectedTab);
         else {
-          this.comm.runQueryChange.emit();
+          //this.comm.runQueryChange.emit();
+          this.comm.newTabClicked.emit();
           this.comm.selectTab.emit();
         }
       }

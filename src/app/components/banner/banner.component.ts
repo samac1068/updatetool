@@ -115,4 +115,8 @@ export class BannerComponent implements OnInit {
       }
     }
   }
+
+  killImpersonation(){
+    this.comm.killImpersonateClicked.emit();
+  }
 }

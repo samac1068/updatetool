@@ -9,6 +9,8 @@ import {MatDialog} from '@angular/material/dialog';
 import {LogConsoleDialogComponent} from './modules/conlog/log-console-dialog/log-console-dialog.component';
 import {ApiDialogComponent} from "./dialogs/api-dialog/api-dialog.component";
 import {System} from "./models/System.model";
+import {User} from "./models/User.model";
+import {Tab} from "./models/Tab.model";
 
 export interface WhatNew {
   BuildDate: string
@@ -84,6 +86,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.commsListener();
     this.getSystemConfig();
     this.getServerConfig();
     this.getApplicationBuild();
@@ -110,6 +113,16 @@ export class AppComponent implements OnInit {
     }, 300);
   }
 
+  commsListener():void {
+    // Place all listeners in here
+    this.comm.impersonateClicked.subscribe((user: User) => {
+      this.impersonateUser(user);
+    });
+
+    this.comm.killImpersonateClicked.subscribe(() => {
+      this.killImperasonation();
+    });
+  }
   getSystemConfig() {
     // Collect the information from the config.xml file and set the appropriate database location
     this.conlog.log("getSystemConfig");
@@ -263,6 +276,57 @@ export class AppComponent implements OnInit {
         }
       });
   }
+
+  impersonateUser(user: User): void {
+    // Need to properly store the current user's information, so it is easy to return when done.
+    if(!this.store.imperStorage.activeImpersonation) {
+      this.store.imperStorage = {
+        activeImpersonation: true,
+        adminUser: {...this.store.user},
+        adminTabArr: [...this.store.tabsArr],    // Only thing that is being removed.  Don't need the original tabs from the previous user.
+        adminSelectedTab: {...this.store.selectedTab},
+        adminSelectedTabID: (' ' + this.store.selectedTabID).slice(1),
+        imperUser: user
+      };
+
+      // Clear out the original information
+      this.store.tabsArr = [];
+      this.store.selectedTab = new Tab;
+      this.store.selectedTabID = "-1";
+      this.store.setUserValue("username", user.username); // Need to reassign the new user's information to key variables
+
+      // Run data service
+      this.data.processImpersonateRequest("enable").subscribe(() => {
+        this.getUserInformation(); // Okay, now run it like normal
+      });
+    }
+  }
+
+  killImperasonation(): void {
+    console.log("what we are with is", this.store.imperStorage);
+    // Run data service
+    this.data.processImpersonateRequest("disable").subscribe(() => {
+      this.store.tabsArr = [];
+      this.store.selectedTab = new Tab;
+      this.store.selectedTabID = "-1";
+
+      this.store.user = {...this.store.imperStorage.adminUser};
+      this.store.tabsArr = [...this.store.imperStorage.adminTabArr];
+      this.store.selectedTabID = (' ' + this.store.imperStorage.adminSelectedTabID).slice(1);
+      this.store.selectedTab = {...this.store.imperStorage.adminSelectedTab};
+      this.store.setUserValue("username", this.store.user.username);
+
+      this.store.imperStorage = {
+        activeImpersonation: false,
+        adminUser: null,
+        adminTabArr: null,
+        imperUser: null
+      };
+
+      this.getUserInformation();
+    });
+  }
+
   getUserInformation() {
     this.data.getUserInfo()
       .subscribe({

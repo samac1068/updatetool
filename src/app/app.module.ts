@@ -105,7 +105,6 @@ import { QueryPipe } from './services/pipes/query.pipe';
 import { StoredProcFilterPipe } from './services/pipes/storedprocfilter.pipe';
 import { TableFilterPipe } from './services/pipes/tablefilter.pipe';
 
-
 const routes: Routes = [];
 
 // @ts-ignore

@@ -12,20 +12,21 @@ import {ConlogService} from '../modules/conlog/conlog.service';
 export class StorageService {
 
   // Variables to store all the global data
-  private _passKey = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
-  private _devKey = "4c7a4455fdab4fb8228748fd7702d245";
-  private _connectid = 'MobCopConnectionString';
-  private _appVersion = '2.24.0315 (Doc: 1.7)';
+  private _passKey:string = "4A3F6BD3-61FB-467B-83D0-0EFBAF72AFC4";
+  private _devKey:string = "4c7a4455fdab4fb8228748fd7702d245";
+  private _connectid:string = 'MobCopConnectionString';
+  private _appVersion:string = '2.24.0822 (Doc: 1.7)';
   private _inDev: boolean = false;
   private _bearerToken: string = "";
 
   // Public
-  tabsArr = [];
+  tabsArr:any = [];
   user: User = new User();
   system: System = new System();
   selectedTabID: string = "";
   selectedTab: Tab = new Tab;
   dialogOpen: boolean = false;
+  imperStorage: any = { activeImpersonation: false, adminUser: null, adminTabArr: null, adminSelectedTab: null, adminSelectedTabID: "-1", imperUser: null };
 
   // Variable Constant
   rowOptions: any[] = [{lbl:'1 Row', value: 1}, {lbl: '10 Rows', value: 10}, {lbl: '50 Rows', value: 50}, {lbl:'100 Rows', value: 100},

@@ -28,7 +28,7 @@
       </div>
       <div class="divusertable loadingDiv" [hidden]="assignedUser.length > 0">Stand by Loading Data</div>
 
-      <button class="standardRedBtn" style="width: 95%; margin-left: 5px; margin-top: 5px;" [disabled]="!selection" (click)="purgeSelectedUsers()">Delete Selected User</button>
+      <button class="standardRedBtn" style="width: 95%; margin-left: 5px; margin-top: 5px;" [disabled]="!selectUser" (click)="purgeSelectedUsers()">Delete Selected User</button>
 
 
     </div>
@@ -63,6 +63,10 @@
             <option value="null" selected>Select Default Database</option>
             <option *ngFor="let database of availDatabase" [value]="database.id">{{ cleanUpString(database.id) }}</option>
           </select>
+
+          <ng-container *ngIf="isAdmin">
+            <button class="standardYellowBtn" style="width:40%; margin-top: 20px; margin-left: 220px;" [disabled]="!selectUser" (click)="imperClick(selectUser)" title="Click to Impersonate the Selected User" >Impersonate User</button>
+          </ng-container>
       </form>
     </div>
 

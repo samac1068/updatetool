@@ -40,7 +40,7 @@ export class QueryResultComponent implements OnInit {
   htmlQueryDisplay!: string;
 
   tblPrimaryKey: any[] = [];
-  pgInterval: number = -1;
+  pgInterval: any = -1;
 
   totalRecCount: number = 0;
 
@@ -55,7 +55,14 @@ export class QueryResultComponent implements OnInit {
     });
 
     this.comm.runQueryChange.subscribe(() => {
+      //this.tabinfo = this.store.selectedTab;
       this.constructSQLString();
+    });
+
+    this.comm.newTabClicked.subscribe(() => {
+      // This is similar to runQueryChange, but we are just reloading the existing data into the datagrid that was already stored.
+      this.tabinfo = this.store.selectedTab;
+      this.reloadConstructedSql();
     });
 
     this.comm.runStoredQuery.subscribe((data) => {
@@ -98,6 +105,7 @@ export class QueryResultComponent implements OnInit {
   }
 
   onGridReady(params: any) {
+    //params.api.autoSizeAllColumns()
     this.gridApi = params.api;
     this.gridApi.hideOverlay();   // Hide the default overlay and use the one designed for the app.
   }
@@ -294,6 +302,16 @@ export class QueryResultComponent implements OnInit {
       //this.conlog.log("DISPLAY: " + displayStrSQL);
       this.htmlQueryDisplay = (parseInt(this.store.getUserValue("appdata").substr(0,1)) == 1) ? this.tabinfo.querystr : this.applyHTMLFormat(this.tabinfo.rawquerystr);
       this.executeSQL();
+    }
+  }
+
+  reloadConstructedSql(){
+    if(this.tabinfo.sqlResults != undefined) {
+      this.conlog.log("SQL: " + this.tabinfo.rawquerystr);
+      this.htmlQueryDisplay = (parseInt(this.store.getUserValue("appdata").substr(0, 1)) == 1) ? this.tabinfo.querystr : this.applyHTMLFormat(this.tabinfo.rawquerystr);
+      this.processReturnedData(this.tabinfo.sqlResults);
+    } else {
+      this.constructSQLString();
     }
   }
 
@@ -592,8 +610,10 @@ export class QueryResultComponent implements OnInit {
           // We received an error from the sql statement and could not execute.  Popup the error and stop the processing
           this.loadingQuery = false;
           alert("Received an error from the SQL Execution:\n" + results[0]["Message"]);
-        } else
+        } else {
+          this.tabinfo.sqlResults = results;
           this.processReturnedData(results);
+        }
       });
   }
 
@@ -604,6 +624,7 @@ export class QueryResultComponent implements OnInit {
       this.rowsReturned = "Loading";
       this.htmlQueryDisplay = (parseInt(this.store.getUserValue("appdata").substr(0,1)) == 1) ? tab.querystr : this.applyHTMLFormat(tab.rawquerystr);
       this.data.executeQStr(tab.sqid).subscribe((results) => {
+        this.tabinfo.sqlResults = results;
         this.processReturnedData(results);
       });
     } else {
