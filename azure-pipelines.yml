@@ -1,0 +1,432 @@
+# Azure DevOps CI/CD pipeline for the Update Tool Angular application.
+#
+# Stack: Angular 15 / TypeScript 4.9 SPA built with the Angular CLI to a folder
+# of static files (dist\updatetool). There is no database stage: all data access
+# is performed by the Update Tool API, which the Angular app calls at runtime and
+# which is deployed by its own pipeline (dotnet_azure-pipelines.yml).
+#
+# Three self-hosted agents live in the pool "MobcopApps Main"; this pipeline uses
+# only two of them, pinned per stage via the Agent.Name demand:
+#   MobcopApps Build Main  -> npm restore + ng build + artifact publish
+#   MobcopApps IIS Main    -> IIS deployment (runs ON the target IIS server)
+#   MobcopApps DB Main     -> NOT USED (no database work in this pipeline)
+#
+# IIS layout note: the Angular app is the PARENT application and the API is a
+# child of it. robocopy /MIR would purge that child folder, so 'api' is listed in
+# protectedDirs below and excluded from both the copy and the purge.
+
+# Run-time parameters. These appear as checkboxes in the "Run pipeline" dialog, so
+# the first few manual runs can be steered WITHOUT editing and re-pushing this file.
+# Their defaults below are the safe first-run settings.
+parameters:
+  - name: dryRun
+    displayName: 'Dry run deploy (list changes only, delete nothing)'
+    type: boolean
+    default: true
+  - name: runDeploy
+    displayName: 'Run the IIS deploy stage'
+    type: boolean
+    default: true
+  - name: runTests
+    displayName: 'Run unit tests (currently failing - see notes)'
+    type: boolean
+    default: false
+
+trigger:
+  branches:
+    include:
+      - master
+pr: none
+
+variables:
+  buildConfiguration: 'production'
+  webArtifactName: 'uptoolangular'
+
+  # --- Deployment gate -----------
+  # MUST match the branch in 'trigger' above, or the deploy stage skips silently.
+  deployBranch: 'refs/heads/master'
+
+  # --- Build agents -----------
+  # Pool is shared; each stage pins itself to one machine by Agent.Name.
+  agentPool: 'MobcopApps Main'
+  buildAgentName: 'MobcopApps Build Main'
+  iisAgentName: 'MobcopApps IIS Main'
+
+  # --- Node / Angular toolchain -----------
+  # Angular 15 supports Node 14.20+, 16.14+ and 18.10+ only. Newer LTS releases
+  # (20/22/24) will fail or emit unsupported-engine errors mid-build.
+  nodeVersion: '18.x'
+  installNode: 'true'          # 'false' = use the Node already installed on the agent
+  supportedNodeMajors: '16,18' # build fails fast if the agent's Node is outside this list
+  runTests: ${{ parameters.runTests }}   # see the test step for why this defaults off
+
+  # --- Application Solution and Project Information -----------
+  appTitle: 'Update Tool'
+  distPath: 'dist\updatetool'                              # ng build output (angular.json outputPath)
+  ngBuildArgs: ''                                          # e.g. '--base-href /QueryTool/' if index.html ever stops using <base href="./">
+  versionSourceFile: 'src\app\services\storage.service.ts' # _appVersion is read from here for the build number
+
+  # --- IIS deployment target -----------
+  iisSiteName: 'MOBCOPDEV'                            # parent IIS site (wwwroot, MOBCOPDEV, MOBCOPHIGH)
+  iisAppPool: 'update_tool'                           # shared with the API child app; cycling it briefly stops both
+  cycleAppPool: 'true'                                # 'false' = copy live (safe for static content, zero downtime)
+  iisPhysicalPath: 'C:\inetpub\MOBCOPDEV\QueryTool'   # deploy target -- MIRRORED, read protectedDirs before changing
+
+  # --- Dry run -----------
+  # ON for the first runs (see the 'dryRun' parameter above). robocopy runs in
+  # list-only mode (/L): it reports every file it WOULD copy and, critically, every
+  # file it WOULD delete, while changing nothing and leaving the app pool alone.
+  # This site has only ever been deployed by hand, so nobody knows exactly what is
+  # sitting in iisPhysicalPath. Run dry, read the delete list, then uncheck the box.
+  deployDryRun: ${{ parameters.dryRun }}
+
+  # --- Deployment protection -----------
+  # Semicolon-separated, relative to iisPhysicalPath. Excluded from BOTH the copy
+  # and the /MIR purge, so server-managed content survives every deployment.
+  #   api          -> the .NET API child application (deployed by its own pipeline)
+  #   assets\config-> config.xml / serverconfig.xml select the environment (NIPR vs
+  #                   SIPR, dev vs prod, API path, database list). The repo copies are
+  #                   development values and must never overwrite the server's.
+  protectedDirs: 'api;assets\config'
+  protectedFiles: 'web.config;Thumbs.db'
+
+stages:
+# ------------------------------------------------------------------ BUILD ----
+- stage: Build
+  displayName: 'Build & Publish'
+  jobs:
+    - job: BuildJob
+      displayName: 'Build ${{variables.appTitle}} (Angular)'
+      pool:
+        name: ${{variables.agentPool}}
+        demands:
+          - Agent.Name -equals ${{variables.buildAgentName}}
+      steps:
+        - checkout: self
+
+        # Reads _appVersion out of StorageService and uses it as the build number.
+        # That constant -- not package.json's 'version', which is stale -- is what the
+        # banner and What's New dialog show the user, so the pipeline run is labelled
+        # with the version that actually ships. Never fails the build.
+        - task: PowerShell@2
+          displayName: 'Stamp build number from app version'
+          inputs:
+            targetType: 'inline'
+            script: |
+              $file = "$(Build.SourcesDirectory)\$(versionSourceFile)"
+              if (-not (Test-Path $file)) {
+                  Write-Host "##vso[task.logissue type=warning]Version file not found: $file"
+                  return
+              }
+              $m = [regex]::Match((Get-Content $file -Raw), "_appVersion\s*=\s*'([^']+)'")
+              if (-not $m.Success) {
+                  Write-Host "##vso[task.logissue type=warning]_appVersion not found in $file"
+                  return
+              }
+              # '2.24.0822 (Doc: 1.7)' -> '2.24.0822'; parens/spaces are dropped for a clean build number.
+              $ver = $m.Groups[1].Value.Split(' ')[0]
+              Write-Host "Application version: $ver"
+              Write-Host "##vso[build.updatebuildnumber]$ver-$(Build.BuildId)"
+
+        - task: NodeTool@0
+          displayName: 'Install Node $(nodeVersion)'
+          condition: eq(variables['installNode'], 'true')
+          inputs:
+            versionSpec: '$(nodeVersion)'
+
+        # Fails immediately with a readable message rather than letting an unsupported
+        # Node version produce a confusing error part-way through 'ng build'.
+        - task: PowerShell@2
+          displayName: 'Verify toolchain'
+          inputs:
+            targetType: 'inline'
+            script: |
+              $ErrorActionPreference = 'Stop'
+              Write-Host "Agent:  $(Agent.Name)"     # confirms the Agent.Name demand pinned correctly
+              Write-Host "OS:     $env:OS"
+
+              $node = Get-Command node -ErrorAction SilentlyContinue
+              if (-not $node) {
+                  throw "Node.js is not on PATH for agent '$(Agent.Name)'. Either leave installNode='true' so the NodeTool task provides it, or install Node $(nodeVersion) on that agent and set installNode='false'."
+              }
+
+              $nodeVer = (node --version)
+              $npmVer  = (npm --version)
+              Write-Host "node $nodeVer / npm $npmVer"
+
+              $major = [int](($nodeVer.TrimStart('v')).Split('.')[0])
+              $allowed = '$(supportedNodeMajors)'.Split(',') | ForEach-Object { [int]$_.Trim() }
+              if ($allowed -notcontains $major) {
+                  throw "Node $nodeVer is not supported by this project (allowed majors: $(supportedNodeMajors)). Angular 15 requires Node 14.20+, 16.14+ or 18.10+. Set the 'nodeVersion' variable or install a supported Node on $(buildAgentName)."
+              }
+
+        # FIRST-RUN DIAGNOSTIC -- never fails the build, but turns the most likely
+        # failure ("npm ci exploded with a wall of network errors") into a one-line
+        # answer at the top of the log. There is no .npmrc in this repo, so npm will
+        # try to reach registry.npmjs.org directly.
+        - task: PowerShell@2
+          displayName: 'Check npm registry reachability (diagnostic)'
+          continueOnError: true
+          inputs:
+            targetType: 'inline'
+            workingDirectory: '$(Build.SourcesDirectory)'
+            script: |
+              $registry = (npm config get registry)
+              Write-Host "npm registry: $registry"
+              Write-Host "npm cache:    $(npm config get cache)"
+
+              npm ping --loglevel warn
+              if ($LASTEXITCODE -ne 0) {
+                  Write-Host "##vso[task.logissue type=warning]Cannot reach $registry from $(Agent.Name). 'npm ci' will fail on the next step. Fix by either (a) opening egress to the registry from this agent, or (b) creating an Azure Artifacts npm feed with an npmjs upstream, committing an .npmrc that points at it, and enabling the npmAuthenticate task below. Ask whoever set up the other Angular pipelines here which of the two this org uses."
+              } else {
+                  Write-Host "Registry reachable."
+              }
+              $global:LASTEXITCODE = 0
+
+        # Uncomment BOTH this task and a committed .npmrc when this project moves to an
+        # Azure Artifacts feed. npmAuthenticate injects the feed credentials into .npmrc
+        # at run time; without it, an authenticated feed returns 401 on every package.
+        # - task: npmAuthenticate@0
+        #   displayName: 'Authenticate to Azure Artifacts npm feed'
+        #   inputs:
+        #     workingFile: '.npmrc'
+
+        # 'npm ci' (not 'npm install') so the build uses package-lock.json exactly and
+        # never silently drifts. It fails hard if package.json and the lockfile are out
+        # of sync -- if that happens, run 'npm install' locally and commit the lockfile.
+        # (Checked 2026-08-04: they are in sync -- all 39 deps resolve, lockfileVersion 2.)
+        - task: Npm@1
+          displayName: 'npm ci'
+          inputs:
+            command: 'custom'
+            customCommand: 'ci'
+            workingDir: '$(Build.SourcesDirectory)'
+
+        # OFF by default. The repo has exactly one spec file (app.component.spec.ts) and
+        # it is the stale Angular CLI default -- it asserts a title of 'updatetool' and
+        # scaffolding markup that no longer exist, and declares AppComponent with none of
+        # its providers. It fails. Fix or delete that spec, then set runTests to 'true'.
+        - task: PowerShell@2
+          displayName: 'Run unit tests (headless Chrome)'
+          condition: and(succeeded(), eq(variables['runTests'], 'true'))
+          inputs:
+            targetType: 'inline'
+            workingDirectory: '$(Build.SourcesDirectory)'
+            script: |
+              $ErrorActionPreference = 'Stop'
+              npx ng test --watch=false --browsers=ChromeHeadless
+              if ($LASTEXITCODE -ne 0) { throw "Unit tests failed (exit $LASTEXITCODE)" }
+
+        - task: PowerShell@2
+          displayName: 'Build ${{variables.appTitle}} ($(buildConfiguration))'
+          env:
+            # Azure DevOps sets CI=true, which already suppresses the CLI's first-run
+            # analytics prompt. Set explicitly so the build cannot block on stdin if
+            # the agent is ever run outside a CI context.
+            NG_CLI_ANALYTICS: 'false'
+          inputs:
+            targetType: 'inline'
+            workingDirectory: '$(Build.SourcesDirectory)'
+            script: |
+              $ErrorActionPreference = 'Stop'
+
+              # Self-hosted agents keep their working directory between runs. Clear the
+              # previous output so a stale dist can never be mistaken for a fresh build.
+              $dist = "$(Build.SourcesDirectory)\$(distPath)"
+              if (Test-Path $dist) { Remove-Item $dist -Recurse -Force }
+
+              npx ng build --configuration $(buildConfiguration) $(ngBuildArgs)
+              if ($LASTEXITCODE -ne 0) { throw "ng build failed (exit $LASTEXITCODE)" }
+
+              # The production config sets budgets of 4mb warning / 5mb ERROR on the
+              # initial bundle. As of the last build this app was at 3.75mb, so a large
+              # new dependency can turn a working build red. Surface the number.
+              $initial = Get-ChildItem $dist -File | Where-Object { $_.Extension -in '.js', '.css' }
+              Write-Host ("Initial bundle: {0:N2} MB of a 5.00 MB hard budget" -f (($initial | Measure-Object Length -Sum).Sum / 1MB))
+
+        # An empty or malformed dist would be mirrored over the live site and wipe it.
+        # Catch it here, on the build agent, before it ever becomes an artifact.
+        - task: PowerShell@2
+          displayName: 'Verify build output'
+          inputs:
+            targetType: 'inline'
+            script: |
+              $ErrorActionPreference = 'Stop'
+              $dist = "$(Build.SourcesDirectory)\$(distPath)"
+              if (-not (Test-Path $dist))                      { throw "Build output not found: $dist" }
+              if (-not (Test-Path (Join-Path $dist 'index.html'))) { throw "index.html missing from $dist -- refusing to publish an incomplete artifact." }
+
+              $files = Get-ChildItem $dist -Recurse -File
+              Write-Host ("Build output: {0} files, {1:N2} MB" -f $files.Count, (($files | Measure-Object Length -Sum).Sum / 1MB))
+
+        - task: PublishPipelineArtifact@1
+          displayName: 'Publish web artifact'
+          inputs:
+            targetPath: '$(Build.SourcesDirectory)\$(distPath)'
+            artifact: '$(webArtifactName)'
+            publishLocation: 'pipeline'
+
+# -------------------------------------------------------------------- IIS ----
+# Omitted entirely when the 'runDeploy' parameter is unchecked, so you can prove the
+# build works on the agent (npm access, Node version, ng build) without the deploy
+# stage sitting there in the run as a skipped or failed box.
+- ${{ if eq(parameters.runDeploy, true) }}:
+  - stage: DeployIIS
+    displayName: 'Deploy to IIS'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], variables['deployBranch']))
+    jobs:
+      - job: IisDeploy
+        displayName: 'Deploy $(appTitle) to IIS'
+        pool:
+          name: ${{variables.agentPool}}
+          demands:
+            - Agent.Name -equals ${{variables.iisAgentName}}
+        steps:
+          - checkout: none
+
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download web artifact'
+            inputs:
+              artifact: '$(webArtifactName)'
+              path: '$(Pipeline.Workspace)\web'
+
+          - task: PowerShell@2
+            displayName: 'Deploy (pool cycle + mirror + seed config)'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $ErrorActionPreference = 'Stop'
+                Import-Module WebAdministration
+
+                $src  = "$(Pipeline.Workspace)\web"
+                $dest = "$(iisPhysicalPath)"
+
+                # -- 0. Safety checks -------------------------------------------------
+                # /MIR deletes everything at the destination that is not in the source,
+                # so validate both ends before letting robocopy near a live site.
+                if (-not (Test-Path (Join-Path $src 'index.html'))) {
+                    throw "Artifact at $src has no index.html -- aborting rather than mirroring an empty payload over the live site."
+                }
+                if ($dest -match '^[A-Za-z]:\\?$' -or $dest.TrimEnd('\').Split('\').Count -lt 3) {
+                    throw "Refusing to mirror into '$dest' -- the path looks too close to a drive root."
+                }
+
+                if (-not (Test-Path $dest)) {
+                    New-Item -ItemType Directory -Path $dest -Force | Out-Null
+                }
+
+                # -- 1. Build the exclusion lists -------------------------------------
+                # Each protected item is excluded at BOTH ends so robocopy neither copies
+                # over it nor purges it. Anything listed here is server-managed content.
+                $excludeDirs = @()
+                foreach ($d in '$(protectedDirs)'.Split(';')) {
+                    $d = $d.Trim()
+                    if ($d) {
+                        $excludeDirs += (Join-Path $dest $d)
+                        $excludeDirs += (Join-Path $src  $d)
+                    }
+                }
+                $excludeFiles = @()
+                foreach ($f in '$(protectedFiles)'.Split(';')) {
+                    $f = $f.Trim()
+                    if ($f) { $excludeFiles += $f }
+                }
+                # Built with string concatenation rather than "$( ... )" subexpressions:
+                # Azure rewrites $(name) macros before PowerShell ever sees the script.
+                Write-Host ("Protected directories: " + ($excludeDirs -join ', '))
+                Write-Host ("Protected files:       " + ($excludeFiles -join ', '))
+
+                # -- 2. Stop the app pool ---------------------------------------------
+                # Angular output is static, so this is not strictly required. It is on by
+                # default because the API child application shares this pool -- cycling it
+                # guarantees clients are not served a half-updated set of hashed bundles.
+                $dryRun = '$(deployDryRun)' -eq 'true'
+                if ($dryRun) {
+                    Write-Host '****************************************************************'
+                    Write-Host '*  DRY RUN -- nothing will be copied, deleted, or restarted.   *'
+                    Write-Host '*  Review the EXTRA / *EXTRA File lines below: those are the   *'
+                    Write-Host '*  items a real run would DELETE from the live site.           *'
+                    Write-Host '****************************************************************'
+                }
+
+                $cycle = ('$(cycleAppPool)' -eq 'true') -and (-not $dryRun)
+                if ($cycle) {
+                    if ((Get-WebAppPoolState -Name "$(iisAppPool)").Value -ne 'Stopped') {
+                        Write-Host "Stopping app pool $(iisAppPool)"
+                        Stop-WebAppPool -Name "$(iisAppPool)"
+                        Start-Sleep -Seconds 5
+                    }
+                }
+
+                try {
+                    # -- 3. Mirror the published content ------------------------------
+                    # /MIR purges stale hashed bundles (main.<hash>.js etc.) that a plain
+                    # copy would leave behind to accumulate forever.
+                    $rcArgs = @('/MIR', '/XD') + $excludeDirs + @('/XF') + $excludeFiles + @('/R:3', '/W:5')
+                    if ($dryRun) { $rcArgs += '/L' }   # /L = list only, make no changes
+
+                    robocopy $src $dest $rcArgs
+                    $robocopyExit = $LASTEXITCODE
+                    # robocopy uses a bitmask: 0-7 = success, 8+ = real failure.
+                    if ($robocopyExit -ge 8) { throw "robocopy failed (exit code $robocopyExit)" }
+                    Write-Host "robocopy completed (exit $robocopyExit)"
+
+                    # -- 4. Seed protected config on first deploy ----------------------
+                    # assets\config is excluded above, which also means it is never created
+                    # on a brand new target. Copy any MISSING file in only -- existing
+                    # server-tuned config.xml / serverconfig.xml are left untouched.
+                    $seedDir = Join-Path $src 'assets\config'
+                    if ($dryRun) {
+                        Write-Host "DRY RUN: skipping config seed."
+                    }
+                    elseif (Test-Path $seedDir) {
+                        $destSeedDir = Join-Path $dest 'assets\config'
+                        if (-not (Test-Path $destSeedDir)) {
+                            New-Item -ItemType Directory -Path $destSeedDir -Force | Out-Null
+                        }
+                        foreach ($f in (Get-ChildItem $seedDir -File)) {
+                            $name   = $f.Name
+                            $target = Join-Path $destSeedDir $name
+                            if (-not (Test-Path $target)) {
+                                Copy-Item $f.FullName $target
+                                Write-Host ("##vso[task.logissue type=warning]Seeded " + $name + " from the repo (development values). Review " + $target + " and set the correct environment on the server.")
+                            } else {
+                                Write-Host ("Kept existing server config: " + $name)
+                            }
+                        }
+                    }
+                }
+                finally {
+                    # -- 5. Always bring the pool back, even if the copy failed --------
+                    if ($cycle) {
+                        Write-Host "Starting app pool $(iisAppPool)"
+                        Start-WebAppPool -Name "$(iisAppPool)"
+                    }
+                }
+
+                # robocopy's success codes (1-7) are non-zero and would otherwise make the
+                # PowerShell task report failure, so normalise the exit code to 0.
+                $global:LASTEXITCODE = 0
+
+          - task: PowerShell@2
+            displayName: 'Smoke test deployed site'
+            condition: and(succeeded(), ne(variables['deployDryRun'], 'true'))
+            inputs:
+              targetType: 'inline'
+              script: |
+                $ErrorActionPreference = 'Stop'
+                $dest = "$(iisPhysicalPath)"
+
+                foreach ($required in @('index.html', 'assets\config\config.xml', 'assets\config\serverconfig.xml')) {
+                    $p = Join-Path $dest $required
+                    if (-not (Test-Path $p)) { throw "Post-deploy check failed -- missing: $p" }
+                }
+
+                # The API child application must have survived the mirror.
+                $api = Join-Path $dest 'api'
+                if (-not (Test-Path $api)) {
+                    throw "Post-deploy check failed -- the API folder at $api is gone. Verify 'api' is listed in the protectedDirs variable."
+                }
+
+                Write-Host "Deployment verified at $dest"
